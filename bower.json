@@ -2,8 +2,8 @@
     "name": "n52-sensorweb-client-core",
     "description": "The core modul with background functionality and some usefull directives.",
     "version": "0.1.0",
-    "homepage": "https://github.com/52north/angular-sensor-web-client",
-    "license": "MIT",
+    "homepage": "https://github.com/52North/sensorweb-client-core",
+    "license": "Apache2",
     "private": true,
     "ignore": [
         "www"
