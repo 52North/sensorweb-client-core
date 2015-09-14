@@ -9,6 +9,5 @@
         "www"
     ],
     "dependencies": {
-        "angular": "~1.x"
     }
 }
