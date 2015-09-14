@@ -1,4 +1,4 @@
-angular.module('alertCore', [])
+angular.module('n52.core.alert', [])
         .factory('alertService', ['$translate', function ($translate) {
 
             function error(message) {

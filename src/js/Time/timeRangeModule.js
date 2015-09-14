@@ -1,4 +1,4 @@
-angular.module('timeRangeModule', ['timeModule', 'ui.bootstrap', 'settingsModule'])
+angular.module('n52.core.timeRange', ['n52.core.time', 'ui.bootstrap', 'n52.core.settings'])
         .controller('TimeRangeCtrl', ['$scope', '$modal',
             function ($scope, $modal) {
                 $scope.temp = 'horst';

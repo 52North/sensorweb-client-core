@@ -1,4 +1,4 @@
-angular.module('styleTsModule', ['colorModule', 'timeModule', 'interfaceModule'])
+angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core.interface'])
         .factory('styleService', ['$rootScope', 'settingsService', 'colorService',
             function ($rootScope, settingsService, colorService) {
                 var defaultIntervalList = [

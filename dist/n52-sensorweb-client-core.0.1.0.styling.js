@@ -1,4 +1,4 @@
-angular.module('styleModule', ['ui.bootstrap'])
+angular.module('n52.core.style', ['ui.bootstrap'])
         .controller('ModalStyleEditorCtrl', ['$scope', 'timeseries', '$modalInstance',
             function ($scope, timeseries, $modalInstance) {
                 $scope.timeseries = timeseries;

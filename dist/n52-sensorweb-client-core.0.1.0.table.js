@@ -1,4 +1,4 @@
-angular.module('tableModule', ['timeseriesModule', 'ngTable'])
+angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
         .controller('tableController', ['$scope', '$filter', 'ngTableParams', 'timeseriesService',
             function ($scope, $filter, ngTableParams, timeseriesService) {
                 // http://ngmodules.org/modules/ng-table

@@ -1,4 +1,4 @@
-angular.module('diagramModule', ['timeseriesModule', 'timeModule', 'flotModule', 'timeSelectorButtonsModule', 'settingsModule', 'yAxisHideModule'])
+angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
         .controller('chartController', ['$scope', 'timeseriesService', 'timeService', 'diagramBehaviourService', '$log', '$rootScope', 'settingsService',
             function ($scope, timeseriesService, timeService, diagramBehaviourService, $log, $rootScope, settingsService) {
                 $log.info('start chart controller');

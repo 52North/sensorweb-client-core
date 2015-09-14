@@ -1,4 +1,4 @@
-var phenomenaModule = angular.module('phenomenaModule', ['interfaceModule', 'statusModule'])
+angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
         .controller('PhenomenonListCtrl', ['$scope', 'PhenomenonListFactory', function ($scope, PhenomenonListFactory) {
                 $scope.phenomena = PhenomenonListFactory.phenomena;
 

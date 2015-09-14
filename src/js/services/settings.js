@@ -1,4 +1,4 @@
-angular.module('settingsModule', [])
+angular.module('n52.core.settings', [])
         .service('settingsService', ['config', function (config) {
                 var settings = {
                     // For more informations about the settings options, please check: http://52north.github.io/js-sensorweb-client

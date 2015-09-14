@@ -1,4 +1,4 @@
-angular.module('timeSelectorButtonsModule', ['timeModule', 'timeRangeModule'])
+angular.module('n52.core.timeSelectorButtons', ['n52.core.time', 'n52.core.timeRange'])
         .directive('swcTimeSelectorButtons', function () {
             return {
                 restrict: 'E',

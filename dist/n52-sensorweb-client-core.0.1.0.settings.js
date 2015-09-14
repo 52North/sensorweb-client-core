@@ -1,4 +1,4 @@
-angular.module('translateModule', ['pascalprecht.translate', 'settingsModule'])
+angular.module('n52.core.translateSelector', ['pascalprecht.translate', 'n52.core.settings'])
         .directive('swcLanguageSelector', function () {
             return {
                 restrict: 'E',
@@ -15,7 +15,7 @@ angular.module('translateModule', ['pascalprecht.translate', 'settingsModule'])
         });
 
 
-angular.module('userSettingsModule', ['ui.bootstrap', 'settingsModule', 'statusModule', 'permalinkGenCore'])
+angular.module('n52.core.userSettings', ['ui.bootstrap', 'n52.core.settings', 'n52.core.status', 'n52.core.permalinkGen'])
         .controller('UserSettingsCtrl', ['$scope', '$modal',
             function ($scope, $modal) {
                 $scope.open = function () {

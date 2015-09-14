@@ -1,4 +1,4 @@
-angular.module('diagramModule', ['timeseriesModule', 'timeModule', 'flotModule', 'timeSelectorButtonsModule', 'settingsModule', 'yAxisHideModule'])
+angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
         .controller('chartController', ['$scope', 'timeseriesService', 'timeService', 'diagramBehaviourService', '$log', '$rootScope', 'settingsService',
             function ($scope, timeseriesService, timeService, diagramBehaviourService, $log, $rootScope, settingsService) {
                 $log.info('start chart controller');
@@ -136,7 +136,7 @@ angular.module('diagramModule', ['timeseriesModule', 'timeModule', 'flotModule',
                 toggleYAxis: toggleYAxis
             };
         });
-angular.module('flotModule', ['timeModule', 'barChartModule'])
+angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
         .directive('flot', ['timeService', '$window', '$log', 'flotService', '$translate', 'timeseriesService', 'styleService',
             function (timeService, $window, $log, flotService, $translate, timeseriesService, styleService) {
 
@@ -446,7 +446,7 @@ angular.module('flotModule', ['timeModule', 'barChartModule'])
                 };
             }]);
 
-angular.module('yAxisHideModule', ['timeseriesModule'])
+angular.module('n52.core.yAxisHide', ['n52.core.timeseries'])
         .directive('yAxisHideButton', ['diagramBehaviourService',
             function (diagramBehaviourService) {
                 return {

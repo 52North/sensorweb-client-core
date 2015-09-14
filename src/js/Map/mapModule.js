@@ -1,4 +1,4 @@
-angular.module('mapModule', ['leaflet-directive', 'interfaceModule', 'statusModule', 'phenomenaModule', 'providerModule', 'stationModule', 'listSelectionModule', 'locateModule'])
+angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.core.status', 'n52.core.phenomena', 'n52.core.provider', 'n52.core.station', 'n52.core.listSelection', 'n52.core.locate'])
         .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', 'stationModalOpener', '$compile',
             function ($scope, mapService, leafletData, $log, $translate, stationModalOpener, $compile) {
                 $log.info('start mapController');

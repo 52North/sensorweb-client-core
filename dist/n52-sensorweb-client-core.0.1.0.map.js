@@ -1,4 +1,4 @@
-angular.module('listSelectionModule', ['interfaceModule', 'statusModule'])
+angular.module('n52.core.listSelection', ['n52.core.interface', 'n52.core.status'])
         .controller('ListSelectionButtonCtrl', ['$scope', '$modal',
             function ($scope, $modal) {
                 $scope.openListSelection = function () {
@@ -158,13 +158,13 @@ angular.module('listSelectionModule', ['interfaceModule', 'statusModule'])
                 };
             }]);
 
-angular.module('locateModule', ['stationModule'])
+angular.module('n52.core.locate', ['n52.core.station'])
         .controller('LocateButtonCtrl', ['$scope', 'mapService', function ($scope, mapService) {
                 $scope.locateUser = function () {
                     mapService.locateUser();
                 };
             }]);
-angular.module('mapModule', ['leaflet-directive', 'interfaceModule', 'statusModule', 'phenomenaModule', 'providerModule', 'stationModule', 'listSelectionModule', 'locateModule'])
+angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.core.status', 'n52.core.phenomena', 'n52.core.provider', 'n52.core.station', 'n52.core.listSelection', 'n52.core.locate'])
         .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', 'stationModalOpener', '$compile',
             function ($scope, mapService, leafletData, $log, $translate, stationModalOpener, $compile) {
                 $log.info('start mapController');
@@ -428,7 +428,7 @@ angular.module('mapModule', ['leaflet-directive', 'interfaceModule', 'statusModu
                     showStation: showStation
                 };
             }]);
-var phenomenaModule = angular.module('phenomenaModule', ['interfaceModule', 'statusModule'])
+angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
         .controller('PhenomenonListCtrl', ['$scope', 'PhenomenonListFactory', function ($scope, PhenomenonListFactory) {
                 $scope.phenomena = PhenomenonListFactory.phenomena;
 
@@ -483,7 +483,7 @@ var phenomenaModule = angular.module('phenomenaModule', ['interfaceModule', 'sta
                     statusService.status.showPhenomena = !statusService.status.showPhenomena;
                 };
             }]);
-angular.module('providerModule', ['interfaceModule', 'statusModule'])
+angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
         .controller('ProviderButtonCtrl', ['$scope', '$modal',
             function ($scope, $modal) {
                 $scope.selectProvider = function () {
@@ -560,7 +560,7 @@ angular.module('providerModule', ['interfaceModule', 'statusModule'])
                     selectProvider: selectProvider
                 };
             }]);
-angular.module('stationModule', ['ui.bootstrap'])
+angular.module('n52.core.station', ['ui.bootstrap'])
         .controller('ModalStationCtrl', ['$scope', '$modalInstance', 'interfaceService', 'statusService', 'stationId', 'phenomenonId', 'timeseriesService', '$location',
             function ($scope, $modalInstance, interfaceService, statusService, stationId, phenomenonId, timeseriesService, $location) {
                 $scope.isAllSelected = true;

@@ -1,4 +1,4 @@
-angular.module('favoriteModule', ['timeseriesModule', 'exportTsModule', 'styleModule', 'favoriteCore', 'utilsCore', 'ui-notification'])
+angular.module('n52.core.favoriteUi', ['n52.core.timeseries', 'n52.core.exportTs', 'n52.core.style', 'n52.core.favorite', 'n52.core.utils', 'ui-notification'])
         .directive('swcFavoriteAddStar', function () {
             return {
                 restrict: 'E',

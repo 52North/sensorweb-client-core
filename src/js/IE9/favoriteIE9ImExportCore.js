@@ -1,5 +1,5 @@
-mainApp.requires.push('favoriteIE9ImExportCore');
-angular.module('favoriteIE9ImExportCore', ['LocalStorageModule'])
+mainApp.requires.push('n52.core.favoriteIE9ImExport');
+angular.module('n52.core.favoriteIE9ImExport', ['LocalStorageModule'])
         .service('imExportFavoriteModalOpener', ['$modal', function ($modal) {
             return function (data) {
                 $modal.open({

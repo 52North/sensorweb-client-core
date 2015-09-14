@@ -1,4 +1,4 @@
-angular.module('alertCore', [])
+angular.module('n52.core.alert', [])
         .factory('alertService', ['$translate', function ($translate) {
 
             function error(message) {
@@ -15,7 +15,7 @@ angular.module('alertCore', [])
                 warn: warn
             };
         }]);
-angular.module('barChartModule', [])
+angular.module('n52.core.barChart', [])
         .factory('barChartHelperService', function () {
             function intervalToHour(interval) {
                 switch (interval) {
@@ -56,7 +56,7 @@ angular.module('barChartModule', [])
                 sumForInterval: sumForInterval
             };
         });
-angular.module('colorModule', [])
+angular.module('n52.core.color', [])
         .factory('colorService', ['settingsService', function (settingsService) {
                 var defaultColorList = ['#1abc9c', '#27ae60', '#2980b9', '#8e44ad', '#2c3e50', '#f1c40f',
                     '#d35400', '#c0392b', '#7f8c8d'];
@@ -90,7 +90,7 @@ angular.module('colorModule', [])
                     colorList: colorList
                 };
             }]);
-angular.module('favoriteCore', ['LocalStorageModule'])
+angular.module('n52.core.favorite', ['LocalStorageModule'])
         .factory('favoriteService', ['localStorageService', '$translate', 'settingsService', 'interfaceService',
             function (localStorageService, $translate, settingsService, interfaceService) {
                 var storageKey = 'favorites';
@@ -276,7 +276,7 @@ angular.module('favoriteCore', ['LocalStorageModule'])
                 }
                 ;
             }]);
-angular.module('interfaceModule', ['ngResource', 'statusModule'])
+angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
         .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'styleService', 'utils',
             function ($http, $q, statusService, settingsService, styleService, utils) {
 
@@ -362,7 +362,7 @@ angular.module('interfaceModule', ['ngResource', 'statusModule'])
                     return $http.get(apiUrl + 'timeseries/' + _createIdString(id) + "/getData", _createRequestConfigs(params));
                 };
             }]);
-angular.module('permalinkGenCore', ['timeseriesModule'])
+angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
         .factory('permalinkGenerationService', ['$location', 'timeseriesService', 'timeService',
             function ($location, timeseriesService, timeService) {
                 createTimeseriesParam = function () {
@@ -399,7 +399,7 @@ angular.module('permalinkGenCore', ['timeseriesModule'])
                 };
             }]);
 
-angular.module('permalinkEvalCore', ['utilsCore'])
+angular.module('n52.core.permalinkEval', ['n52.core.utils'])
         .factory('permalinkEvaluationService', ['$location', 'utils', function ($location, utils) {
                 var parameters = $location.search();
 
@@ -447,7 +447,7 @@ angular.module('permalinkEvalCore', ['utilsCore'])
                     getTimeseries: getTimeseries
                 };
             }]);
-angular.module('settingsModule', [])
+angular.module('n52.core.settings', [])
         .service('settingsService', ['config', function (config) {
                 var settings = {
                     // For more informations about the settings options, please check: http://52north.github.io/js-sensorweb-client
@@ -657,7 +657,7 @@ angular.module('settingsModule', [])
                 angular.merge(settings, config);
                 return settings;
             }]);
-angular.module('statusModule', ['LocalStorageModule', 'settingsModule'])
+angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
         .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService', 'permalinkEvaluationService',
             function ($rootScope, localStorageService, settingsService, permalinkEvaluationService) {
                 var storageKey = 'status';
@@ -729,7 +729,7 @@ angular.module('statusModule', ['LocalStorageModule', 'settingsModule'])
                     status: scope.status
                 };
             }]);
-angular.module('styleTsModule', ['colorModule', 'timeModule', 'interfaceModule'])
+angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core.interface'])
         .factory('styleService', ['$rootScope', 'settingsService', 'colorService',
             function ($rootScope, settingsService, colorService) {
                 var defaultIntervalList = [
@@ -808,7 +808,7 @@ angular.module('styleTsModule', ['colorModule', 'timeModule', 'interfaceModule']
                     intervalList: intervalList
                 };
             }]);
-var timeModule = angular.module('timeModule', ['ngResource', 'statusModule'])
+angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
         .factory('timeService', ['$rootScope', 'statusService',
             function ($rootScope, statusService) {
                 var time = {
@@ -888,7 +888,7 @@ var timeModule = angular.module('timeModule', ['ngResource', 'statusModule'])
                     time: time
                 };
             }]);
-angular.module('timeseriesModule', ['colorModule', 'timeModule', 'interfaceModule', 'styleTsModule'])
+angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.core.interface', 'n52.core.styleTs'])
         .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService',
             function ($rootScope, interfaceService, statusService, timeService) {
                 var timeseries = {};
@@ -1007,7 +1007,7 @@ angular.module('timeseriesModule', ['colorModule', 'timeModule', 'interfaceModul
                     timeseries: timeseries
                 };
             }]);
-angular.module('translateCore', ['permalinkEvalCore'])
+angular.module('n52.core.translate', ['n52.core.permalinkEval'])
         .service('translateService', ['$translate', 'permalinkEvaluationService', function ($translate, permalinkEvaluationService) {
                 var lang = permalinkEvaluationService.getParam('lang');
                 if(angular.isString(lang)) {
@@ -1017,7 +1017,7 @@ angular.module('translateCore', ['permalinkEvalCore'])
                 return {
                 };
             }]);
-angular.module('utilsCore', ['settingsModule'])
+angular.module('n52.core.utils', ['n52.core.settings'])
         .factory('utils', ['$window', 'settingsService',
             function ($window, settingsService) {
                 function isFileAPISupported() {

@@ -1,4 +1,4 @@
-var menuModule = angular.module('menuModule', ['timeseriesModule', 'statusModule', 'diagramModule', 'tableModule', 'favoriteModule'])
+var menuModule = angular.module('n52.core.menu', ['n52.core.timeseries', 'n52.core.status', 'n52.core.diagram', 'n52.core.table', 'n52.core.favorite'])
         .controller('menu', [
             '$scope',
             'timeseriesService',

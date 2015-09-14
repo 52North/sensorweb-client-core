@@ -1,4 +1,4 @@
-angular.module('providerModule', ['interfaceModule', 'statusModule'])
+angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
         .controller('ProviderButtonCtrl', ['$scope', '$modal',
             function ($scope, $modal) {
                 $scope.selectProvider = function () {

@@ -1,4 +1,4 @@
-angular.module('timeseriesModule', ['colorModule', 'timeModule', 'interfaceModule', 'styleTsModule'])
+angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.core.interface', 'n52.core.styleTs'])
         .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService',
             function ($rootScope, interfaceService, statusService, timeService) {
                 var timeseries = {};

@@ -1,4 +1,4 @@
-angular.module('yAxisHideModule', ['timeseriesModule'])
+angular.module('n52.core.yAxisHide', ['n52.core.timeseries'])
         .directive('yAxisHideButton', ['diagramBehaviourService',
             function (diagramBehaviourService) {
                 return {

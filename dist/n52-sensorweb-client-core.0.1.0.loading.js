@@ -1,4 +1,4 @@
-angular.module('dataLoadingModule', ['timeseriesModule'])
+angular.module('n52.core.dataLoading', ['n52.core.timeseries'])
         .directive('swcDataLoading', ['timeseriesService', function (timeseriesService) {
                 return {
                     restrict: 'E',

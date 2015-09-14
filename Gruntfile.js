@@ -92,7 +92,7 @@ module.exports = function (grunt) {
         },
         uglify: {
             options: {
-                banner: '/*! <%= name %> <%= grunt.template.today("yyyy-mm-dd HH:MM") %> */\n'
+                banner: '/*! <%= name %> */\n'
             },
             services: {
                 files: {

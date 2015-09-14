@@ -1,4 +1,4 @@
-angular.module('stationModule', ['ui.bootstrap'])
+angular.module('n52.core.station', ['ui.bootstrap'])
         .controller('ModalStationCtrl', ['$scope', '$modalInstance', 'interfaceService', 'statusService', 'stationId', 'phenomenonId', 'timeseriesService', '$location',
             function ($scope, $modalInstance, interfaceService, statusService, stationId, phenomenonId, timeseriesService, $location) {
                 $scope.isAllSelected = true;

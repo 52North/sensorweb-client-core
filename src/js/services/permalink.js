@@ -1,4 +1,4 @@
-angular.module('permalinkGenCore', ['timeseriesModule'])
+angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
         .factory('permalinkGenerationService', ['$location', 'timeseriesService', 'timeService',
             function ($location, timeseriesService, timeService) {
                 createTimeseriesParam = function () {
@@ -35,7 +35,7 @@ angular.module('permalinkGenCore', ['timeseriesModule'])
                 };
             }]);
 
-angular.module('permalinkEvalCore', ['utilsCore'])
+angular.module('n52.core.permalinkEval', ['n52.core.utils'])
         .factory('permalinkEvaluationService', ['$location', 'utils', function ($location, utils) {
                 var parameters = $location.search();
 

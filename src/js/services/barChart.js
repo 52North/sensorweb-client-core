@@ -1,4 +1,4 @@
-angular.module('barChartModule', [])
+angular.module('n52.core.barChart', [])
         .factory('barChartHelperService', function () {
             function intervalToHour(interval) {
                 switch (interval) {

@@ -1,4 +1,4 @@
-angular.module('legendModule', ['timeseriesModule', 'exportTsModule', 'styleModule'])
+angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', 'n52.core.style'])
         .directive('swcLegend', function () {
             return {
                 restrict: 'E',

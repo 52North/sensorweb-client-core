@@ -1,4 +1,4 @@
-angular.module('utilsCore', ['settingsModule'])
+angular.module('n52.core.utils', ['n52.core.settings'])
         .factory('utils', ['$window', 'settingsService',
             function ($window, settingsService) {
                 function isFileAPISupported() {
