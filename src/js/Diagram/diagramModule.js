@@ -1,5 +1,5 @@
 angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
-        .controller('chartController', ['$scope', 'timeseriesService', 'timeService', 'diagramBehaviourService', '$log', '$rootScope', 'settingsService',
+        .controller('chartCtrl', ['$scope', 'timeseriesService', 'timeService', 'diagramBehaviourService', '$log', '$rootScope', 'settingsService',
             function ($scope, timeseriesService, timeService, diagramBehaviourService, $log, $rootScope, settingsService) {
                 $log.info('start chart controller');
 
@@ -18,7 +18,7 @@ angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52
                         shadowSize: 1
                     },
                     selection: {
-                        mode: "xy"
+                        mode: null
                     },
                     grid: {
                         hoverable: true,
@@ -29,7 +29,7 @@ angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52
                     },
                     xaxis: {
                         mode: "time",
-                        timezone: "browser",
+                        timezone: "browser"
 //            monthNames: _("chart.monthNames")
 //            timeformat: "%Y/%m/%d",
                         //use these the following two lines to have small ticks at the bottom ob the diagram
