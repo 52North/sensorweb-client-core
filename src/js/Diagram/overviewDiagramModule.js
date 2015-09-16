@@ -16,7 +16,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                         mode: "overview",
                         color: "#718296",
                         shape: "butt",
-                        minSize: 10
+                        minSize: 30
                     },
                     grid: {
                         hoverable: true,
@@ -140,7 +140,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
             mouseUpHandler = function (e) {
                 onMouseUp(e);
             };
-
+            
             $(document).one("mouseup", mouseUpHandler);
         }
 
@@ -158,7 +158,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
             // no more dragging
             updateSelection(e);
 
-            if (selectionIsSane())
+            if (isSelectionValid())
                 triggerSelectedEvent();
             else {
                 // this counts as a clear
@@ -170,7 +170,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
         }
 
         function getSelection() {
-            if (!selectionIsSane())
+            if (!isSelectionValid())
                 return null;
 
             if (!selection.show)
@@ -207,10 +207,12 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 
             if (selection.dragging === "left") {
                 selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                if (!isSelectionValid()) selection.start = selection.end - plot.getOptions().selection.minSize;
             }
 
             if (selection.dragging === "right") {
                 selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                if (!isSelectionValid()) selection.end = selection.start + plot.getOptions().selection.minSize;
             }
 
             if (selection.dragging === "inner") {
@@ -219,10 +221,9 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft + width);
             }
 
-            if (selectionIsSane()) {
+            if (isSelectionValid()) {
                 plot.triggerRedrawOverlay();
-            } else
-                clearSelection(true);
+            }
         }
 
         function clearSelection(preventEvent) {
@@ -280,13 +281,13 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 
             selection.show = true;
             plot.triggerRedrawOverlay();
-            if (!preventEvent && selectionIsSane())
+            if (!preventEvent && isSelectionValid())
                 triggerSelectedEvent();
         }
 
-        function selectionIsSane() {
+        function isSelectionValid() {
             var minSize = plot.getOptions().selection.minSize;
-            return Math.abs(selection.end - selection.start) >= minSize;
+            return selection.end - selection.start >= minSize;
         }
 
         plot.clearSelection = clearSelection;
@@ -301,9 +302,8 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
             }
         });
 
-
         plot.hooks.drawOverlay.push(function (plot, ctx) {
-            if (selection.show && selectionIsSane()) {
+            if (selection.show) {
                 var plotOffset = plot.getPlotOffset();
                 var o = plot.getOptions();
 
@@ -327,9 +327,6 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 selection.slider = {
                     left: left, right: right, inner: inner
                 };
-                console.info("Left: " + selection.start);
-                console.info("Right: " + selection.end);
-                console.info("Width: " + w);
                 ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
                 ctx.strokeRect(left.x, left.y, left.w, left.h);
                 ctx.strokeRect(right.x, right.y, right.w, right.h);
