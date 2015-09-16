@@ -10,7 +10,7 @@ angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
                 };
 
                 createTimeParam = function () {
-                    return "timespan=" + encodeURIComponent(timeService.getRequestTimespan());
+                    return "timespan=" + encodeURIComponent(timeService.getCurrentTimespan());
                 };
 
                 getCurrentPermalink = function () {

@@ -3,7 +3,7 @@ angular.module('n52.core.exportTs', ['n52.core.timeseries', 'n52.core.time'])
             function (timeService, $window, $translate, timeseriesService) {
 
                 function createCsvDownloadLink(tsId) {
-                    var timespan = timeService.getRequestTimespan();
+                    var timespan = timeService.getCurrentTimespan();
                     var kvp = "?generalize=" + false; // TODO generalize???
                     kvp = kvp + "&timespan=" + encodeURIComponent(timespan);
                     kvp = kvp + "&locale=" + $translate.preferredLanguage();
