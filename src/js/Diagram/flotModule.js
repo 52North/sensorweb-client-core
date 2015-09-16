@@ -9,6 +9,12 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                     timeService.setFlexibleTimeExtent(from, till);
                 }
 
+                function plotselected(evt, ranges) {
+                    var from = moment(ranges.xaxis.from);
+                    var to = moment(ranges.xaxis.to);
+                    timeService.setFlexibleTimeExtent(from, to);                                
+                }
+
                 return {
                     restrict: 'EA',
                     template: '<div></div>',
@@ -45,6 +51,8 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         $(plotArea).bind('plotpanEnd', plotPanEnd);
 
+                        $(plotArea).bind('plotselected', plotselected);
+
                         /* tooltips for mouse position */
 //                    $("<div id='tooltip'></div>").css({
 //                        position: "absolute",
@@ -72,17 +80,17 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         scope.$on('timeseriesChanged', function (evt, id) {
                             flotService.updateTimeseriesInDataSet(dataset, id);
-                            initNewPlot();
+                            initNewPlot(plotArea, dataset, scope.options);
                         });
 
                         scope.$on('allTimeseriesChanged', function (evt) {
                             flotService.updateAllTimeseriesToDataSet(dataset);
-                            initNewPlot();
+                            initNewPlot(plotArea, dataset, scope.options);
                         });
 
                         scope.$on('timeseriesDataChanged', function (evt, id) {
                             flotService.updateTimeseriesInDataSet(dataset, id);
-                            initNewPlot();
+                            initNewPlot(plotArea, dataset, scope.options);
                         });
 
 //                    updatePlot = function () {
@@ -116,13 +124,25 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 //                        }
 //                    };
 
-                        initNewPlot = function () {
+                        initNewPlot = function (plotArea, dataset, options) {
 //                            $log.info('plot chart');
                             if (dataset.length !== 0) {
-                                var plotObj = $.plot(plotArea, dataset, scope.options);
+                                var plotObj = $.plot(plotArea, dataset, options);
                                 createPlotAnnotation();
                                 createYAxis(plotObj);
+                                setSelection(plotObj, options);
                                 return plotObj; // TODO is this needed?
+                            }
+                        };
+                        
+                        setSelection = function (plot, options) {
+                            if(plot && options.selection.range) {
+                                plot.setSelection({
+                                    xaxis: {
+                                        from: options.selection.range.from,
+                                        to: options.selection.range.to
+                                    }
+                                }, true);
                             }
                         };
 
@@ -193,12 +213,14 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         onOptionsChanged = function () {
                             flotService.updateAllTimeseriesToDataSet(dataset);
-                            plot = initNewPlot();
+                            plot = initNewPlot(plotArea, dataset, scope.options);
                         };
                         scope.$watch('options', onOptionsChanged, true);
-
+                        
                         // plot new when resize
-                        angular.element($window).bind('resize', initNewPlot);
+                        angular.element($window).bind('resize', function () {
+                            initNewPlot(plotArea, dataset, scope.options);
+                        });
                     }
                 };
             }])
