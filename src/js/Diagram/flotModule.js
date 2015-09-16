@@ -1,20 +1,6 @@
 angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
         .directive('flot', ['timeService', '$window', '$log', 'flotService', '$translate', 'timeseriesService', 'styleService',
             function (timeService, $window, $log, flotService, $translate, timeseriesService, styleService) {
-
-                function plotPanEnd(evt, plot) {
-                    var xaxis = plot.getXAxes()[0];
-                    var from = moment(xaxis.min);
-                    var till = moment(xaxis.max);
-                    timeService.setFlexibleTimeExtent(from, till);
-                }
-
-                function plotselected(evt, ranges) {
-                    var from = moment(ranges.xaxis.from);
-                    var to = moment(ranges.xaxis.to);
-                    timeService.setFlexibleTimeExtent(from, to);                                
-                }
-
                 return {
                     restrict: 'EA',
                     template: '<div></div>',
@@ -24,7 +10,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         callback: '='
                     },
                     link: function (scope, element, attributes) {
-                        var height, init, onDatasetChanged, onOptionsChanged, plot, plotArea, width, _ref, _ref1, dataset;
+                        var height, onDatasetChanged, onOptionsChanged, plot, plotArea, width, _ref, _ref1, dataset;
                         plot = null;
                         width = attributes.width || '100%';
                         height = attributes.height || '100%';
@@ -48,10 +34,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             width: width,
                             height: height
                         });
-
-                        $(plotArea).bind('plotpanEnd', plotPanEnd);
-
-                        $(plotArea).bind('plotselected', plotselected);
 
                         /* tooltips for mouse position */
 //                    $("<div id='tooltip'></div>").css({
@@ -93,37 +75,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             initNewPlot(plotArea, dataset, scope.options);
                         });
 
-//                    updatePlot = function () {
-//                        $log.info('angular flot dataset changed');
-//                        if (plot) {
-//                            plot.setData(dataset);
-//                            plot.setupGrid();
-//
-//                            // deselect all axes
-//                            $.each($('.axisTarget'), function (idx, axis) {
-//                                $(axis).removeClass('selected');
-//                            });
-//
-//                            // select the axes
-//                            $.each(plot.getData(), function (index, elem) {
-//                                if (elem.selected) {
-//                                    $.each($('.axisTarget'), function () {
-//                                        if ($(this).data('axis.n') === elem.yaxis.n) {
-//                                            if (!$(this).hasClass('selected')) {
-//                                                $(this).addClass('selected');
-//                                                return false;
-//                                            }
-//                                        }
-//                                    });
-//                                }
-//                            });
-//                            return plot.draw();
-//                        } else {
-//                            $log.info('plot init');
-//                            return plot = initNewPlot();
-//                        }
-//                    };
-
                         initNewPlot = function (plotArea, dataset, options) {
 //                            $log.info('plot chart');
                             if (dataset.length !== 0) {
@@ -131,12 +82,11 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                 createPlotAnnotation();
                                 createYAxis(plotObj);
                                 setSelection(plotObj, options);
-                                return plotObj; // TODO is this needed?
                             }
                         };
-                        
+
                         setSelection = function (plot, options) {
-                            if(plot && options.selection.range) {
+                            if (plot && options.selection.range) {
                                 plot.setSelection({
                                     xaxis: {
                                         from: options.selection.range.from,
@@ -213,13 +163,28 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         onOptionsChanged = function () {
                             flotService.updateAllTimeseriesToDataSet(dataset);
-                            plot = initNewPlot(plotArea, dataset, scope.options);
+                            initNewPlot(plotArea, dataset, scope.options);
                         };
                         scope.$watch('options', onOptionsChanged, true);
-                        
+
                         // plot new when resize
                         angular.element($window).bind('resize', function () {
                             initNewPlot(plotArea, dataset, scope.options);
+                        });
+                        
+                        // plot pan ended event
+                        $(plotArea).bind('plotpanEnd', function (evt, plot) {
+                            var xaxis = plot.getXAxes()[0];
+                            var from = moment(xaxis.min);
+                            var till = moment(xaxis.max);
+                            timeService.setFlexibleTimeExtent(from, till);
+                        });
+
+                        // plot selected event
+                        $(plotArea).bind('plotselected', function (evt, ranges) {
+                            var from = moment(ranges.xaxis.from);
+                            var to = moment(ranges.xaxis.to);
+                            timeService.setFlexibleTimeExtent(from, to);
                         });
                     }
                 };
