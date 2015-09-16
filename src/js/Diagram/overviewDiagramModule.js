@@ -13,9 +13,10 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                         shadowSize: 1
                     },
                     selection: {
-                        mode: "x",
+                        mode: "overview",
                         color: "#718296",
-                        shape: "butt"
+                        shape: "butt",
+                        minSize: 10
                     },
                     grid: {
                         hoverable: true,
@@ -67,64 +68,54 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 (function ($) {
     function init(plot) {
         var selection = {
-            first: {x: -1, y: -1}, second: {x: -1, y: -1},
-            show: false,
-            active: false
+            start: -1,
+            end: -1,
+            show: false
         };
 
         var savedhandlers = {};
 
         var mouseUpHandler = null;
 
-        function isLeft(slider, mouseX) {
-            return slider.left.x < mouseX && mouseX < (slider.left.x + slider.left.w * 2);
+        function isLeft(slider, posX) {
+            return slider.left.x < posX && posX < (slider.left.x + slider.left.w * 2);
         }
 
-        function isInner(slider, mouseX) {
-            return slider.inner.x < mouseX && mouseX < (slider.inner.x + slider.inner.w);
+        function isInner(slider, posX) {
+            return slider.inner.x < posX && posX < (slider.inner.x + slider.inner.w);
         }
 
-        function isRight(slider, mouseX) {
-            return slider.right.x < mouseX && mouseX < (slider.right.x + slider.right.w * 2);
+        function isRight(slider, posX) {
+            return slider.right.x < posX && posX < (slider.right.x + slider.right.w * 2);
         }
 
-        function getOffset(slider, mouseX, type) {
-            return mouseX - slider[type].x;
+        function getOffset(slider, posX, type) {
+            return posX - slider[type].x;
         }
 
-        function determineDragging(slider, mouseX) {
-            if (isInner(slider, mouseX)) {
+        function determineDragging(slider, posX) {
+            if (isInner(slider, posX)) {
                 selection.dragging = "inner";
-                selection.offsetLeft = getOffset(slider, mouseX, "inner");
+                selection.offsetLeft = getOffset(slider, posX, "inner");
             }
-            ;
-            if (isLeft(slider, mouseX)) {
+            if (isLeft(slider, posX)) {
                 selection.dragging = "left";
-                selection.offsetLeft = getOffset(slider, mouseX, "left");
+                selection.offsetLeft = getOffset(slider, posX, "left");
             }
-            ;
-            if (isRight(slider, mouseX)) {
+            if (isRight(slider, posX)) {
                 selection.dragging = "right";
-                selection.offsetLeft = getOffset(slider, mouseX, "right");
+                selection.offsetLeft = getOffset(slider, posX, "right");
             }
-            ;
         }
 
         function onMouseMove(e) {
             if (selection.dragging) {
-                console.info(selection.dragging);
                 updateSelection(e);
             }
-//            if (selection.active) {
-//                updateSelection(e);
-//                
-//                plot.getPlaceholder().trigger("plotselecting", [ getSelection() ]);
-//            }
         }
 
         function onMouseDown(e) {
-            if (e.which !== 1)  // only accept left-click
-                return;
+            if (e.which !== 1) return;
 
             // cancel out any text selections
             document.body.focus();
@@ -142,21 +133,10 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                     return false;
                 };
             }
-            var offset = plot.getPlaceholder().offset();
-            var plotOffset = plot.getPlotOffset();
-            var mouseX = clamp(0, e.pageX - offset.left - plotOffset.left, plot.width());
-//            var mouseY = clamp(0, e.pageY - offset.top - plotOffset.top, plot.height());
-
+            var mouseX = getPositionInPlot(e.pageX);
+            
             determineDragging(selection.slider, mouseX);
 
-            // get element which is selected
-
-//            setSelectionPos(selection.first, e.pageX);
-//
-//            selection.active = true;
-
-            // this is a bit silly, but we have to use a closure to be
-            // able to whack the same handler again
             mouseUpHandler = function (e) {
                 onMouseUp(e);
             };
@@ -176,7 +156,6 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
             selection.dragging = null;
 
             // no more dragging
-            selection.active = false;
             updateSelection(e);
 
             if (selectionIsSane())
@@ -197,11 +176,11 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
             if (!selection.show)
                 return null;
 
-            var r = {}, c1 = selection.first, c2 = selection.second;
-            $.each(plot.getAxes(), function (name, axis) {
+            var r = {};
+            $.each(plot.getXAxes(), function (name, axis) {
                 if (axis.used) {
-                    var p1 = axis.c2p(c1[axis.direction]), p2 = axis.c2p(c2[axis.direction]);
-                    r[name] = {from: Math.min(p1, p2), to: Math.max(p1, p2)};
+                    var p1 = axis.c2p(selection.start), p2 = axis.c2p(selection.end);
+                    r.xaxis = {from: Math.min(p1, p2), to: Math.max(p1, p2)};
                 }
             });
             return r;
@@ -209,30 +188,17 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 
         function triggerSelectedEvent() {
             var r = getSelection();
-
             plot.getPlaceholder().trigger("plotselected", [r]);
-
-            // backwards-compat stuff, to be removed in future
-            if (r.xaxis && r.yaxis)
-                plot.getPlaceholder().trigger("selected", [{x1: r.xaxis.from, y1: r.yaxis.from, x2: r.xaxis.to, y2: r.yaxis.to}]);
         }
 
         function clamp(min, value, max) {
             return value < min ? min : (value > max ? max : value);
         }
 
-        function setSelectionPos(pos, posX) {
-            var o = plot.getOptions();
+        function getPositionInPlot(posX) {
             var offset = plot.getPlaceholder().offset();
             var plotOffset = plot.getPlotOffset();
-            pos.x = clamp(0, posX - offset.left - plotOffset.left, plot.width());
-//            pos.y = clamp(0, e.pageY - offset.top - plotOffset.top, plot.height());
-
-            if (o.selection.mode == "y")
-                pos.x = pos == selection.first ? 0 : plot.width();
-
-            if (o.selection.mode == "x")
-                pos.y = pos == selection.first ? 0 : plot.height();
+            return clamp(0, posX - offset.left - plotOffset.left, plot.width());
         }
 
         function updateSelection(pos) {
@@ -240,17 +206,17 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 return;
 
             if (selection.dragging === "left") {
-                setSelectionPos(selection.first, pos.pageX - selection.offsetLeft);
+                selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
             }
 
             if (selection.dragging === "right") {
-                setSelectionPos(selection.second, pos.pageX - selection.offsetLeft);
+                selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft);
             }
 
             if (selection.dragging === "inner") {
-                var width = selection.second.x - selection.first.x;
-                setSelectionPos(selection.first, pos.pageX - selection.offsetLeft);
-                setSelectionPos(selection.second, pos.pageX - selection.offsetLeft + width);
+                var width = selection.end - selection.start;
+                selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft + width);
             }
 
             if (selectionIsSane()) {
@@ -304,26 +270,12 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
         }
 
         function setSelection(ranges, preventEvent) {
-            var axis, range, o = plot.getOptions();
-
-            if (o.selection.mode == "y") {
-                selection.first.x = 0;
-                selection.second.x = plot.width();
-            } else {
+            var range, o = plot.getOptions();
+            
+            if (o.selection.mode == "overview") {
                 range = extractRange(ranges, "x");
-
-                selection.first.x = range.axis.p2c(range.from);
-                selection.second.x = range.axis.p2c(range.to);
-            }
-
-            if (o.selection.mode == "x") {
-                selection.first.y = 0;
-                selection.second.y = plot.height();
-            } else {
-                range = extractRange(ranges, "y");
-
-                selection.first.y = range.axis.p2c(range.from);
-                selection.second.y = range.axis.p2c(range.to);
+                selection.start = range.axis.p2c(range.from);
+                selection.end = range.axis.p2c(range.to);
             }
 
             selection.show = true;
@@ -334,8 +286,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 
         function selectionIsSane() {
             var minSize = plot.getOptions().selection.minSize;
-            return Math.abs(selection.second.x - selection.first.x) >= minSize &&
-                    Math.abs(selection.second.y - selection.first.y) >= minSize;
+            return Math.abs(selection.end - selection.start) >= minSize;
         }
 
         plot.clearSelection = clearSelection;
@@ -352,7 +303,6 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 
 
         plot.hooks.drawOverlay.push(function (plot, ctx) {
-            // draw selection
             if (selection.show && selectionIsSane()) {
                 var plotOffset = plot.getPlotOffset();
                 var o = plot.getOptions();
@@ -367,22 +317,18 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 ctx.lineJoin = o.selection.shape;
                 ctx.fillStyle = c.scale('a', 0.4).toString();
 
-//                var x = Math.min(selection.first.x, selection.second.x) + 0.5,
-//                        y = Math.min(selection.first.y, selection.second.y) + 0.5,
-//                        w = Math.abs(selection.second.x - selection.first.x) - 1,
-//                        h = Math.abs(selection.second.y - selection.first.y) - 1,
-                var x = selection.first.x;
-                var y = Math.min(selection.first.y, selection.second.y) + 0.5;
-                var w = selection.second.x - selection.first.x;
-                var h = Math.abs(selection.second.y - selection.first.y) - 1;
+                var x = selection.start;
+                var y = Math.min(0, plot.height()) + 0.5;
+                var w = selection.end - selection.start;
+                var h = Math.abs(plot.height() - 0) - 1;
                 var left = {x: x, y: y, w: 5, h: h},
                 right = {x: x + w - 5, y: y, w: 5, h: h},
                 inner = {x: x, y: y, w: w, h: h};
                 selection.slider = {
                     left: left, right: right, inner: inner
                 };
-                console.info("Left: " + selection.first.x);
-                console.info("Right: " + selection.second.x);
+                console.info("Left: " + selection.start);
+                console.info("Right: " + selection.end);
                 console.info("Width: " + w);
                 ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
                 ctx.strokeRect(left.x, left.y, left.w, left.h);
@@ -394,7 +340,6 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
         plot.hooks.shutdown.push(function (plot, eventHolder) {
             eventHolder.unbind("mousemove", onMouseMove);
             eventHolder.unbind("mousedown", onMouseDown);
-
             if (mouseUpHandler)
                 $(document).unbind("mouseup", mouseUpHandler);
         });
