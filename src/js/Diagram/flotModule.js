@@ -22,7 +22,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                 legend: {
                                     show: false
                                 }
-                            }
+                            };
                         }
 
                         plotArea = $(element.children()[0]);
@@ -85,7 +85,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         createYAxis = function (plot) {
                             // remove old labels
-                            $('.yaxisLabel').remove();
+                            $(plot.getPlaceholder()).find('.yaxisLabel').remove();
 
                             // createYAxis
                             $.each(plot.getAxes(), $.proxy(function (i, axis) {
@@ -119,7 +119,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                                 }
                                                 styleService.notifyAllTimeseriesChanged();
                                             }, this));
-                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom).appendTo('#placeholder');
+                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom).appendTo(plot.getPlaceholder());
                                     if (axis.options.tsColors) {
                                         $.each(axis.options.tsColors, function (idx, color) {
                                             $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
@@ -173,4 +173,4 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         });
                     }
                 };
-            }])
+            }]);
