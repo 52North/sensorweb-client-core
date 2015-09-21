@@ -61,6 +61,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 $rootScope.$on('timeExtentChanged', function () {
                     setTimeExtent();
                     setSelectionExtent();
+                    loadAllOverViewData();
                 });
 
                 function setTimeExtent() {
@@ -260,6 +261,14 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 var width = selection.end - selection.start;
                 selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
                 selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft + width);
+                if (selection.start <= 0) {
+                    selection.start = 0;
+                    selection.end = selection.start + width;
+                }
+                if (selection.end >= plot.width()) {
+                    selection.end = plot.width();
+                    selection.start = selection.end - width;
+                }
             }
 
             if (isSelectionValid()) {
