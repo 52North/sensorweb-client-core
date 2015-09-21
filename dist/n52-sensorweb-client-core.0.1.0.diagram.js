@@ -1,9 +1,31 @@
-angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
-        .controller('chartController', ['$scope', 'timeseriesService', 'timeService', 'diagramBehaviourService', '$log', '$rootScope', 'settingsService',
-            function ($scope, timeseriesService, timeService, diagramBehaviourService, $log, $rootScope, settingsService) {
-                $log.info('start chart controller');
+angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
+        .controller('chartCtrl', ['$scope', 'diagramBehaviourService', 'flotChartServ',
+            function ($scope, diagramBehaviourService, flotChartService) {
+                $scope.behaviour = diagramBehaviourService.behaviour;
+                $scope.options = flotChartService.options;
+                $scope.dataset = flotChartService.dataset;
 
-                var defaultOptions = {
+                $scope.$watch('behaviour', function (behaviour) {
+                    $scope.options.yaxis.show = behaviour.showYAxis;
+                }, true);
+            }])
+        .factory('diagramBehaviourService', function () {
+            var behaviour = {};
+            behaviour.showYAxis = true;
+
+            function toggleYAxis() {
+                behaviour.showYAxis = !behaviour.showYAxis;
+            }
+
+            return {
+                behaviour: behaviour,
+                toggleYAxis: toggleYAxis
+            };
+        })
+        // this factory handles flot chart conform datasets
+        .factory('flotChartServ', ['timeseriesService', 'timeService', 'settingsService', 'flotDataHelperServ', '$rootScope',
+            function (timeseriesService, timeService, settingsService, flotDataHelperServ, $rootScope) {
+                var options = {
                     series: {
                         downsample: {
                             threshold: 0
@@ -18,7 +40,7 @@ angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52
                         shadowSize: 1
                     },
                     selection: {
-                        mode: "xy"
+                        mode: null
                     },
                     grid: {
                         hoverable: true,
@@ -29,10 +51,10 @@ angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52
                     },
                     xaxis: {
                         mode: "time",
-                        timezone: "browser",
+                        timezone: "browser"
 //            monthNames: _("chart.monthNames")
 //            timeformat: "%Y/%m/%d",
-                        //use these the following two lines to have small ticks at the bottom ob the diagram
+                                //use these the following two lines to have small ticks at the bottom ob the diagram
 //            tickLength: 5,
 //            tickColor: "#000"
                     },
@@ -56,31 +78,41 @@ angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52
                         frameRate: 10
                     }
                 };
-                angular.merge(defaultOptions, settingsService.chartOptions);
-
-                $scope.timeseries = timeseriesService.timeseries;
-                $scope.behaviour = diagramBehaviourService.behaviour;
-
-                $scope.options = defaultOptions;
-
+                angular.merge(options, settingsService.chartOptions);
+                var dataset = createDataSet();
+                var renderOptions = {
+                    showRefValues: true,
+                    showSelection: true
+                };
                 setTimeExtent();
 
-                $rootScope.$on('timeExtentChanged', function (evt, id) {
+                $rootScope.$on('timeseriesChanged', function (evt, id) {
+                    createYAxis();
+                    flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, id, timeseriesService.getData(id));
+                });
+
+                $rootScope.$on('allTimeseriesChanged', function () {
+                    createYAxis();
+                    flotDataHelperServ.updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesService.getAllTimeseries());
+                });
+
+                $rootScope.$on('timeseriesDataChanged', function (evt, id) {
+                    createYAxis();
+                    flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, id, timeseriesService.getData(id));
+                });
+
+                $rootScope.$on('timeExtentChanged', function () {
                     setTimeExtent();
                 });
 
                 function setTimeExtent() {
-                    $scope.options.xaxis.min = timeService.time.start.toDate().getTime();
-                    $scope.options.xaxis.max = timeService.time.end.toDate().getTime();
+                    options.xaxis.min = timeService.time.start.toDate().getTime();
+                    options.xaxis.max = timeService.time.end.toDate().getTime();
                 }
 
-                function onTimeseriesChanged(timeseries) {
-                    $scope.options.yaxes = createYAxis(timeseries);
-                }
-
-                function createYAxis(timeseries) {
+                function createYAxis() {
                     var axesList = {};
-                    angular.forEach(timeseries, function (elem) {
+                    angular.forEach(timeseriesService.getAllTimeseries(), function (elem) {
                         if (elem.styles.groupedAxis === undefined || elem.styles.groupedAxis) {
                             if (!axesList.hasOwnProperty(elem.uom)) {
                                 axesList[elem.uom] = {
@@ -109,54 +141,134 @@ angular.module('n52.core.diagram', ['n52.core.timeseries', 'n52.core.time', 'n52
                         axes.splice(elem.id - 1, 0, {
                             uom: elem.uom,
                             tsColors: elem.tsColors,
-                            min: elem.zeroScaled ? 0 : defaultOptions.yaxis.min
+                            min: elem.zeroScaled ? 0 : options.yaxis.min
                         });
                     });
-                    return axes;
+                    options.yaxes = axes;
                 }
 
-                $scope.$watch('timeseries', onTimeseriesChanged, true);
+                function createDataSet() {
+                    var dataset = [];
+                    if (timeseriesService.getTimeseriesCount() > 0) {
+                        angular.forEach(timeseriesService.timeseries, function (elem) {
+                            flotDataHelperServ.addTimeseriesToDataSet(dataset, renderOptions, elem.id, timeseriesService.getData(elem.id));
+                        });
+                    }
+                    return dataset;
+                }
 
-                $scope.$watch('behaviour', function (behaviour) {
-                    $scope.options.yaxis.show = behaviour.showYAxis;
-                }, true);
-
-                $log.info('end chart controller');
+                return {
+                    dataset: dataset,
+                    options: options
+                };
             }])
-        .factory('diagramBehaviourService', function () {
-            var behaviour = {};
-            behaviour.showYAxis = true;
-
-            function toggleYAxis() {
-                behaviour.showYAxis = !behaviour.showYAxis;
-            }
-
-            return {
-                behaviour: behaviour,
-                toggleYAxis: toggleYAxis
-            };
-        });
-angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
-        .directive('flot', ['timeService', '$window', '$log', 'flotService', '$translate', 'timeseriesService', 'styleService',
-            function (timeService, $window, $log, flotService, $translate, timeseriesService, styleService) {
-
-                function plotPanEnd(evt, plot) {
-                    var xaxis = plot.getXAxes()[0];
-                    var from = moment(xaxis.min);
-                    var till = moment(xaxis.max);
-                    timeService.setFlexibleTimeExtent(from, till);
+        .factory('flotDataHelperServ', ['timeseriesService', 'settingsService', 'barChartHelperService',
+            function (timeseriesService, settingsService, barChartHelperService) {
+                function updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesList) {
+                    angular.forEach(timeseriesList, function (ts) {
+                        updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, timeseriesService.getData(ts.internalId));
+                    });
                 }
 
+                function updateTimeseriesInDataSet(dataset, renderOptions, id, data) {
+                    removeTimeseriesFromDataSet(dataset, id);
+                    addTimeseriesToDataSet(dataset, renderOptions, id, data);
+                }
+
+                function addTimeseriesToDataSet(dataset, renderOptions, id, data) {
+                    if (timeseriesService.isTimeseriesVisible(id)) {
+                        var ts = timeseriesService.getTimeseries(id);
+                        if (data && data.values) {
+                            var dataEntry = createEntry(ts, data, renderOptions);
+                            dataset.push(dataEntry);
+                        }
+                        // add possible ref values
+                        if (renderOptions.showRefValues) {
+                            angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
+                                if (refValue.visible) {
+                                    var data = timeseriesService.getData(id);
+                                    if (data && data.referenceValues) {
+                                        dataset.push({
+                                            id: refValue.referenceValueId,
+                                            color: refValue.color,
+                                            data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId]
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+
+                function createEntry(ts, data, renderOptions) {
+                    // general data settings
+                    var selected = ts.styles.selected && renderOptions.showSelection,
+                    dataEntry = {
+                        id: ts.internalId,
+                        color: ts.styles.color,
+                        data: data.values,
+                        selected: selected,
+                        lines: {
+                            lineWidth: selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
+                        },
+                        bars: {
+                            lineWidth: selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
+                        },
+                        yaxis: ts.styles.yaxis
+                    };
+                    // bar chart
+                    if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === "bar") {
+                        var interval = ts.renderingHints.properties.interval;
+                        dataEntry.bars = {
+                            show: true,
+                            barWidth: barChartHelperService.intervalToHour(interval) * 60 * 60 * 1000
+                        };
+                        dataEntry.lines = {
+                            show: false
+                        };
+                        dataEntry.data = barChartHelperService.sumForInterval(data.values, interval);
+                    } else {
+                        dataEntry.data = data.values;
+                    }
+                    return dataEntry;
+                }
+
+                function removeTimeseriesFromDataSet(dataset, id) {
+                    removeData(dataset, id);
+                    if (timeseriesService.getTimeseries(id)) {
+                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
+                            removeData(dataset, refValue.referenceValueId);
+                        });
+                    }
+                }
+
+                function removeData(dataset, id) {
+                    var idx;
+                    angular.forEach(dataset, function (elem, i) {
+                        if (elem.id === id)
+                            idx = i;
+                    });
+                    if (idx >= 0)
+                        dataset.splice(idx, 1);
+                }
+
+                return {
+                    updateAllTimeseriesToDataSet: updateAllTimeseriesToDataSet,
+                    updateTimeseriesInDataSet: updateTimeseriesInDataSet
+                };
+            }]);
+angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
+        .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService',
+            function (timeService, $window, $translate, timeseriesService, styleService) {
                 return {
                     restrict: 'EA',
                     template: '<div></div>',
                     scope: {
                         dataset: '=',
-                        options: '=',
-                        callback: '='
+                        options: '='
                     },
                     link: function (scope, element, attributes) {
-                        var height, init, onDatasetChanged, onOptionsChanged, plot, plotArea, width, _ref, _ref1, dataset;
+                        var height, plot, plotArea, width, _ref, _ref1;
                         plot = null;
                         width = attributes.width || '100%';
                         height = attributes.height || '100%';
@@ -164,9 +276,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             throw 'Please use a jQuery expression string with the "legend.container" option.';
                         }
 
-                        if (!dataset) {
-                            dataset = flotService.createDataSet();
-                        }
                         if (!scope.options) {
                             scope.options = {
                                 legend: {
@@ -180,8 +289,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             width: width,
                             height: height
                         });
-
-                        $(plotArea).bind('plotpanEnd', plotPanEnd);
 
                         /* tooltips for mouse position */
 //                    $("<div id='tooltip'></div>").css({
@@ -208,59 +315,26 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 //                    });
                         /* tooltip for mouse position */
 
-                        scope.$on('timeseriesChanged', function (evt, id) {
-                            flotService.updateTimeseriesInDataSet(dataset, id);
-                            initNewPlot();
-                        });
-
-                        scope.$on('allTimeseriesChanged', function (evt) {
-                            flotService.updateAllTimeseriesToDataSet(dataset);
-                            initNewPlot();
-                        });
-
-                        scope.$on('timeseriesDataChanged', function (evt, id) {
-                            flotService.updateTimeseriesInDataSet(dataset, id);
-                            initNewPlot();
-                        });
-
-//                    updatePlot = function () {
-//                        $log.info('angular flot dataset changed');
-//                        if (plot) {
-//                            plot.setData(dataset);
-//                            plot.setupGrid();
-//
-//                            // deselect all axes
-//                            $.each($('.axisTarget'), function (idx, axis) {
-//                                $(axis).removeClass('selected');
-//                            });
-//
-//                            // select the axes
-//                            $.each(plot.getData(), function (index, elem) {
-//                                if (elem.selected) {
-//                                    $.each($('.axisTarget'), function () {
-//                                        if ($(this).data('axis.n') === elem.yaxis.n) {
-//                                            if (!$(this).hasClass('selected')) {
-//                                                $(this).addClass('selected');
-//                                                return false;
-//                                            }
-//                                        }
-//                                    });
-//                                }
-//                            });
-//                            return plot.draw();
-//                        } else {
-//                            $log.info('plot init');
-//                            return plot = initNewPlot();
-//                        }
-//                    };
-
-                        initNewPlot = function () {
-//                            $log.info('plot chart');
-                            if (dataset.length !== 0) {
-                                var plotObj = $.plot(plotArea, dataset, scope.options);
+                        initNewPlot = function (plotArea, dataset, options) {
+                            if (dataset && dataset.length !== 0) {
+                                var plotObj = $.plot(plotArea, dataset, options);
                                 createPlotAnnotation();
                                 createYAxis(plotObj);
-                                return plotObj; // TODO is this needed?
+                                setSelection(plotObj, options);
+                            } else {
+                                plotArea.empty();
+                                $('.axisLabel').remove();
+                            }
+                        };
+
+                        setSelection = function (plot, options) {
+                            if (plot && options.selection.range) {
+                                plot.setSelection({
+                                    xaxis: {
+                                        from: options.selection.range.from,
+                                        to: options.selection.range.to
+                                    }
+                                }, true);
                             }
                         };
 
@@ -270,7 +344,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         createYAxis = function (plot) {
                             // remove old labels
-                            $('.yaxisLabel').remove();
+                            $(plot.getPlaceholder()).find('.yaxisLabel').remove();
 
                             // createYAxis
                             $.each(plot.getAxes(), $.proxy(function (i, axis) {
@@ -304,7 +378,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                                 }
                                                 styleService.notifyAllTimeseriesChanged();
                                             }, this));
-                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom).appendTo('#placeholder');
+                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom).appendTo(plot.getPlaceholder());
                                     if (axis.options.tsColors) {
                                         $.each(axis.options.tsColors, function (idx, color) {
                                             $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
@@ -329,123 +403,445 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             });
                         };
 
-                        onOptionsChanged = function () {
-                            flotService.updateAllTimeseriesToDataSet(dataset);
-                            plot = initNewPlot();
-                        };
-                        scope.$watch('options', onOptionsChanged, true);
+                        scope.$watch('options', function () {
+                            initNewPlot(plotArea, scope.dataset, scope.options);
+                        }, true);
+
+                        scope.$watch('dataset', function (bla, blub) {
+                            initNewPlot(plotArea, scope.dataset, scope.options);
+                        }, true);
 
                         // plot new when resize
-                        angular.element($window).bind('resize', initNewPlot);
+                        angular.element($window).bind('resize', function () {
+                            initNewPlot(plotArea, scope.dataset, scope.options);
+                        });
+
+                        // plot pan ended event
+                        $(plotArea).bind('plotpanEnd', function (evt, plot) {
+                            var xaxis = plot.getXAxes()[0];
+                            var from = moment(xaxis.min);
+                            var till = moment(xaxis.max);
+                            timeService.setFlexibleTimeExtent(from, till);
+                        });
+
+                        // plot selected event
+                        $(plotArea).bind('plotselected', function (evt, ranges) {
+                            var from = moment(ranges.xaxis.from);
+                            var to = moment(ranges.xaxis.to);
+                            timeService.setFlexibleTimeExtent(from, to);
+                        });
                     }
                 };
+            }]);
+angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
+        .controller('overviewChartCtrl', ['$scope', 'flotOverviewChartServ',
+            function ($scope, flotOverviewChartServ) {
+                $scope.options = flotOverviewChartServ.options;
+                $scope.dataset = flotOverviewChartServ.dataset;
             }])
-        .factory('flotService', ['timeseriesService', 'settingsService', 'barChartHelperService',
-            function (timeseriesService, settingsService, barChartHelperService) {
-
-                updateAllTimeseriesToDataSet = function (dataset) {
-                    angular.forEach(timeseriesService.getAllTimeseries(), function (ts) {
-                        updateTimeseriesInDataSet(dataset, ts.internalId);
-                    });
-                };
-
-                updateTimeseriesInDataSet = function (dataset, id) {
-                    removeTimeseriesFromDataSet(dataset, id);
-                    addTimeseriesToDataSet(dataset, id);
-                };
-
-                addTimeseriesToDataSet = function (dataset, id) {
-                    if (timeseriesService.isTimeseriesVisible(id)) {
-                        var data = timeseriesService.getData(id);
-                        var ts = timeseriesService.getTimeseries(id);
-                        if (data && data.values) {
-                            var dataEntry = createEntry(ts, data);
-                            dataset.push(dataEntry);
-                        }
-                        // add possible ref values
-                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
-                            if (refValue.visible) {
-                                var data = timeseriesService.getData(id);
-                                if (data && data.referenceValues) {
-                                    dataset.push({
-                                        id: refValue.referenceValueId,
-                                        color: refValue.color,
-                                        data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId]
-                                    });
-                                }
-                            }
-                        });
-                    }
-                };
-
-                createEntry = function (ts, data) {
-                    // general data settings
-                    var dataEntry = {
-                        id: ts.internalId,
-                        color: ts.styles.color,
-                        data: data.values,
-                        selected: ts.styles.selected,
+        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'utils', 'flotDataHelperServ',
+            function (timeseriesService, timeService, $rootScope, interfaceService, utils, flotDataHelperServ) {
+                var options = {
+                    series: {
+                        downsample: {
+                            threshold: 0
+                        },
                         lines: {
-                            lineWidth: ts.styles.selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
-                        },
-                        bars: {
-                            lineWidth: ts.styles.selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
-                        },
-                        yaxis: ts.styles.yaxis
-                    };
-                    // bar chart
-                    if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === "bar") {
-                        var interval = ts.renderingHints.properties.interval;
-                        dataEntry.bars = {
                             show: true,
-                            barWidth: barChartHelperService.intervalToHour(interval) * 60 * 60 * 1000
-                        };
-                        dataEntry.lines = {
-                            show: false
-                        };
-                        dataEntry.data = barChartHelperService.sumForInterval(data.values, interval);
-                    } else {
-                        dataEntry.data = data.values;
-                    }
-                    return dataEntry;
-                };
-
-                createDataSet = function () {
-                    var dataset = [];
-                    if (timeseriesService.getTimeseriesCount() > 0) {
-                        angular.forEach(timeseriesService.timeseries, function (elem) {
-                            addTimeseriesToDataSet(dataset, elem.id);
-                        });
-                    }
-                    return dataset;
-                };
-
-                removeTimeseriesFromDataSet = function (dataset, id) {
-                    removeData(dataset, id);
-                    if (timeseriesService.getTimeseries(id)) {
-                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
-                            removeData(dataset, refValue.referenceValueId);
-                        });
+                            fill: false
+                        },
+                        shadowSize: 1
+                    },
+                    selection: {
+                        mode: "overview",
+                        color: "#718296",
+                        shape: "butt",
+                        minSize: 30
+                    },
+                    grid: {
+                        hoverable: true,
+                        autoHighlight: false
+                    },
+                    xaxis: {
+                        mode: "time",
+                        timezone: "browser"
+                    },
+                    yaxis: {
+                        show: false
+                    },
+                    legend: {
+                        show: false
                     }
                 };
+                var dataset = [];
+                var renderOptions={
+                    showRefValues: false,
+                    showSelection: false
+                };
+                setTimeExtent();
+                setSelectionExtent();
 
-                removeData = function (dataset, id) {
-                    var idx;
-                    angular.forEach(dataset, function (elem, i) {
-                        if (elem.id === id)
-                            idx = i;
+                $rootScope.$on('timeseriesChanged', function (evt, id) {
+                    loadOverViewData(id);
+                });
+
+                $rootScope.$on('allTimeseriesChanged', function () {
+                    loadAllOverViewData();
+                });
+
+                $rootScope.$on('timeseriesDataChanged', function (evt, id) {
+                    loadOverViewData(id);
+                });
+
+                $rootScope.$on('timeExtentChanged', function () {
+                    setTimeExtent();
+                    setSelectionExtent();
+                    loadAllOverViewData();
+                });
+
+                function setTimeExtent() {
+                    var time = timeService.time;
+                    var durationBuffer = moment.duration(time.duration).add(time.duration);
+                    var start = moment(time.start).subtract(durationBuffer);
+                    var end = moment(time.end).add(durationBuffer);
+                    options.xaxis.min = start.toDate().getTime();
+                    options.xaxis.max = end.toDate().getTime();
+                }
+
+                function setSelectionExtent() {
+                    options.selection.range = {
+                        from: timeService.time.start.toDate().getTime(),
+                        to: timeService.time.end.toDate().getTime()
+                    };
+                }
+                
+                function loadAllOverViewData() {
+                    angular.forEach(timeseriesService.timeseries, function (ts) {
+                        loadOverViewData(ts.internalId);
                     });
-                    if (idx >= 0)
-                        dataset.splice(idx, 1);
-                };
+                }
+
+                function loadOverViewData(tsId) {
+                    var ts = timeseriesService.getTimeseries(tsId);
+                    if (ts) {
+                        var start = options.xaxis.min, end = options.xaxis.max;
+                        interfaceService.getTsData(ts.id, ts.apiUrl, utils.createRequestTimespan(start, end)).success(function (data) {
+                            flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
+                        });
+                    } else {
+                        flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, tsId);
+                    }
+                }
 
                 return {
-                    updateTimeseriesInDataSet: updateTimeseriesInDataSet,
-                    updateAllTimeseriesToDataSet: updateAllTimeseriesToDataSet,
-                    createDataSet: createDataSet
+                    dataset: dataset,
+                    options: options
                 };
             }]);
 
+(function ($) {
+    function init(plot) {
+        var selection = {
+            start: -1,
+            end: -1,
+            show: false
+        };
+
+        var savedhandlers = {};
+
+        var mouseUpHandler = null;
+
+        function isLeft(slider, posX) {
+            return slider.left.x < posX && posX < (slider.left.x + slider.left.w * 2);
+        }
+
+        function isInner(slider, posX) {
+            return slider.inner.x < posX && posX < (slider.inner.x + slider.inner.w);
+        }
+
+        function isRight(slider, posX) {
+            return slider.right.x < posX && posX < (slider.right.x + slider.right.w * 2);
+        }
+
+        function getOffset(slider, posX, type) {
+            return posX - slider[type].x;
+        }
+
+        function determineDragging(slider, posX) {
+            if (isInner(slider, posX)) {
+                selection.dragging = "inner";
+                selection.offsetLeft = getOffset(slider, posX, "inner");
+            }
+            if (isLeft(slider, posX)) {
+                selection.dragging = "left";
+                selection.offsetLeft = getOffset(slider, posX, "left");
+            }
+            if (isRight(slider, posX)) {
+                selection.dragging = "right";
+                selection.offsetLeft = getOffset(slider, posX, "right");
+            }
+        }
+
+        function onMouseMove(e) {
+            if (selection.dragging) {
+                updateSelection(e);
+            }
+        }
+
+        function onMouseDown(e) {
+            if (e.which !== 1)
+                return;
+
+            // cancel out any text selections
+            document.body.focus();
+
+            // prevent text selection and drag in old-school browsers
+            if (document.onselectstart !== undefined && savedhandlers.onselectstart === null) {
+                savedhandlers.onselectstart = document.onselectstart;
+                document.onselectstart = function () {
+                    return false;
+                };
+            }
+            if (document.ondrag !== undefined && savedhandlers.ondrag === null) {
+                savedhandlers.ondrag = document.ondrag;
+                document.ondrag = function () {
+                    return false;
+                };
+            }
+            var mouseX = getPositionInPlot(e.pageX);
+
+            determineDragging(selection.slider, mouseX);
+
+            mouseUpHandler = function (e) {
+                onMouseUp(e);
+            };
+
+            $(document).one("mouseup", mouseUpHandler);
+        }
+
+        function onMouseUp(e) {
+            mouseUpHandler = null;
+
+            // revert drag stuff for old-school browsers
+            if (document.onselectstart !== undefined)
+                document.onselectstart = savedhandlers.onselectstart;
+            if (document.ondrag !== undefined)
+                document.ondrag = savedhandlers.ondrag;
+
+            selection.dragging = null;
+
+            // no more dragging
+            updateSelection(e);
+
+            if (isSelectionValid())
+                triggerSelectedEvent();
+            else {
+                // this counts as a clear
+                plot.getPlaceholder().trigger("plotunselected", []);
+                plot.getPlaceholder().trigger("plotselecting", [null]);
+            }
+
+            return false;
+        }
+
+        function getSelection() {
+            if (!isSelectionValid())
+                return null;
+
+            if (!selection.show)
+                return null;
+
+            var r = {};
+            $.each(plot.getXAxes(), function (name, axis) {
+                if (axis.used) {
+                    var p1 = axis.c2p(selection.start), p2 = axis.c2p(selection.end);
+                    r.xaxis = {from: Math.min(p1, p2), to: Math.max(p1, p2)};
+                }
+            });
+            return r;
+        }
+
+        function triggerSelectedEvent() {
+            var r = getSelection();
+            plot.getPlaceholder().trigger("plotselected", [r]);
+        }
+
+        function clamp(min, value, max) {
+            return value < min ? min : (value > max ? max : value);
+        }
+
+        function getPositionInPlot(posX) {
+            var offset = plot.getPlaceholder().offset();
+            var plotOffset = plot.getPlotOffset();
+            return clamp(0, posX - offset.left - plotOffset.left, plot.width());
+        }
+
+        function updateSelection(pos) {
+            if (pos.pageX === null)
+                return;
+
+            if (selection.dragging === "left") {
+                selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                if (!isSelectionValid())
+                    selection.start = selection.end - plot.getOptions().selection.minSize;
+            }
+
+            if (selection.dragging === "right") {
+                selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                if (!isSelectionValid())
+                    selection.end = selection.start + plot.getOptions().selection.minSize;
+            }
+
+            if (selection.dragging === "inner") {
+                var width = selection.end - selection.start;
+                selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft + width);
+                if (selection.start <= 0) {
+                    selection.start = 0;
+                    selection.end = selection.start + width;
+                }
+                if (selection.end >= plot.width()) {
+                    selection.end = plot.width();
+                    selection.start = selection.end - width;
+                }
+            }
+
+            if (isSelectionValid()) {
+                plot.triggerRedrawOverlay();
+            }
+        }
+
+        function clearSelection(preventEvent) {
+            if (selection.show) {
+                selection.show = false;
+                plot.triggerRedrawOverlay();
+                if (!preventEvent)
+                    plot.getPlaceholder().trigger("plotunselected", []);
+            }
+        }
+
+        // function taken from markings support in Flot
+        function extractRange(ranges, coord) {
+            var axis, from, to, key, axes = plot.getAxes();
+
+            for (var k in axes) {
+                axis = axes[k];
+                if (axis.direction == coord) {
+                    key = coord + axis.n + "axis";
+                    if (!ranges[key] && axis.n == 1)
+                        key = coord + "axis"; // support x1axis as xaxis
+                    if (ranges[key]) {
+                        from = ranges[key].from;
+                        to = ranges[key].to;
+                        break;
+                    }
+                }
+            }
+
+            // backwards-compat stuff - to be removed in future
+            if (!ranges[key]) {
+                axis = coord == "x" ? plot.getXAxes()[0] : plot.getYAxes()[0];
+                from = ranges[coord + "1"];
+                to = ranges[coord + "2"];
+            }
+
+            // auto-reverse as an added bonus
+            if (from !== null && to !== null && from > to) {
+                var tmp = from;
+                from = to;
+                to = tmp;
+            }
+
+            return {from: from, to: to, axis: axis};
+        }
+
+        function setSelection(ranges, preventEvent) {
+            var range, o = plot.getOptions();
+
+            if (o.selection.mode == "overview") {
+                range = extractRange(ranges, "x");
+                selection.start = range.axis.p2c(range.from);
+                selection.end = range.axis.p2c(range.to);
+            }
+
+            selection.show = true;
+            plot.triggerRedrawOverlay();
+            if (!preventEvent && isSelectionValid())
+                triggerSelectedEvent();
+        }
+
+        function isSelectionValid() {
+            var minSize = plot.getOptions().selection.minSize;
+            return selection.end - selection.start >= minSize;
+        }
+
+        plot.clearSelection = clearSelection;
+        plot.setSelection = setSelection;
+        plot.getSelection = getSelection;
+
+        plot.hooks.bindEvents.push(function (plot, eventHolder) {
+            var o = plot.getOptions();
+            if (o.selection.mode !== null) {
+                eventHolder.mousemove(onMouseMove);
+                eventHolder.mousedown(onMouseDown);
+            }
+        });
+
+        plot.hooks.drawOverlay.push(function (plot, ctx) {
+            if (selection.show) {
+                var plotOffset = plot.getPlotOffset();
+                var o = plot.getOptions();
+
+                ctx.save();
+                ctx.translate(plotOffset.left, plotOffset.top);
+
+                var c = $.color.parse(o.selection.color);
+
+                ctx.strokeStyle = c.scale('a', 0.8).toString();
+                ctx.lineWidth = 6;
+                ctx.lineJoin = o.selection.shape;
+                ctx.fillStyle = c.scale('a', 0.4).toString();
+
+                var x = selection.start;
+                var y = Math.min(0, plot.height()) + 0.5;
+                var w = selection.end - selection.start;
+                var h = Math.abs(plot.height() - 0) - 1;
+                var left = {x: x, y: y, w: 5, h: h},
+                right = {x: x + w - 5, y: y, w: 5, h: h},
+                inner = {x: x, y: y, w: w, h: h};
+                selection.slider = {
+                    left: left, right: right, inner: inner
+                };
+                ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+                ctx.strokeRect(left.x, left.y, left.w, left.h);
+                ctx.strokeRect(right.x, right.y, right.w, right.h);
+                ctx.restore();
+            }
+        });
+
+        plot.hooks.shutdown.push(function (plot, eventHolder) {
+            eventHolder.unbind("mousemove", onMouseMove);
+            eventHolder.unbind("mousedown", onMouseDown);
+            if (mouseUpHandler)
+                $(document).unbind("mouseup", mouseUpHandler);
+        });
+
+    }
+
+    $.plot.plugins.push({
+        init: init,
+        options: {
+            selection: {
+                mode: null, // one of null, "x", "y" or "xy"
+                color: "#e8cfac",
+                shape: "round", // one of "round", "miter", or "bevel"
+                minSize: 5 // minimum number of pixels
+            }
+        },
+        name: 'selection',
+        version: '1.1'
+    });
+})(jQuery);
 angular.module('n52.core.yAxisHide', ['n52.core.timeseries'])
         .directive('yAxisHideButton', ['diagramBehaviourService',
             function (diagramBehaviourService) {
