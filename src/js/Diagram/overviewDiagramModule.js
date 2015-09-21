@@ -42,7 +42,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 var renderOptions={
                     showRefValues: false,
                     showSelection: false
-                }
+                };
                 setTimeExtent();
                 setSelectionExtent();
 
@@ -161,13 +161,13 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
             document.body.focus();
 
             // prevent text selection and drag in old-school browsers
-            if (document.onselectstart !== undefined && savedhandlers.onselectstart == null) {
+            if (document.onselectstart !== undefined && savedhandlers.onselectstart === null) {
                 savedhandlers.onselectstart = document.onselectstart;
                 document.onselectstart = function () {
                     return false;
                 };
             }
-            if (document.ondrag !== undefined && savedhandlers.ondrag == null) {
+            if (document.ondrag !== undefined && savedhandlers.ondrag === null) {
                 savedhandlers.ondrag = document.ondrag;
                 document.ondrag = function () {
                     return false;
@@ -242,7 +242,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
         }
 
         function updateSelection(pos) {
-            if (pos.pageX == null)
+            if (pos.pageX === null)
                 return;
 
             if (selection.dragging === "left") {
@@ -311,7 +311,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
             }
 
             // auto-reverse as an added bonus
-            if (from != null && to != null && from > to) {
+            if (from !== null && to !== null && from > to) {
                 var tmp = from;
                 from = to;
                 to = tmp;
@@ -346,7 +346,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 
         plot.hooks.bindEvents.push(function (plot, eventHolder) {
             var o = plot.getOptions();
-            if (o.selection.mode != null) {
+            if (o.selection.mode !== null) {
                 eventHolder.mousemove(onMouseMove);
                 eventHolder.mousedown(onMouseDown);
             }

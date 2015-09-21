@@ -83,7 +83,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 var renderOptions = {
                     showRefValues: true,
                     showSelection: true
-                }
+                };
                 setTimeExtent();
 
                 $rootScope.$on('timeseriesChanged', function (evt, id) {
