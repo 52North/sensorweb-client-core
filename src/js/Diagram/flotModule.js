@@ -1,24 +1,15 @@
 angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
-        .directive('flot', ['timeService', '$window', '$log', 'flotService', '$translate', 'timeseriesService', 'styleService',
-            function (timeService, $window, $log, flotService, $translate, timeseriesService, styleService) {
-
-                function plotPanEnd(evt, plot) {
-                    var xaxis = plot.getXAxes()[0];
-                    var from = moment(xaxis.min);
-                    var till = moment(xaxis.max);
-                    timeService.setFlexibleTimeExtent(from, till);
-                }
-
+        .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService',
+            function (timeService, $window, $translate, timeseriesService, styleService) {
                 return {
                     restrict: 'EA',
                     template: '<div></div>',
                     scope: {
                         dataset: '=',
-                        options: '=',
-                        callback: '='
+                        options: '='
                     },
                     link: function (scope, element, attributes) {
-                        var height, init, onDatasetChanged, onOptionsChanged, plot, plotArea, width, _ref, _ref1, dataset;
+                        var height, plot, plotArea, width, _ref, _ref1;
                         plot = null;
                         width = attributes.width || '100%';
                         height = attributes.height || '100%';
@@ -26,9 +17,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             throw 'Please use a jQuery expression string with the "legend.container" option.';
                         }
 
-                        if (!dataset) {
-                            dataset = flotService.createDataSet();
-                        }
                         if (!scope.options) {
                             scope.options = {
                                 legend: {
@@ -42,8 +30,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             width: width,
                             height: height
                         });
-
-                        $(plotArea).bind('plotpanEnd', plotPanEnd);
 
                         /* tooltips for mouse position */
 //                    $("<div id='tooltip'></div>").css({
@@ -70,59 +56,26 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 //                    });
                         /* tooltip for mouse position */
 
-                        scope.$on('timeseriesChanged', function (evt, id) {
-                            flotService.updateTimeseriesInDataSet(dataset, id);
-                            initNewPlot();
-                        });
-
-                        scope.$on('allTimeseriesChanged', function (evt) {
-                            flotService.updateAllTimeseriesToDataSet(dataset);
-                            initNewPlot();
-                        });
-
-                        scope.$on('timeseriesDataChanged', function (evt, id) {
-                            flotService.updateTimeseriesInDataSet(dataset, id);
-                            initNewPlot();
-                        });
-
-//                    updatePlot = function () {
-//                        $log.info('angular flot dataset changed');
-//                        if (plot) {
-//                            plot.setData(dataset);
-//                            plot.setupGrid();
-//
-//                            // deselect all axes
-//                            $.each($('.axisTarget'), function (idx, axis) {
-//                                $(axis).removeClass('selected');
-//                            });
-//
-//                            // select the axes
-//                            $.each(plot.getData(), function (index, elem) {
-//                                if (elem.selected) {
-//                                    $.each($('.axisTarget'), function () {
-//                                        if ($(this).data('axis.n') === elem.yaxis.n) {
-//                                            if (!$(this).hasClass('selected')) {
-//                                                $(this).addClass('selected');
-//                                                return false;
-//                                            }
-//                                        }
-//                                    });
-//                                }
-//                            });
-//                            return plot.draw();
-//                        } else {
-//                            $log.info('plot init');
-//                            return plot = initNewPlot();
-//                        }
-//                    };
-
-                        initNewPlot = function () {
-//                            $log.info('plot chart');
-                            if (dataset.length !== 0) {
-                                var plotObj = $.plot(plotArea, dataset, scope.options);
+                        initNewPlot = function (plotArea, dataset, options) {
+                            if (dataset && dataset.length !== 0) {
+                                var plotObj = $.plot(plotArea, dataset, options);
                                 createPlotAnnotation();
                                 createYAxis(plotObj);
-                                return plotObj; // TODO is this needed?
+                                setSelection(plotObj, options);
+                            } else {
+                                plotArea.empty();
+                                $('.axisLabel').remove();
+                            }
+                        };
+
+                        setSelection = function (plot, options) {
+                            if (plot && options.selection.range) {
+                                plot.setSelection({
+                                    xaxis: {
+                                        from: options.selection.range.from,
+                                        to: options.selection.range.to
+                                    }
+                                }, true);
                             }
                         };
 
@@ -132,7 +85,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         createYAxis = function (plot) {
                             // remove old labels
-                            $('.yaxisLabel').remove();
+                            $(plot.getPlaceholder()).find('.yaxisLabel').remove();
 
                             // createYAxis
                             $.each(plot.getAxes(), $.proxy(function (i, axis) {
@@ -166,7 +119,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                                 }
                                                 styleService.notifyAllTimeseriesChanged();
                                             }, this));
-                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom).appendTo('#placeholder');
+                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom).appendTo(plot.getPlaceholder());
                                     if (axis.options.tsColors) {
                                         $.each(axis.options.tsColors, function (idx, color) {
                                             $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
@@ -191,119 +144,33 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             });
                         };
 
-                        onOptionsChanged = function () {
-                            flotService.updateAllTimeseriesToDataSet(dataset);
-                            plot = initNewPlot();
-                        };
-                        scope.$watch('options', onOptionsChanged, true);
+                        scope.$watch('options', function () {
+                            initNewPlot(plotArea, scope.dataset, scope.options);
+                        }, true);
+
+                        scope.$watch('dataset', function (bla, blub) {
+                            initNewPlot(plotArea, scope.dataset, scope.options);
+                        }, true);
 
                         // plot new when resize
-                        angular.element($window).bind('resize', initNewPlot);
-                    }
-                };
-            }])
-        .factory('flotService', ['timeseriesService', 'settingsService', 'barChartHelperService',
-            function (timeseriesService, settingsService, barChartHelperService) {
+                        angular.element($window).bind('resize', function () {
+                            initNewPlot(plotArea, scope.dataset, scope.options);
+                        });
 
-                updateAllTimeseriesToDataSet = function (dataset) {
-                    angular.forEach(timeseriesService.getAllTimeseries(), function (ts) {
-                        updateTimeseriesInDataSet(dataset, ts.internalId);
-                    });
-                };
+                        // plot pan ended event
+                        $(plotArea).bind('plotpanEnd', function (evt, plot) {
+                            var xaxis = plot.getXAxes()[0];
+                            var from = moment(xaxis.min);
+                            var till = moment(xaxis.max);
+                            timeService.setFlexibleTimeExtent(from, till);
+                        });
 
-                updateTimeseriesInDataSet = function (dataset, id) {
-                    removeTimeseriesFromDataSet(dataset, id);
-                    addTimeseriesToDataSet(dataset, id);
-                };
-
-                addTimeseriesToDataSet = function (dataset, id) {
-                    if (timeseriesService.isTimeseriesVisible(id)) {
-                        var data = timeseriesService.getData(id);
-                        var ts = timeseriesService.getTimeseries(id);
-                        if (data && data.values) {
-                            var dataEntry = createEntry(ts, data);
-                            dataset.push(dataEntry);
-                        }
-                        // add possible ref values
-                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
-                            if (refValue.visible) {
-                                var data = timeseriesService.getData(id);
-                                if (data && data.referenceValues) {
-                                    dataset.push({
-                                        id: refValue.referenceValueId,
-                                        color: refValue.color,
-                                        data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId]
-                                    });
-                                }
-                            }
+                        // plot selected event
+                        $(plotArea).bind('plotselected', function (evt, ranges) {
+                            var from = moment(ranges.xaxis.from);
+                            var to = moment(ranges.xaxis.to);
+                            timeService.setFlexibleTimeExtent(from, to);
                         });
                     }
-                };
-
-                createEntry = function (ts, data) {
-                    // general data settings
-                    var dataEntry = {
-                        id: ts.internalId,
-                        color: ts.styles.color,
-                        data: data.values,
-                        selected: ts.styles.selected,
-                        lines: {
-                            lineWidth: ts.styles.selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
-                        },
-                        bars: {
-                            lineWidth: ts.styles.selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
-                        },
-                        yaxis: ts.styles.yaxis
-                    };
-                    // bar chart
-                    if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === "bar") {
-                        var interval = ts.renderingHints.properties.interval;
-                        dataEntry.bars = {
-                            show: true,
-                            barWidth: barChartHelperService.intervalToHour(interval) * 60 * 60 * 1000
-                        };
-                        dataEntry.lines = {
-                            show: false
-                        };
-                        dataEntry.data = barChartHelperService.sumForInterval(data.values, interval);
-                    } else {
-                        dataEntry.data = data.values;
-                    }
-                    return dataEntry;
-                };
-
-                createDataSet = function () {
-                    var dataset = [];
-                    if (timeseriesService.getTimeseriesCount() > 0) {
-                        angular.forEach(timeseriesService.timeseries, function (elem) {
-                            addTimeseriesToDataSet(dataset, elem.id);
-                        });
-                    }
-                    return dataset;
-                };
-
-                removeTimeseriesFromDataSet = function (dataset, id) {
-                    removeData(dataset, id);
-                    if (timeseriesService.getTimeseries(id)) {
-                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
-                            removeData(dataset, refValue.referenceValueId);
-                        });
-                    }
-                };
-
-                removeData = function (dataset, id) {
-                    var idx;
-                    angular.forEach(dataset, function (elem, i) {
-                        if (elem.id === id)
-                            idx = i;
-                    });
-                    if (idx >= 0)
-                        dataset.splice(idx, 1);
-                };
-
-                return {
-                    updateTimeseriesInDataSet: updateTimeseriesInDataSet,
-                    updateAllTimeseriesToDataSet: updateAllTimeseriesToDataSet,
-                    createDataSet: createDataSet
                 };
             }]);

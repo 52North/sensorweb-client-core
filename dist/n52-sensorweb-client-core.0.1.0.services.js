@@ -374,7 +374,7 @@ angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
                 };
 
                 createTimeParam = function () {
-                    return "timespan=" + encodeURIComponent(timeService.getRequestTimespan());
+                    return "timespan=" + encodeURIComponent(timeService.getCurrentTimespan());
                 };
 
                 getCurrentPermalink = function () {
@@ -809,16 +809,16 @@ angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core
                 };
             }]);
 angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
-        .factory('timeService', ['$rootScope', 'statusService',
-            function ($rootScope, statusService) {
+        .factory('timeService', ['$rootScope', 'statusService', 'utils', 
+            function ($rootScope, statusService, utils) {
                 var time = {
                     duration: moment.duration(statusService.status.timespan.duration),
                     start: moment(statusService.status.timespan.start),
                     end: moment(statusService.status.timespan.end)
                 };
 
-                function getRequestTimespan() {
-                    return moment(time.start).format() + "/" + moment(time.end).format();
+                function getCurrentTimespan() {
+                    return utils.createRequestTimespan(time.start, time.end);
                 }
 
                 function setFlexibleTimeExtent(start, end) {
@@ -878,7 +878,7 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                 }
 
                 return {
-                    getRequestTimespan: getRequestTimespan,
+                    getCurrentTimespan: getCurrentTimespan,
                     jumpToLastTimeStamp: jumpToLastTimeStamp,
                     jumpToFirstTimeStamp: jumpToFirstTimeStamp,
                     setFlexibleTimeExtent: setFlexibleTimeExtent,
@@ -918,7 +918,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
 
                 function _loadTsData(ts) {
                     ts.loadingData = true;
-                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getRequestTimespan()).success(function (data) {
+                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan()).success(function (data) {
                         _addTsData(data, ts);
                     });
                 }
@@ -1029,6 +1029,10 @@ angular.module('n52.core.utils', ['n52.core.settings'])
                     return settingsService.restApiUrls[apiUrl] + "__" + tsId;
                 }
 
+                function createRequestTimespan(start, end) {
+                    return moment(start).format() + "/" + moment(end).format();
+                }
+
                 function getTimeseriesCombinationByInternalId(internalId) {
                     var combination = {};
                     angular.forEach(settingsService.restApiUrls, function (apiID, url) {
@@ -1043,6 +1047,7 @@ angular.module('n52.core.utils', ['n52.core.settings'])
                 }
 
                 return {
+                    createRequestTimespan: createRequestTimespan,
                     getTimeseriesCombinationByInternalId: getTimeseriesCombinationByInternalId,
                     createInternalId: createInternalId,
                     isFileAPISupported: isFileAPISupported

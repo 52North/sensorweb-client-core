@@ -1,14 +1,14 @@
 angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
-        .factory('timeService', ['$rootScope', 'statusService',
-            function ($rootScope, statusService) {
+        .factory('timeService', ['$rootScope', 'statusService', 'utils', 
+            function ($rootScope, statusService, utils) {
                 var time = {
                     duration: moment.duration(statusService.status.timespan.duration),
                     start: moment(statusService.status.timespan.start),
                     end: moment(statusService.status.timespan.end)
                 };
 
-                function getRequestTimespan() {
-                    return moment(time.start).format() + "/" + moment(time.end).format();
+                function getCurrentTimespan() {
+                    return utils.createRequestTimespan(time.start, time.end);
                 }
 
                 function setFlexibleTimeExtent(start, end) {
@@ -68,7 +68,7 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                 }
 
                 return {
-                    getRequestTimespan: getRequestTimespan,
+                    getCurrentTimespan: getCurrentTimespan,
                     jumpToLastTimeStamp: jumpToLastTimeStamp,
                     jumpToFirstTimeStamp: jumpToFirstTimeStamp,
                     setFlexibleTimeExtent: setFlexibleTimeExtent,

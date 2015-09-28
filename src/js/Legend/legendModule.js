@@ -49,8 +49,8 @@ angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', '
                                     timeService.jumpToLastTimeStamp(firstValue.timestamp, true);
                                 }
                             };
-                            $scope.selectRefValue = function (refValue, tsid) {
-                                timeseriesService.toggleReferenceValue(refValue, tsid);
+                            $scope.selectRefValue = function (refValue, ts) {
+                                timeseriesService.toggleReferenceValue(refValue, ts.internalId);
                             };
                             $scope.createExportCsv = function (id) {
                                 exportTsService.openInNewWindow(exportTsService.createCsvDownloadLink(id));

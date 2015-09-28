@@ -10,6 +10,10 @@ angular.module('n52.core.utils', ['n52.core.settings'])
                     return settingsService.restApiUrls[apiUrl] + "__" + tsId;
                 }
 
+                function createRequestTimespan(start, end) {
+                    return moment(start).format() + "/" + moment(end).format();
+                }
+
                 function getTimeseriesCombinationByInternalId(internalId) {
                     var combination = {};
                     angular.forEach(settingsService.restApiUrls, function (apiID, url) {
@@ -24,6 +28,7 @@ angular.module('n52.core.utils', ['n52.core.settings'])
                 }
 
                 return {
+                    createRequestTimespan: createRequestTimespan,
                     getTimeseriesCombinationByInternalId: getTimeseriesCombinationByInternalId,
                     createInternalId: createInternalId,
                     isFileAPISupported: isFileAPISupported
