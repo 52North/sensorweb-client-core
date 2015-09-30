@@ -151,7 +151,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                     var dataset = [];
                     if (timeseriesService.getTimeseriesCount() > 0) {
                         angular.forEach(timeseriesService.timeseries, function (elem) {
-                            flotDataHelperServ.addTimeseriesToDataSet(dataset, renderOptions, elem.id, timeseriesService.getData(elem.id));
+                            flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, elem.id, timeseriesService.getData(elem.id));
                         });
                     }
                     return dataset;
