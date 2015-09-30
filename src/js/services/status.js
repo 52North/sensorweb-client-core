@@ -5,10 +5,7 @@ angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
 
                 // init default status
                 var defStatus = {
-                    apiProvider: {
-                        url: 'http://www.fluggs.de/sos2/api/v1/',
-                        serviceID: '1'
-                    },
+                    apiProvider: settingsService.defaultProvider,
                     showLegend: false,
                     showPhenomena: false,
                     saveStatus: settingsService.saveStatus,

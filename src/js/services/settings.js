@@ -29,7 +29,7 @@ angular.module('n52.core.settings', [])
                     // default selected provider
                     defaultProvider: {
                         serviceID: 'srv_738111ed219f738cfc85be0c8d87843c',
-                        apiUrl: 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/'
+                        url: 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/'
                     },
                     // default setting for clustering stations
                     clusterStations: true,
