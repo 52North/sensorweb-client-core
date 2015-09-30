@@ -4,8 +4,8 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 $scope.options = flotOverviewChartServ.options;
                 $scope.dataset = flotOverviewChartServ.dataset;
             }])
-        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'utils', 'flotDataHelperServ',
-            function (timeseriesService, timeService, $rootScope, interfaceService, utils, flotDataHelperServ) {
+        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'utils', 'flotDataHelperServ', 'settingsService',
+            function (timeseriesService, timeService, $rootScope, interfaceService, utils, flotDataHelperServ, settingsService) {
                 var options = {
                     series: {
                         downsample: {
@@ -38,6 +38,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                         show: false
                     }
                 };
+                angular.merge(options, settingsService.overviewChartOptions);
                 var dataset = [];
                 var renderOptions={
                     showRefValues: false,
