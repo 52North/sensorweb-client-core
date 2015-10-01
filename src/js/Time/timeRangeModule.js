@@ -1,7 +1,6 @@
 angular.module('n52.core.timeRange', ['n52.core.time', 'ui.bootstrap', 'n52.core.settings'])
         .controller('TimeRangeCtrl', ['$scope', '$modal',
             function ($scope, $modal) {
-                $scope.temp = 'horst';
                 $scope.open = function () {
                     $modal.open({
                         animation: true,
