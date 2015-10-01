@@ -12,11 +12,9 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
         .factory('diagramBehaviourService', function () {
             var behaviour = {};
             behaviour.showYAxis = true;
-
             function toggleYAxis() {
                 behaviour.showYAxis = !behaviour.showYAxis;
             }
-
             return {
                 behaviour: behaviour,
                 toggleYAxis: toggleYAxis
@@ -104,7 +102,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 $rootScope.$on('timeExtentChanged', function () {
                     setTimeExtent();
                 });
-
+                
                 function setTimeExtent() {
                     options.xaxis.min = timeService.time.start.toDate().getTime();
                     options.xaxis.max = timeService.time.end.toDate().getTime();
