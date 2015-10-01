@@ -46,6 +46,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 };
                 setTimeExtent();
                 setSelectionExtent();
+                loadAllOverViewData();
 
                 $rootScope.$on('timeseriesChanged', function (evt, id) {
                     loadOverViewData(id);
