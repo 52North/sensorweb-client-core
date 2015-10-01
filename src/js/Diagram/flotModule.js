@@ -1,6 +1,6 @@
 angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
-        .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService',
-            function (timeService, $window, $translate, timeseriesService, styleService) {
+        .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService', '$rootScope',
+            function (timeService, $window, $translate, timeseriesService, styleService, $rootScope) {
                 return {
                     restrict: 'EA',
                     template: '<div></div>',
@@ -30,7 +30,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             width: width,
                             height: height
                         });
-
+                        
                         /* tooltips for mouse position */
 //                    $("<div id='tooltip'></div>").css({
 //                        position: "absolute",
@@ -56,7 +56,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 //                    });
                         /* tooltip for mouse position */
 
-                        initNewPlot = function (plotArea, dataset, options) {
+                        plotChart = function (plotArea, dataset, options) {
                             if (dataset && dataset.length !== 0) {
                                 var plotObj = $.plot(plotArea, dataset, options);
                                 createPlotAnnotation();
@@ -67,7 +67,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                 $('.axisLabel').remove();
                             }
                         };
-
+                        
                         setSelection = function (plot, options) {
                             if (plot && options.selection.range) {
                                 plot.setSelection({
@@ -145,16 +145,22 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         };
 
                         scope.$watch('options', function () {
-                            initNewPlot(plotArea, scope.dataset, scope.options);
+                            plotChart(plotArea, scope.dataset, scope.options);
                         }, true);
 
                         scope.$watch('dataset', function (bla, blub) {
-                            initNewPlot(plotArea, scope.dataset, scope.options);
+                            plotChart(plotArea, scope.dataset, scope.options);
                         }, true);
 
                         // plot new when resize
                         angular.element($window).bind('resize', function () {
-                            initNewPlot(plotArea, scope.dataset, scope.options);
+                            plotChart(plotArea, scope.dataset, scope.options);
+                        });
+
+                        $rootScope.$on('redrawChart', function () {
+                            setTimeout(function() {
+                                plotChart(plotArea, scope.dataset, scope.options);
+                            }, 100);
                         });
 
                         // plot pan ended event
