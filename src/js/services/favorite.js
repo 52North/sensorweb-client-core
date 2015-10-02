@@ -57,6 +57,10 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                 function hasFavorites() {
                     return Object.keys(favorites).length > 0;
                 }
+                
+                function getFavoritesCount() {
+                    return Object.keys(favorites).length;
+                }
 
                 function removeAllFavorites() {
                     angular.forEach(favorites, function (elem) {
@@ -128,9 +132,9 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                     setFavorites: setFavorites,
                     removeFavorite: removeFavorite,
                     changeLabel: changeLabel,
+                    getFavoritesCount: getFavoritesCount,
                     favorites: favorites
                 }
-                ;
             }])
         .factory('favoriteImExportService', ['favoriteService', '$translate', 'alertService', 'utils',
             function (favoriteService, $translate, alertService, utils) {
