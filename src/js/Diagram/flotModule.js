@@ -157,7 +157,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             plotChart(plotArea, scope.dataset, scope.options);
                         });
 
-                        $rootScope.$on('redrawChart', function () {
+                        var redrawChart = $rootScope.$on('redrawChart', function () {
                             setTimeout(function() {
                                 plotChart(plotArea, scope.dataset, scope.options);
                             }, 100);
@@ -176,6 +176,10 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             var from = moment(ranges.xaxis.from);
                             var to = moment(ranges.xaxis.to);
                             timeService.setFlexibleTimeExtent(from, to);
+                        });
+                        
+                        scope.$on('$destroy', function() {
+                            redrawChart();
                         });
                     }
                 };
