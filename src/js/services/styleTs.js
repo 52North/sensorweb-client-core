@@ -24,44 +24,44 @@ angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core
 
                 function toggleSelection(ts) {
                     ts.styles.selected = !ts.styles.selected;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function setSelection(ts, selected, quiet) {
                     ts.styles.selected = selected;
                     if (!quiet) {
-                        $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                        $rootScope.$emit('timeseriesChanged', ts.internalId);
                     }
                 }
 
                 function toggleTimeseriesVisibility(ts) {
                     ts.styles.visible = !ts.styles.visible;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateColor(ts, color) {
                     ts.styles.color = color;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateZeroScaled(ts) {
                     ts.styles.zeroScaled = !ts.styles.zeroScaled;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateGroupAxis(ts) {
                     ts.styles.groupedAxis = !ts.styles.groupedAxis;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateInterval(ts, interval) {
                     ts.renderingHints.properties.interval = interval.caption;
                     ts.renderingHints.properties.value = interval.value;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function notifyAllTimeseriesChanged() {
-                    $rootScope.$broadcast('allTimeseriesChanged');
+                    $rootScope.$emit('allTimeseriesChanged');
                 }
 
                 return {

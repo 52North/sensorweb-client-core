@@ -102,7 +102,7 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                         }
                     });
                     saveFavorites();
-//                $rootScope.$broadcast("favoritesChanged");
+//                $rootScope.$emit("favoritesChanged");
                 }
 
                 function setFavorite(fav) {

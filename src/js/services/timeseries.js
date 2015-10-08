@@ -40,7 +40,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                     } else {
                         ts.hasDataInCurrentExtent = true;
                     }
-                    $rootScope.$broadcast('timeseriesDataChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesDataChanged', ts.internalId);
                     ts.loadingData = false;
                 }
 
@@ -84,7 +84,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                     delete timeseries[internalId];
                     delete tsData[internalId];
                     statusService.removeTimeseries(internalId);
-                    $rootScope.$broadcast('timeseriesDataChanged', internalId);
+                    $rootScope.$emit('timeseriesDataChanged', internalId);
                 }
 
                 function removeAllTimeseries() {
@@ -95,7 +95,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
 
                 function toggleReferenceValue(refValue, internalId) {
                     refValue.visible = !refValue.visible;
-                    $rootScope.$broadcast('timeseriesDataChanged', internalId);
+                    $rootScope.$emit('timeseriesDataChanged', internalId);
                 }
 
                 function isTimeseriesVisible(internalId) {
