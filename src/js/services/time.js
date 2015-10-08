@@ -63,7 +63,6 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                 }
                 
                 function centerTimespan (duration) {
-                    debugger;
                     time.duration = moment.duration(duration);
                     var halfspan = moment.duration(time.duration.valueOf() / 2);
                     var center = (time.end.valueOf() - time.start.valueOf()) / 2;
