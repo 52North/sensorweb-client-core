@@ -134,7 +134,7 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                     changeLabel: changeLabel,
                     getFavoritesCount: getFavoritesCount,
                     favorites: favorites
-                }
+                };
             }])
         .factory('favoriteImExportService', ['favoriteService', '$translate', 'alertService', 'utils',
             function (favoriteService, $translate, alertService, utils) {

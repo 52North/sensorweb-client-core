@@ -12,11 +12,9 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
         .factory('diagramBehaviourService', function () {
             var behaviour = {};
             behaviour.showYAxis = true;
-
             function toggleYAxis() {
                 behaviour.showYAxis = !behaviour.showYAxis;
             }
-
             return {
                 behaviour: behaviour,
                 toggleYAxis: toggleYAxis
@@ -79,11 +77,11 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                     }
                 };
                 angular.merge(options, settingsService.chartOptions);
-                var dataset = createDataSet();
                 var renderOptions = {
                     showRefValues: true,
                     showSelection: true
                 };
+                var dataset = createDataSet();
                 setTimeExtent();
 
                 $rootScope.$on('timeseriesChanged', function (evt, id) {
@@ -104,7 +102,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 $rootScope.$on('timeExtentChanged', function () {
                     setTimeExtent();
                 });
-
+                
                 function setTimeExtent() {
                     options.xaxis.min = timeService.time.start.toDate().getTime();
                     options.xaxis.max = timeService.time.end.toDate().getTime();
@@ -151,7 +149,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                     var dataset = [];
                     if (timeseriesService.getTimeseriesCount() > 0) {
                         angular.forEach(timeseriesService.timeseries, function (elem) {
-                            flotDataHelperServ.addTimeseriesToDataSet(dataset, renderOptions, elem.id, timeseriesService.getData(elem.id));
+                            flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, elem.internalId, timeseriesService.getData(elem.internalId));
                         });
                     }
                     return dataset;
@@ -258,8 +256,8 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 };
             }]);
 angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
-        .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService',
-            function (timeService, $window, $translate, timeseriesService, styleService) {
+        .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService', '$rootScope',
+            function (timeService, $window, $translate, timeseriesService, styleService, $rootScope) {
                 return {
                     restrict: 'EA',
                     template: '<div></div>',
@@ -289,7 +287,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             width: width,
                             height: height
                         });
-
+                        
                         /* tooltips for mouse position */
 //                    $("<div id='tooltip'></div>").css({
 //                        position: "absolute",
@@ -315,7 +313,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 //                    });
                         /* tooltip for mouse position */
 
-                        initNewPlot = function (plotArea, dataset, options) {
+                        plotChart = function (plotArea, dataset, options) {
                             if (dataset && dataset.length !== 0) {
                                 var plotObj = $.plot(plotArea, dataset, options);
                                 createPlotAnnotation();
@@ -326,7 +324,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                 $('.axisLabel').remove();
                             }
                         };
-
+                        
                         setSelection = function (plot, options) {
                             if (plot && options.selection.range) {
                                 plot.setSelection({
@@ -404,16 +402,22 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         };
 
                         scope.$watch('options', function () {
-                            initNewPlot(plotArea, scope.dataset, scope.options);
+                            plotChart(plotArea, scope.dataset, scope.options);
                         }, true);
 
                         scope.$watch('dataset', function (bla, blub) {
-                            initNewPlot(plotArea, scope.dataset, scope.options);
+                            plotChart(plotArea, scope.dataset, scope.options);
                         }, true);
 
                         // plot new when resize
                         angular.element($window).bind('resize', function () {
-                            initNewPlot(plotArea, scope.dataset, scope.options);
+                            plotChart(plotArea, scope.dataset, scope.options);
+                        });
+
+                        var redrawChartListener = $rootScope.$on('redrawChart', function () {
+                            setTimeout(function() {
+                                plotChart(plotArea, scope.dataset, scope.options);
+                            }, 100);
                         });
 
                         // plot pan ended event
@@ -430,17 +434,40 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             var to = moment(ranges.xaxis.to);
                             timeService.setFlexibleTimeExtent(from, to);
                         });
+                        
+                        scope.$on('$destroy', function() {
+                            redrawChartListener();
+                        });
                     }
                 };
             }]);
+angular.module('n52.core.noDataWarning', ['n52.core.timeseries'])
+        .controller('NoDataWarningCtrl', ['$scope', 'timeseriesService', function ($scope, timeseriesService) {
+                $scope.timeseries = timeseriesService.timeseries;
+            }])
+        .filter('isNoDataVisible', function () {
+            return function (timeseries) {
+                if (Object.keys(timeseries).length > 0) {
+                    var noDataVisible = false;
+                    angular.forEach(timeseries, function (item) {
+                        if (item.hasDataInCurrentExtent)
+                            noDataVisible = true;
+                    });
+                    return noDataVisible;
+                }
+                return false;
+            };
+        });
+
+        
 angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
         .controller('overviewChartCtrl', ['$scope', 'flotOverviewChartServ',
             function ($scope, flotOverviewChartServ) {
                 $scope.options = flotOverviewChartServ.options;
                 $scope.dataset = flotOverviewChartServ.dataset;
             }])
-        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'utils', 'flotDataHelperServ',
-            function (timeseriesService, timeService, $rootScope, interfaceService, utils, flotDataHelperServ) {
+        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'utils', 'flotDataHelperServ', 'settingsService',
+            function (timeseriesService, timeService, $rootScope, interfaceService, utils, flotDataHelperServ, settingsService) {
                 var options = {
                     series: {
                         downsample: {
@@ -473,6 +500,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                         show: false
                     }
                 };
+                angular.merge(options, settingsService.overviewChartOptions);
                 var dataset = [];
                 var renderOptions={
                     showRefValues: false,
@@ -480,6 +508,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 };
                 setTimeExtent();
                 setSelectionExtent();
+                loadAllOverViewData();
 
                 $rootScope.$on('timeseriesChanged', function (evt, id) {
                     loadOverViewData(id);
@@ -844,16 +873,16 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
 })(jQuery);
 angular.module('n52.core.yAxisHide', ['n52.core.timeseries'])
         .directive('yAxisHideButton', ['diagramBehaviourService',
-            function (diagramBehaviourService) {
+            function () {
                 return {
                     restrict: 'E',
                     templateUrl: 'templates/diagram/y-axis-hide-button.html',
-                    controller: ['$scope', function ($scope) {
-                        $scope.behaviour = diagramBehaviourService.behaviour;
-
-                        $scope.toggleYAxis = function () {
-                            diagramBehaviourService.toggleYAxis();
-                        };
-                    }]
+                    controller: 'yAxisHideControl'
+                };
+            }])
+        .controller('yAxisHideCtrl', ['$scope', 'diagramBehaviourService', function ($scope, diagramBehaviourService) {
+                $scope.behaviour = diagramBehaviourService.behaviour;
+                $scope.toggleYAxis = function () {
+                    diagramBehaviourService.toggleYAxis();
                 };
             }]);

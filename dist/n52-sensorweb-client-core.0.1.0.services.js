@@ -149,6 +149,10 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                 function hasFavorites() {
                     return Object.keys(favorites).length > 0;
                 }
+                
+                function getFavoritesCount() {
+                    return Object.keys(favorites).length;
+                }
 
                 function removeAllFavorites() {
                     angular.forEach(favorites, function (elem) {
@@ -190,7 +194,7 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                         }
                     });
                     saveFavorites();
-//                $rootScope.$broadcast("favoritesChanged");
+//                $rootScope.$emit("favoritesChanged");
                 }
 
                 function setFavorite(fav) {
@@ -220,9 +224,9 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                     setFavorites: setFavorites,
                     removeFavorite: removeFavorite,
                     changeLabel: changeLabel,
+                    getFavoritesCount: getFavoritesCount,
                     favorites: favorites
-                }
-                ;
+                };
             }])
         .factory('favoriteImExportService', ['favoriteService', '$translate', 'alertService', 'utils',
             function (favoriteService, $translate, alertService, utils) {
@@ -478,7 +482,7 @@ angular.module('n52.core.settings', [])
                     // default selected provider
                     defaultProvider: {
                         serviceID: 'srv_738111ed219f738cfc85be0c8d87843c',
-                        apiUrl: 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/'
+                        url: 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/'
                     },
                     // default setting for clustering stations
                     clusterStations: true,
@@ -664,10 +668,7 @@ angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
 
                 // init default status
                 var defStatus = {
-                    apiProvider: {
-                        url: 'http://www.fluggs.de/sos2/api/v1/',
-                        serviceID: '1'
-                    },
+                    apiProvider: settingsService.defaultProvider,
                     showLegend: false,
                     showPhenomena: false,
                     saveStatus: settingsService.saveStatus,
@@ -755,44 +756,44 @@ angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core
 
                 function toggleSelection(ts) {
                     ts.styles.selected = !ts.styles.selected;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function setSelection(ts, selected, quiet) {
                     ts.styles.selected = selected;
                     if (!quiet) {
-                        $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                        $rootScope.$emit('timeseriesChanged', ts.internalId);
                     }
                 }
 
                 function toggleTimeseriesVisibility(ts) {
                     ts.styles.visible = !ts.styles.visible;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateColor(ts, color) {
                     ts.styles.color = color;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateZeroScaled(ts) {
                     ts.styles.zeroScaled = !ts.styles.zeroScaled;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateGroupAxis(ts) {
                     ts.styles.groupedAxis = !ts.styles.groupedAxis;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function updateInterval(ts, interval) {
                     ts.renderingHints.properties.interval = interval.caption;
                     ts.renderingHints.properties.value = interval.value;
-                    $rootScope.$broadcast('timeseriesChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
                 function notifyAllTimeseriesChanged() {
-                    $rootScope.$broadcast('allTimeseriesChanged');
+                    $rootScope.$emit('allTimeseriesChanged');
                 }
 
                 return {
@@ -930,7 +931,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                     } else {
                         ts.hasDataInCurrentExtent = true;
                     }
-                    $rootScope.$broadcast('timeseriesDataChanged', ts.internalId);
+                    $rootScope.$emit('timeseriesDataChanged', ts.internalId);
                     ts.loadingData = false;
                 }
 
@@ -974,7 +975,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                     delete timeseries[internalId];
                     delete tsData[internalId];
                     statusService.removeTimeseries(internalId);
-                    $rootScope.$broadcast('timeseriesDataChanged', internalId);
+                    $rootScope.$emit('timeseriesDataChanged', internalId);
                 }
 
                 function removeAllTimeseries() {
@@ -985,7 +986,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
 
                 function toggleReferenceValue(refValue, internalId) {
                     refValue.visible = !refValue.visible;
-                    $rootScope.$broadcast('timeseriesDataChanged', internalId);
+                    $rootScope.$emit('timeseriesDataChanged', internalId);
                 }
 
                 function isTimeseriesVisible(internalId) {
