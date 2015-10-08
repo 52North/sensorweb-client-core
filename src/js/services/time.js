@@ -70,6 +70,10 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                     time.end = moment(time.start).add(time.duration);
                     fireNewTimeExtent();
                 }
+                
+                function isInCurrentTimespan(timestamp) {
+                    return moment(timestamp).isBetween(time.start, time.end);
+                }
 
                 function fireNewTimeExtent() {
                     statusService.status.timespan = time;
@@ -83,6 +87,7 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                     centerTimespan: centerTimespan,
                     setFlexibleTimeExtent: setFlexibleTimeExtent,
                     setPresetInterval: setPresetInterval,
+                    isInCurrentTimespan: isInCurrentTimespan,
                     stepBack: stepBack,
                     stepForward: stepForward,
                     time: time

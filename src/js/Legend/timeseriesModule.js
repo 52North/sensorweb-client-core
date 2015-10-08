@@ -4,4 +4,13 @@ angular.module('n52.core.timeseriesController', ['n52.core.timeseries', 'n52.cor
                 $scope.deleteAll = function () {
                     timeseriesService.removeAllTimeseries();
                 };
+            }])
+        .controller('IsInTimespanCtrl', ['$scope', 'timeService',
+            function ($scope, timeService) {
+                $scope.time = timeService.time;
+                $scope.isInTimeSpan = function (timestamp) {
+                    return timeService.isInCurrentTimespan(timestamp);
+                };
             }]);
+
+    
