@@ -17,6 +17,12 @@ angular.module('n52.core.timeRange', ['n52.core.time', 'ui.bootstrap', 'n52.core
             function ($scope, settingsService) {
                 $scope.items = settingsService.timeRangeData.presets;
             }])
+        .controller('CenterTimeControl', ['$scope', 'timeService',
+            function ($scope, timeService) {
+                $scope.centerTime = function(timespan) {
+                    timeService.centerTimespan(timespan);
+                };
+            }])
         .directive('swcPredefinedTimeRangeButton', function () {
             return {
                 restrict: 'E',
