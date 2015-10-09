@@ -30,7 +30,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             width: width,
                             height: height
                         });
-                        
+
                         /* tooltips for mouse position */
 //                    $("<div id='tooltip'></div>").css({
 //                        position: "absolute",
@@ -67,7 +67,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                 $('.axisLabel').remove();
                             }
                         };
-                        
+
                         setSelection = function (plot, options) {
                             if (plot && options.selection.range) {
                                 plot.setSelection({
@@ -93,6 +93,9 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                     return;
                                 var box = axis.box;
                                 if (axis.direction === "y") {
+                                    $("<div class='axisTargetStyle' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
+                                            .data("axis.n", axis.n)
+                                            .appendTo(plot.getPlaceholder());
                                     $("<div class='axisTarget' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
                                             .data("axis.n", axis.n)
                                             .appendTo(plot.getPlaceholder())
@@ -119,7 +122,9 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                                 }
                                                 styleService.notifyAllTimeseriesChanged();
                                             }, this));
-                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom).appendTo(plot.getPlaceholder());
+                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
+                                            .appendTo(plot.getPlaceholder())
+                                            .data("axis.n", axis.n);
                                     if (axis.options.tsColors) {
                                         $.each(axis.options.tsColors, function (idx, color) {
                                             $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
@@ -132,7 +137,24 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             // set selection to axis
                             $.each(plot.getData(), function (index, elem) {
                                 if (elem.selected) {
+                                    $('.flot-y' + elem.yaxis.n + '-axis').addClass('selected');
                                     $.each($('.axisTarget'), function () {
+                                        if ($(this).data('axis.n') === elem.yaxis.n) {
+                                            if (!$(this).hasClass('selected')) {
+                                                $(this).addClass('selected');
+                                                return false;
+                                            }
+                                        }
+                                    });
+                                    $.each($('.axisTargetStyle'), function () {
+                                        if ($(this).data('axis.n') === elem.yaxis.n) {
+                                            if (!$(this).hasClass('selected')) {
+                                                $(this).addClass('selected');
+                                                return false;
+                                            }
+                                        }
+                                    });
+                                    $.each($('.axisLabel.yaxisLabel'), function () {
                                         if ($(this).data('axis.n') === elem.yaxis.n) {
                                             if (!$(this).hasClass('selected')) {
                                                 $(this).addClass('selected');
@@ -158,7 +180,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         });
 
                         var redrawChartListener = $rootScope.$on('redrawChart', function () {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 plotChart(plotArea, scope.dataset, scope.options);
                             }, 100);
                         });
@@ -177,8 +199,8 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             var to = moment(ranges.xaxis.to);
                             timeService.setFlexibleTimeExtent(from, to);
                         });
-                        
-                        scope.$on('$destroy', function() {
+
+                        scope.$on('$destroy', function () {
                             redrawChartListener();
                         });
                     }
