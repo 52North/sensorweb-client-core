@@ -17,8 +17,8 @@ angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', '
                     scope: {
                         timeseries: "="
                     },
-                    controller: ['$scope', 'timeseriesService', 'timeService', 'styleService',
-                        function ($scope, timeseriesService, timeService, styleService) {
+                    controller: ['$scope', 'timeseriesService', 'timeService', 'styleService', '$rootScope',
+                        function ($scope, timeseriesService, timeService, styleService, $rootScope) {
                             $scope.infoVisible = false;
                             $scope.toggleSelection = function (ts) {
                                 styleService.toggleSelection(ts);
@@ -56,7 +56,7 @@ angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', '
                                 exportTsService.openInNewWindow(exportTsService.createCsvDownloadLink(id));
                             };
                             // why apply manualy when selecting the y-axis in the chart?
-                            var allTimeseriesChangedListener = $scope.$on('allTimeseriesChanged', function (evt) {
+                            var allTimeseriesChangedListener = $rootScope.$on('allTimeseriesChanged', function (evt) {
                                 $scope.$apply();
                             });
 
