@@ -18,10 +18,9 @@ var menuModule = angular.module('n52.core.menu', ['n52.core.timeseries', 'n52.co
                     diagramBehaviourService.changeYAxis(showYAxis);
                 };
             }])
-        .controller('mainViewController', ['$scope', function ($scope) {
-                $scope.tableVisible = false;
-
-                $scope.toggleTable = function () {
-                    $scope.tableVisible = !$scope.tableVisible;
+        .controller('ToggleCtrl', ['$scope', function ($scope) {
+                $scope.isToggled = false;
+                $scope.toggle = function () {
+                    $scope.isToggled = !$scope.isToggled;
                 };
             }]);
