@@ -1,6 +1,6 @@
 angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
-        .controller('tableController', ['$scope', '$filter', 'ngTableParams', 'timeseriesService',
-            function ($scope, $filter, ngTableParams, timeseriesService) {
+        .controller('tableController', ['$scope', '$filter', 'ngTableParams', 'timeseriesService', '$rootScope',
+            function ($scope, $filter, ngTableParams, timeseriesService, $rootScope) {
                 // http://ngmodules.org/modules/ng-table
                 createValueArray = function () {
                     var array = [];
@@ -30,7 +30,6 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                     });
                     return array;
                 };
-
                 createColumns = function () {
                     var columns = [];
                     columns.push({
@@ -46,7 +45,6 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                     });
                     return columns;
                 };
-
                 createTable = function () {
                     $scope.tableParams = new ngTableParams({
                         page: 1,
@@ -65,7 +63,6 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                         }
                     });
                 };
-
                 removeOverlappingValues = function (values) {
                     // remove values before start
                     var start = TimeController.getCurrentStartAsMillis();
@@ -84,30 +81,24 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                     values.splice(++idx, count);
                     return values;
                 };
-
                 $scope.loadMoreData = function () {
                     $scope.tableParams.count($scope.tableParams.count() + 10);
                     $scope.tableParams.reload();
                 };
-
-                var timeseriesChangedListener = $scope.$on('timeseriesChanged', function (evt, id) {
+                var timeseriesChangedListener = $rootScope.$on('timeseriesChanged', function (evt, id) {
                     data = createValueArray();
                     $scope.columns = createColumns();
                 });
-
-                var timeseriesDataChangedListener = $scope.$on('timeseriesDataChanged', function (evt, id) {
+                var timeseriesDataChangedListener = $rootScope.$on('timeseriesDataChanged', function (evt, id) {
                     data = createValueArray();
                     $scope.columns = createColumns();
-                    createTable();
+                    $scope.tableParams.reload();
                 });
-
                 $scope.columns = createColumns();
-
                 $scope.$on('$destroy', function () {
                     timeseriesChangedListener();
                     timeseriesDataChangedListener();
                 });
-
                 var data = createValueArray();
                 createTable();
             }])
@@ -122,15 +113,12 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                             return findParentHeightElement(elem.parent());
                         }
                     };
-
                     var parent = findParentHeightElement(element);
                     var visibleHeight = parent.height();
                     var threshold = 100;
-
                     parent.scroll(function () {
                         var scrollableHeight = parent.prop('scrollHeight');
                         var hiddenContentHeight = scrollableHeight - visibleHeight;
-
                         if (hiddenContentHeight - parent.scrollTop() <= threshold) {
                             // Scroll is almost at the bottom. Loading more rows
                             scope.$apply(attrs.whenScrollEnds);
