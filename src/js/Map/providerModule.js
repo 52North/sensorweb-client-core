@@ -10,6 +10,10 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                     });
                 };
             }])
+        .controller('ProviderLabelCtrl', ['$scope', 'providerService',
+            function ($scope, providerService) {
+                $scope.selectedProvider = providerService.selectedProvider;
+            }])
         .controller('ProviderListModalCtrl', ['$scope', '$modalInstance', 'providerService',
             function ($scope, $modalInstance, providerService) {
                 $scope.providerList = providerService.providerList;
@@ -26,8 +30,11 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
         .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService',
             function ($rootScope, settingsService, interfaceService, statusService) {
                 var providerList = [];
+                var selectedProvider = {
+                    label: ""
+                };
 
-                var getAllProviders = function () {
+                getAllProviders = function () {
                     angular.forEach(settingsService.restApiUrls, function (elem, url) {
                         interfaceService.getServices(url).success(function (providers) {
                             angular.forEach(providers, function (provider) {
@@ -40,6 +47,7 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                                 if (!isBlacklisted) {
                                     if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
                                         provider.selected = true;
+                                        selectedProvider.label = provider.label;  
                                     } else {
                                         provider.selected = false;
                                     }
@@ -52,11 +60,12 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                         });
                     });
                 };
-
-                var selectProvider = function (selection) {
+                
+                selectProvider = function (selection) {
                     angular.forEach(providerList, function (provider) {
                         if (selection.id === provider.id && selection.url === provider.url) {
                             provider.selected = true;
+                            selectedProvider.label = provider.label;
                             statusService.status.apiProvider = {
                                 url: provider.url,
                                 serviceID: provider.id
@@ -72,6 +81,7 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
 
                 return {
                     providerList: providerList,
+                    selectedProvider: selectedProvider,
                     selectProvider: selectProvider
                 };
             }]);
