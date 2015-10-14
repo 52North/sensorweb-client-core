@@ -1,6 +1,6 @@
 angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.core.status', 'n52.core.phenomena', 'n52.core.provider', 'n52.core.station', 'n52.core.listSelection', 'n52.core.locate'])
-        .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', 'stationModalOpener', '$compile',
-            function ($scope, mapService, leafletData, $log, $translate, stationModalOpener, $compile) {
+        .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', 'stationModalOpener', '$compile', '$rootScope',
+            function ($scope, mapService, leafletData, $log, $translate, stationModalOpener, $compile, $rootScope) {
                 $log.info('start mapController');
                 $scope.map = mapService.map;
 
@@ -20,6 +20,12 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                             provider: new L.GeoSearch.Provider.OpenStreetMap(),
                             zoomLevel: 13
                         }).addTo(map);
+                    });
+                });
+
+                $rootScope.$on('resizeMap', function () {
+                    leafletData.getMap().then(function (map) {
+                        map.invalidateSize(false);
                     });
                 });
 
