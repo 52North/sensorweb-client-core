@@ -69,9 +69,7 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                     });
                 };
 
-
-
-                this.getTsData = function (id, apiUrl, timespan, internalId, extendedData) {
+                this.getTsData = function (id, apiUrl, timespan, extendedData) {
                     var params = {
                         timespan: timespan,
                         generalize: statusService.status.generalizeData || false,

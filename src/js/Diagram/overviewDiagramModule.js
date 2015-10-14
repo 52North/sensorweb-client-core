@@ -44,6 +44,9 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                     showRefValues: false,
                     showSelection: false
                 };
+                var extendedDataRequest = {
+                    generalize: true
+                };
                 setTimeExtent();
                 setSelectionExtent();
                 loadAllOverViewData();
@@ -92,7 +95,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                     var ts = timeseriesService.getTimeseries(tsId);
                     if (ts) {
                         var start = options.xaxis.min, end = options.xaxis.max;
-                        interfaceService.getTsData(ts.id, ts.apiUrl, utils.createRequestTimespan(start, end)).success(function (data) {
+                        interfaceService.getTsData(ts.id, ts.apiUrl, utils.createRequestTimespan(start, end), extendedDataRequest).success(function (data) {
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
                         });
                     } else {
