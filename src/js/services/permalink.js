@@ -1,11 +1,15 @@
 angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
         .factory('permalinkGenerationService', ['$location', 'timeseriesService', 'timeService',
             function ($location, timeseriesService, timeService) {
-                createTimeseriesParam = function () {
+                createTimeseriesParam = function (timeseriesId) {
                     var ids = [];
-                    angular.forEach(timeseriesService.getAllTimeseries(), function (elem) {
-                        ids.push(elem.internalId);
-                    });
+                    if (angular.isUndefined(timeseriesId)) {
+                        angular.forEach(timeseriesService.getAllTimeseries(), function (elem) {
+                            ids.push(elem.internalId);
+                        });
+                    } else {
+                        ids.push(timeseriesId);
+                    }
                     return "ts=" + encodeURIComponent(ids.join());
                 };
 
@@ -13,7 +17,7 @@ angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
                     return "timespan=" + encodeURIComponent(timeService.getCurrentTimespan());
                 };
 
-                getCurrentPermalink = function () {
+                getCurrentPermalink = function (timeseriesId) {
                     var params = [];
                     var url = $location.absUrl();
                     var link;
@@ -26,7 +30,7 @@ angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
                     // create timespan
                     params.push(createTimeParam());
                     // create id list
-                    params.push(createTimeseriesParam());
+                    params.push(createTimeseriesParam(timeseriesId));
                     return link + params.join("&");
                 };
 
@@ -42,7 +46,7 @@ angular.module('n52.core.permalinkEval', ['n52.core.utils'])
                 hasParam = function (name, parameters) {
                     return angular.isDefined(parameters[name]);
                 };
-                
+
                 getParam = function (name) {
                     if (hasParam(name, parameters)) {
                         return parameters[name];
