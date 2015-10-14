@@ -6,43 +6,44 @@ angular.module('n52.core.favoriteUi', ['n52.core.timeseries', 'n52.core.exportTs
                 scope: {
                     timeseries: "="
                 },
-                controller: ['$scope', '$translate', 'favoriteService', 'Notification', function ($scope, $translate, favoriteService, Notification) {
-                        $scope.isFavorite = favoriteService.hasFavorite($scope.timeseries.internalId);
-                        $scope.toggleFavorite = function () {
-                            var label;
-                            if ($scope.isFavorite) {
-                                favoriteService.removeFavorite($scope.timeseries.internalId);
-                                label = $scope.timeseries.label;
-                                Notification.primary($translate.instant('favorite.single.remove').replace('{0}', label));
-                            } else {
-                                favoriteService.addFavorite($scope.timeseries);
-                                label = $scope.timeseries.label;
-                                Notification.primary($translate.instant('favorite.single.add').replace('{0}', label));
-                            }
-                            $scope.isFavorite = favoriteService.hasFavorite($scope.timeseries.internalId);
-                        };
-                    }]
+                controller: 'SwcAddFavoriteCtrl'
             };
         })
+        .controller('SwcAddFavoriteCtrl', ['$scope', '$translate', 'favoriteService', 'Notification', function ($scope, $translate, favoriteService, Notification) {
+                $scope.isFavorite = favoriteService.hasFavorite($scope.timeseries.internalId);
+                $scope.toggleFavorite = function () {
+                    var label;
+                    if ($scope.isFavorite) {
+                        favoriteService.removeFavorite($scope.timeseries.internalId);
+                        label = $scope.timeseries.label;
+                        Notification.primary($translate.instant('favorite.single.remove').replace('{0}', label));
+                    } else {
+                        favoriteService.addFavorite($scope.timeseries);
+                        label = $scope.timeseries.label;
+                        Notification.primary($translate.instant('favorite.single.add').replace('{0}', label));
+                    }
+                    $scope.isFavorite = favoriteService.hasFavorite($scope.timeseries.internalId);
+                };
+            }])
         .directive('swcAddFavoriteGroup', function () {
             return {
                 restrict: 'E',
                 templateUrl: 'templates/favorite/favorite-add-group.html',
                 scope: {
                 },
-                controller: ['$scope', '$translate', 'favoriteService', 'timeseriesService', 'Notification', function ($scope, $translate, favoriteService, timeseriesService, Notification) {
-                    $scope.createFavoriteGroup = function () {
-                        var label = favoriteService.addFavoriteGroup(timeseriesService.getAllTimeseries());
-                        if (angular.isString(label)) {
-                            Notification.primary($translate.instant('favorite.group.add').replace('{0}', label));
-                        } else {
-                            Notification.primary($translate.instant('favorite.group.noTimeseries'));
-                        }
-
-                    };
-                }]
+                controller: 'SwcAddFavoriteGroupCtrl'
             };
         })
+        .controller('SwcAddFavoriteGroupCtrl', ['$scope', '$translate', 'favoriteService', 'timeseriesService', 'Notification', function ($scope, $translate, favoriteService, timeseriesService, Notification) {
+                $scope.createFavoriteGroup = function () {
+                    var label = favoriteService.addFavoriteGroup(timeseriesService.getAllTimeseries());
+                    if (angular.isString(label)) {
+                        Notification.primary($translate.instant('favorite.group.add').replace('{0}', label));
+                    } else {
+                        Notification.primary($translate.instant('favorite.group.noTimeseries'));
+                    }
+                };
+            }])
         .directive('swcFavoriteList', function () {
             return {
                 restrict: 'E',
