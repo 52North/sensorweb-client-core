@@ -22,6 +22,14 @@ angular.module('n52.core.userSettings', ['ui.bootstrap', 'n52.core.settings', 'n
                     statusService.resetStatus();
                 };
             }])
+        .controller('ToggleGeneralizationCtrl', ['$scope', 'statusService', '$rootScope',
+            function ($scope, statusService, $rootScope) {
+                $scope.isToggled = statusService.status.generalizeData;
+                $scope.toggleGeneralization = function () {
+                    $scope.isToggled = statusService.status.generalizeData = !statusService.status.generalizeData;
+                    $rootScope.$emit('timeExtentChanged');
+                };
+            }])
         .controller('PermalinkInWindowCtrl', ['$scope', 'permalinkGenerationService', '$window',
             function ($scope, permalinkGenerationService, $window) {
                 $scope.openInNewWindow = function (timeseriesId) {
@@ -93,4 +101,4 @@ angular.module('n52.core.userSettings', ['ui.bootstrap', 'n52.core.settings', 'n
                         };
                     }
                 };
-            }]);
+            }])
