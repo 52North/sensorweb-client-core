@@ -180,9 +180,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         });
 
                         var redrawChartListener = $rootScope.$on('redrawChart', function () {
-                            setTimeout(function () {
-                                plotChart(plotArea, scope.dataset, scope.options);
-                            }, 100);
+                            plotChart(plotArea, scope.dataset, scope.options);
                         });
 
                         // plot pan ended event
