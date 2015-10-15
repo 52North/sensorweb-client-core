@@ -59,6 +59,53 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     mapService.map.center.zoom = mapService.map.center.zoom - 1;
                 };
             }])
+        .controller('SwcMapLayerCtrl', ['$scope', function ($scope) {
+                $scope.isToggled = true;
+                $scope.openMenu = function () {
+                    $scope.isToggled = !$scope.isToggled;
+                };
+                $scope.closeMenu = function () {
+                    $scope.isToggled = !$scope.isToggled;
+                };
+            }])
+        .controller('SwcBaseLayerCtrl', ['$scope', 'mapService', 'leafletData',
+            function ($scope, mapService, leafletData) {
+                leafletData.getMap().then(function (map) {
+                    leafletData.getLayers().then(function (layers) {
+                        angular.forEach(layers.baselayers, function (layer, key) {
+                            if (map.hasLayer(layer)) {
+                                mapService.map.layers.baselayers[key].visible = true;
+                            }
+                        });
+                    });
+                });
+                $scope.baseLayers = mapService.map.layers.baselayers;
+                $scope.switchVisibility = function (key) {
+                    angular.forEach(mapService.map.layers.baselayers, function (layer, layerKey) {
+                        if (layerKey === key) {
+                            layer.visible = true;
+                        } else {
+                            layer.visible = false;
+                        }
+                    });
+                    leafletData.getMap().then(function (map) {
+                        leafletData.getLayers().then(function (layers) {
+                            angular.forEach(layers.baselayers, function (layer) {
+                                map.removeLayer(layer);
+                            });
+                            if (angular.isDefined(layers.baselayers[key])) {
+                                map.addLayer(layers.baselayers[key]);
+                            }
+                        });
+                    });
+                };
+            }])
+        .controller('SwcOverlayCtrl', ['$scope', 'mapService', function ($scope, mapService) {
+                $scope.baseLayers = mapService.map.layers.overlays;
+                $scope.switchVisibility = function (layer) {
+                    layer.visible = !layer.visible;
+                };
+            }])
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
                 var map = {};
@@ -71,18 +118,37 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     map.center = {};
                     map.layers = {
                         baselayers: {
+                            mapbox_light: {
+                                name: 'Mapbox Light',
+                                url: 'http://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_token={apikey}',
+                                type: 'xyz',
+                                layerOptions: {
+                                    apikey: 'pk.eyJ1IjoiYnVmYW51dm9scyIsImEiOiJLSURpX0pnIn0.2_9NrLz1U9bpwMQBhVk97Q',
+                                    mapid: 'bufanuvols.lia22g09'
+                                },
+                            },
                             osm: {
-                                name: 'OpenStreetMap',
+                                name: 'Open Street Map',
                                 type: 'xyz',
                                 url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 layerOptions: {
-                                    showOnSelector: false
+                                    showOnSelector: true
+                                },
+                            },
+                            cycle: {
+                                name: 'OpenCycleMap',
+                                type: 'xyz',
+                                url: 'http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png',
+                                layerOptions: {
+                                    subdomains: ['a', 'b', 'c'],
+                                    attribution: '&copy; <a href="http://www.opencyclemap.org/copyright">OpenCycleMap</a> contributors - &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                    continuousWorld: true
                                 }
                             }
                         },
                         overlays: {
                             cluster: {
-                                name: 'stations',
+                                name: 'Stations',
                                 type: 'markercluster',
                                 visible: true,
                                 layerOptions: {
