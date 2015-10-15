@@ -51,6 +51,14 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     }
                 }, true);
             }])
+        .controller('SwcZoomControlsCtrl', ['$scope', 'mapService', function ($scope, mapService) {
+                $scope.zoomIn = function () {
+                    mapService.map.center.zoom = mapService.map.center.zoom + 1;
+                };
+                $scope.zoomOut = function () {
+                    mapService.map.center.zoom = mapService.map.center.zoom - 1;
+                };
+            }])
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
                 var map = {};
