@@ -118,6 +118,14 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     map.center = {};
                     map.layers = {
                         baselayers: {
+                            osm: {
+                                name: 'Open Street Map',
+                                type: 'xyz',
+                                url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                layerOptions: {
+                                    showOnSelector: true
+                                }
+                            },
                             mapbox_light: {
                                 name: 'Mapbox Light',
                                 url: 'http://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_token={apikey}',
@@ -125,15 +133,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                 layerOptions: {
                                     apikey: 'pk.eyJ1IjoiYnVmYW51dm9scyIsImEiOiJLSURpX0pnIn0.2_9NrLz1U9bpwMQBhVk97Q',
                                     mapid: 'bufanuvols.lia22g09'
-                                },
-                            },
-                            osm: {
-                                name: 'Open Street Map',
-                                type: 'xyz',
-                                url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                layerOptions: {
-                                    showOnSelector: true
-                                },
+                                }
                             },
                             cycle: {
                                 name: 'OpenCycleMap',
@@ -153,6 +153,19 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                 visible: true,
                                 layerOptions: {
                                     showOnSelector: false
+                                }
+                            },
+                            hillshade: {
+                                name: 'Hillshade Europa',
+                                type: 'wms',
+                                url: 'http://129.206.228.72/cached/hillshade',
+                                visible: true,
+                                layerOptions: {
+                                    layers: 'europe_wms:hs_srtm_europa',
+                                    format: 'image/png',
+                                    opacity: 0.25,
+                                    attribution: 'Hillshade layer by GIScience http://www.osm-wms.de',
+                                    crs: L.CRS.EPSG900913
                                 }
                             }
                         }
