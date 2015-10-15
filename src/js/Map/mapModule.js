@@ -60,12 +60,12 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                 };
             }])
         .controller('SwcMapLayerCtrl', ['$scope', function ($scope) {
-                $scope.isToggled = true;
+                $scope.isToggled = false;
                 $scope.openMenu = function () {
-                    $scope.isToggled = !$scope.isToggled;
+                    $scope.isToggled = true;
                 };
                 $scope.closeMenu = function () {
-                    $scope.isToggled = !$scope.isToggled;
+                    $scope.isToggled = false;
                 };
             }])
         .controller('SwcBaseLayerCtrl', ['$scope', 'mapService', 'leafletData',
@@ -159,7 +159,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                 name: 'Hillshade Europa',
                                 type: 'wms',
                                 url: 'http://129.206.228.72/cached/hillshade',
-                                visible: true,
+                                visible: false,
                                 layerOptions: {
                                     layers: 'europe_wms:hs_srtm_europa',
                                     format: 'image/png',
