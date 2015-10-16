@@ -163,6 +163,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
         .factory('flotDataHelperServ', ['timeseriesService', 'settingsService', 'barChartHelperService',
             function (timeseriesService, settingsService, barChartHelperService) {
                 function updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesList) {
+                    if (angular.isUndefined(timeseriesList)) timeseriesList = timeseriesService.getAllTimeseries();
                     angular.forEach(timeseriesList, function (ts) {
                         updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, timeseriesService.getData(ts.internalId));
                     });
@@ -170,7 +171,9 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
 
                 function updateTimeseriesInDataSet(dataset, renderOptions, id, data) {
                     removeTimeseriesFromDataSet(dataset, id);
-                    addTimeseriesToDataSet(dataset, renderOptions, id, data);
+                    if (!addTimeseriesToDataSet(dataset, renderOptions, id, data)){
+                        updateAllTimeseriesToDataSet(dataset, renderOptions);
+                    };
                 }
 
                 function addTimeseriesToDataSet(dataset, renderOptions, id, data) {
@@ -195,7 +198,9 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                                 }
                             });
                         }
-                    }
+                        return true;
+                    } 
+                    return false;
                 }
 
                 function createEntry(ts, data, renderOptions) {
