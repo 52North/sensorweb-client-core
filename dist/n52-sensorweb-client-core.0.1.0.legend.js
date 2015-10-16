@@ -42,8 +42,8 @@ angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', '
                     scope: {
                         timeseries: "="
                     },
-                    controller: ['$scope', 'timeseriesService', 'timeService', 'styleService',
-                        function ($scope, timeseriesService, timeService, styleService) {
+                    controller: ['$scope', 'timeseriesService', 'timeService', 'styleService', '$rootScope',
+                        function ($scope, timeseriesService, timeService, styleService, $rootScope) {
                             $scope.infoVisible = false;
                             $scope.toggleSelection = function (ts) {
                                 styleService.toggleSelection(ts);
@@ -81,8 +81,12 @@ angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', '
                                 exportTsService.openInNewWindow(exportTsService.createCsvDownloadLink(id));
                             };
                             // why apply manualy when selecting the y-axis in the chart?
-                            $scope.$on('allTimeseriesChanged', function (evt) {
+                            var allTimeseriesChangedListener = $rootScope.$on('allTimeseriesChanged', function (evt) {
                                 $scope.$apply();
+                            });
+
+                            $scope.$on('$destroy', function () {
+                                allTimeseriesChangedListener();
                             });
                         }]
                 };
@@ -94,3 +98,19 @@ angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', '
                     statusService.status.showLegend = !statusService.status.showLegend;
                 };
             }]);
+angular.module('n52.core.timeseriesController', ['n52.core.timeseries', 'n52.core.exportTs', 'n52.core.style'])
+        .controller('deleteAllTsCtrl', ['$scope', 'timeseriesService',
+            function ($scope, timeseriesService) {
+                $scope.deleteAll = function () {
+                    timeseriesService.removeAllTimeseries();
+                };
+            }])
+        .controller('IsInTimespanCtrl', ['$scope', 'timeService',
+            function ($scope, timeService) {
+                $scope.time = timeService.time;
+                $scope.isInTimeSpan = function (timestamp) {
+                    return timeService.isInCurrentTimespan(timestamp);
+                };
+            }]);
+
+    

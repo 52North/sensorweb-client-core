@@ -16,7 +16,6 @@
 angular.module('n52.core.timeRange', ['n52.core.time', 'ui.bootstrap', 'n52.core.settings'])
         .controller('TimeRangeCtrl', ['$scope', '$modal',
             function ($scope, $modal) {
-                $scope.temp = 'horst';
                 $scope.open = function () {
                     $modal.open({
                         animation: true,
@@ -32,6 +31,12 @@ angular.module('n52.core.timeRange', ['n52.core.time', 'ui.bootstrap', 'n52.core
         .controller('PredefinedTimeRangeControls', ['$scope', 'settingsService',
             function ($scope, settingsService) {
                 $scope.items = settingsService.timeRangeData.presets;
+            }])
+        .controller('CenterTimeControl', ['$scope', 'timeService',
+            function ($scope, timeService) {
+                $scope.centerTime = function(timespan) {
+                    timeService.centerTimespan(timespan);
+                };
             }])
         .directive('swcPredefinedTimeRangeButton', function () {
             return {
@@ -102,17 +107,19 @@ angular.module('n52.core.timeSelectorButtons', ['n52.core.time', 'n52.core.timeR
             return {
                 restrict: 'E',
                 templateUrl: 'templates/time/time-selector-buttons.html',
-                controller: ['$scope', 'timeService',
-                    function ($scope, timeService) {
-                        $scope.time = timeService.time;
-
-                        $scope.back = function () {
-                            timeService.stepBack();
-                        };
-
-                        $scope.forward = function () {
-                            timeService.stepForward();
-                        };
-                    }]
+                controller: 'TimeSelectorCtrl'
             };
-        });
+        })
+        .controller('TimeSelectorCtrl', ['$scope', 'timeService',
+            function ($scope, timeService) {
+                $scope.time = timeService.time;
+
+                $scope.back = function () {
+                    timeService.stepBack();
+                };
+
+                $scope.forward = function () {
+                    timeService.stepForward();
+                };
+            }]);
+                

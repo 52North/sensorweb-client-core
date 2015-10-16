@@ -872,6 +872,19 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                     time.end = moment(time.start).add(time.duration);
                     fireNewTimeExtent();
                 }
+                
+                function centerTimespan (duration) {
+                    time.duration = moment.duration(duration);
+                    var halfspan = moment.duration(time.duration.valueOf() / 2);
+                    var center = (time.end.valueOf() - time.start.valueOf()) / 2;
+                    time.start = moment(time.start).add(moment.duration(center)).subtract(halfspan);
+                    time.end = moment(time.start).add(time.duration);
+                    fireNewTimeExtent();
+                }
+                
+                function isInCurrentTimespan(timestamp) {
+                    return moment(timestamp).isBetween(time.start, time.end);
+                }
 
                 function fireNewTimeExtent() {
                     statusService.status.timespan = time;
@@ -882,8 +895,10 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                     getCurrentTimespan: getCurrentTimespan,
                     jumpToLastTimeStamp: jumpToLastTimeStamp,
                     jumpToFirstTimeStamp: jumpToFirstTimeStamp,
+                    centerTimespan: centerTimespan,
                     setFlexibleTimeExtent: setFlexibleTimeExtent,
                     setPresetInterval: setPresetInterval,
+                    isInCurrentTimespan: isInCurrentTimespan,
                     stepBack: stepBack,
                     stepForward: stepForward,
                     time: time
