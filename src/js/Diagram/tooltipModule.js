@@ -17,7 +17,6 @@ angular.module('n52.core.flot.tooltip', ['n52.core.time', 'n52.core.barChart'])
                 $("#tooltip").each(function () {
                     var content = $(this);
                     angular.element(document).injector().invoke(['$compile', function ($compile) {
-                            debugger;
                             var scope = angular.element(content).scope();
                             scope.tsId = item.series.id;
                             scope.time = item.datapoint[0].toFixed(0);
@@ -30,7 +29,7 @@ angular.module('n52.core.flot.tooltip', ['n52.core.time', 'n52.core.barChart'])
                 if (halfwidth >= item.pageX) {
                     tooltip.css({top: item.pageY + 5, left: item.pageX + 5, right: "auto"});
                 } else {
-                    tooltip.css({top: item.pageY + 5, right: event.target.clientWidth - item.pageX, left: "auto"});
+                    tooltip.css({top: item.pageY + 5, right: ($(window).width() - item.pageX), left: "auto"});
                 }
             } else {
                 $("#tooltip").hide();
