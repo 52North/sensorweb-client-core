@@ -31,31 +31,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             height: height
                         });
 
-                        /* tooltips for mouse position */
-//                    $("<div id='tooltip'></div>").css({
-//                        position: "absolute",
-//                        display: "none",
-//                        border: "1px solid #fdd",
-//                        padding: "2px",
-//                        "background-color": "#fee",
-//                        opacity: 0.80
-//                    }).appendTo("body");
-//
-//                    $(plotArea).bind("plothover", function (event, pos, item) {
-//                        debugger;
-//                        if (item) {
-//                            var x = item.datapoint[0].toFixed(2),
-//                                    y = item.datapoint[1].toFixed(2);
-//
-//                            $("#tooltip").html(item.series.label + " of " + x + " = " + y)
-//                                    .css({top: item.pageY + 5, left: item.pageX + 5})
-//                                    .fadeIn(200);
-//                        } else {
-//                            $("#tooltip").hide();
-//                        }
-//                    });
-                        /* tooltip for mouse position */
-
                         plotChart = function (plotArea, dataset, options) {
                             if (dataset && dataset.length !== 0) {
                                 var plotObj = $.plot(plotArea, dataset, options);
@@ -185,6 +160,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         // plot pan ended event
                         $(plotArea).bind('plotpanEnd', function (evt, plot) {
+                            debugger;
                             var xaxis = plot.getXAxes()[0];
                             var from = moment(xaxis.min);
                             var till = moment(xaxis.max);
@@ -203,4 +179,4 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         });
                     }
                 };
-            }]);
+            }])

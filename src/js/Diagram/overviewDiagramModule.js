@@ -24,7 +24,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                         minSize: 30
                     },
                     grid: {
-                        hoverable: true,
+                        hoverable: false,
                         autoHighlight: false
                     },
                     xaxis: {

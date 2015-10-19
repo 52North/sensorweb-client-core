@@ -42,7 +42,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                     },
                     grid: {
                         hoverable: true,
-                        autoHighlight: false
+                        autoHighlight: true
                     },
                     crosshair: {
                         mode: 'x'
