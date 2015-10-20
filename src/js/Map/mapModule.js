@@ -1,7 +1,6 @@
 angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.core.status', 'n52.core.phenomena', 'n52.core.provider', 'n52.core.station', 'n52.core.listSelection', 'n52.core.locate'])
-        .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', 'stationModalOpener', '$compile', '$rootScope',
-            function ($scope, mapService, leafletData, $log, $translate, stationModalOpener, $compile, $rootScope) {
-                $log.info('start mapController');
+        .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', '$compile', '$rootScope',
+            function ($scope, mapService, leafletData, $log, $translate, $compile, $rootScope) {
                 $scope.map = mapService.map;
 
                 // adds a leaflet geosearch
@@ -28,14 +27,6 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                         map.invalidateSize(false);
                     });
                 });
-
-                var clickEvent = function (event, args) {
-                    var stationId = args.modelName;
-                    stationModalOpener(stationId, $scope.map.selectedPhenomenonId);
-                };
-
-                $scope.$on('leafletDirectiveMarker.click', clickEvent);
-                $scope.$on('leafletDirectivePath.click', clickEvent);
 
                 // add popup
                 $scope.$watch('map.popup', function (newObj) {
