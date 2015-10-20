@@ -108,6 +108,8 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
             }])
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
+                var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
+                
                 var map = {};
 
                 var init = function () {
@@ -259,7 +261,8 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                 var addNormalMarker = function (geom, elem) {
                     var marker = {
                         lat: geom[1],
-                        lng: geom[0]
+                        lng: geom[0],
+                        icon: stationMarkerIcon
                     };
                     if (statusService.status.clusterStations) {
                         marker.layer = 'cluster';
