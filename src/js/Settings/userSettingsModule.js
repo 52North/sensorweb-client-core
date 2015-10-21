@@ -73,7 +73,6 @@ angular.module('n52.core.userSettings', ['ui.bootstrap', 'n52.core.settings', 'n
                     link: function (scope, element, attrs) {
                         scope.timeseriesId = attrs.timeseriesid;
                         scope.create = function () {
-                            debugger;
                             var img = qr.image({
                                 value: permalinkGenerationService.getCurrentPermalink(this.timeseriesId),
                                 size: 5

@@ -160,7 +160,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
 
                         // plot pan ended event
                         $(plotArea).bind('plotpanEnd', function (evt, plot) {
-                            debugger;
                             var xaxis = plot.getXAxes()[0];
                             var from = moment(xaxis.min);
                             var till = moment(xaxis.max);
