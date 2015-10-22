@@ -159,15 +159,49 @@ angular.module('n52.core.listSelection', ['n52.core.interface', 'n52.core.status
             }]);
 
 angular.module('n52.core.locate', ['n52.core.station'])
-        .controller('LocateButtonCtrl', ['$scope', 'mapService', function ($scope, mapService) {
+        .controller('SwcLocateButtonCtrl', ['$scope', 'locateService', function ($scope, locateService) {
+                $scope.isToggled = false;
                 $scope.locateUser = function () {
-                    mapService.locateUser();
+                    $scope.isToggled = !$scope.isToggled;
+                    locateService.locate($scope.isToggled);
+                };
+            }])
+        .factory('locateService', ['leafletData', 'settingsService',
+            function (leafletData, settingsService) {
+                var marker;
+                var locateIcon = settingsService.locateIconOptions ? L.icon(settingsService.locateIconOptions) : new L.Icon.Default();
+                leafletData.getMap().then(function (map) {
+                    map.on('locationfound', function (evt) {
+                        removeMarker(map);
+                        marker = L.marker(evt.latlng, {icon: locateIcon}).addTo(map);
+                    });
+                });
+                locate = function (search) {
+                    leafletData.getMap().then(function (map) {
+                        if (search) {
+                            map.locate({
+                                watch: true,
+                                setView: true,
+                                maxZoom: map.getZoom()
+                            });
+                        } else {
+                            map.stopLocate();
+                            removeMarker(map);
+                        }
+                    });
+                };
+                removeMarker = function (map) {
+                    if (angular.isDefined(marker)) {
+                        map.removeLayer(marker);
+                    }
+                };
+                return {
+                    locate: locate
                 };
             }]);
 angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.core.status', 'n52.core.phenomena', 'n52.core.provider', 'n52.core.station', 'n52.core.listSelection', 'n52.core.locate'])
-        .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', 'stationModalOpener', '$compile',
-            function ($scope, mapService, leafletData, $log, $translate, stationModalOpener, $compile) {
-                $log.info('start mapController');
+        .controller('BasicMapController', ['$scope', 'mapService', 'leafletData', '$log', '$translate', '$compile', '$rootScope',
+            function ($scope, mapService, leafletData, $log, $translate, $compile, $rootScope) {
                 $scope.map = mapService.map;
 
                 // adds a leaflet geosearch
@@ -189,13 +223,11 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     });
                 });
 
-                var clickEvent = function (event, args) {
-                    var stationId = args.modelName;
-                    stationModalOpener(stationId, $scope.map.selectedPhenomenonId);
-                };
-
-                $scope.$on('leafletDirectiveMarker.click', clickEvent);
-                $scope.$on('leafletDirectivePath.click', clickEvent);
+                $rootScope.$on('resizeMap', function () {
+                    leafletData.getMap().then(function (map) {
+                        map.invalidateSize(false);
+                    });
+                });
 
                 // add popup
                 $scope.$watch('map.popup', function (newObj) {
@@ -211,8 +243,65 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     }
                 }, true);
             }])
+        .controller('SwcZoomControlsCtrl', ['$scope', 'mapService', function ($scope, mapService) {
+                $scope.zoomIn = function () {
+                    mapService.map.center.zoom = mapService.map.center.zoom + 1;
+                };
+                $scope.zoomOut = function () {
+                    mapService.map.center.zoom = mapService.map.center.zoom - 1;
+                };
+            }])
+        .controller('SwcMapLayerCtrl', ['$scope', function ($scope) {
+                $scope.isToggled = false;
+                $scope.openMenu = function () {
+                    $scope.isToggled = true;
+                };
+                $scope.closeMenu = function () {
+                    $scope.isToggled = false;
+                };
+            }])
+        .controller('SwcBaseLayerCtrl', ['$scope', 'mapService', 'leafletData',
+            function ($scope, mapService, leafletData) {
+                leafletData.getMap().then(function (map) {
+                    leafletData.getLayers().then(function (layers) {
+                        angular.forEach(layers.baselayers, function (layer, key) {
+                            if (map.hasLayer(layer)) {
+                                mapService.map.layers.baselayers[key].visible = true;
+                            }
+                        });
+                    });
+                });
+                $scope.baseLayers = mapService.map.layers.baselayers;
+                $scope.switchVisibility = function (key) {
+                    angular.forEach(mapService.map.layers.baselayers, function (layer, layerKey) {
+                        if (layerKey === key) {
+                            layer.visible = true;
+                        } else {
+                            layer.visible = false;
+                        }
+                    });
+                    leafletData.getMap().then(function (map) {
+                        leafletData.getLayers().then(function (layers) {
+                            angular.forEach(layers.baselayers, function (layer) {
+                                map.removeLayer(layer);
+                            });
+                            if (angular.isDefined(layers.baselayers[key])) {
+                                map.addLayer(layers.baselayers[key]);
+                            }
+                        });
+                    });
+                };
+            }])
+        .controller('SwcOverlayCtrl', ['$scope', 'mapService', function ($scope, mapService) {
+                $scope.baseLayers = mapService.map.layers.overlays;
+                $scope.switchVisibility = function (layer) {
+                    layer.visible = !layer.visible;
+                };
+            }])
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
+                var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
+                
                 var map = {};
 
                 var init = function () {
@@ -224,21 +313,53 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     map.layers = {
                         baselayers: {
                             osm: {
-                                name: 'OpenStreetMap',
+                                name: 'Open Street Map',
                                 type: 'xyz',
                                 url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 layerOptions: {
-                                    showOnSelector: false
+                                    showOnSelector: true
+                                }
+                            },
+                            mapbox_light: {
+                                name: 'Mapbox Light',
+                                url: 'http://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_token={apikey}',
+                                type: 'xyz',
+                                layerOptions: {
+                                    apikey: 'pk.eyJ1IjoiYnVmYW51dm9scyIsImEiOiJLSURpX0pnIn0.2_9NrLz1U9bpwMQBhVk97Q',
+                                    mapid: 'bufanuvols.lia22g09'
+                                }
+                            },
+                            cycle: {
+                                name: 'OpenCycleMap',
+                                type: 'xyz',
+                                url: 'http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png',
+                                layerOptions: {
+                                    subdomains: ['a', 'b', 'c'],
+                                    attribution: '&copy; <a href="http://www.opencyclemap.org/copyright">OpenCycleMap</a> contributors - &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                    continuousWorld: true
                                 }
                             }
                         },
                         overlays: {
                             cluster: {
-                                name: 'stations',
+                                name: 'Stations',
                                 type: 'markercluster',
                                 visible: true,
                                 layerOptions: {
                                     showOnSelector: false
+                                }
+                            },
+                            hillshade: {
+                                name: 'Hillshade Europa',
+                                type: 'wms',
+                                url: 'http://129.206.228.72/cached/hillshade',
+                                visible: false,
+                                layerOptions: {
+                                    layers: 'europe_wms:hs_srtm_europa',
+                                    format: 'image/png',
+                                    opacity: 0.25,
+                                    attribution: 'Hillshade layer by GIScience http://www.osm-wms.de',
+                                    crs: L.CRS.EPSG900913
                                 }
                             }
                         }
@@ -332,7 +453,8 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                 var addNormalMarker = function (geom, elem) {
                     var marker = {
                         lat: geom[1],
-                        lng: geom[0]
+                        lng: geom[0],
+                        icon: stationMarkerIcon
                     };
                     if (statusService.status.clusterStations) {
                         marker.layer = 'cluster';
@@ -495,6 +617,10 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                     });
                 };
             }])
+        .controller('ProviderLabelCtrl', ['$scope', 'providerService',
+            function ($scope, providerService) {
+                $scope.selectedProvider = providerService.selectedProvider;
+            }])
         .controller('ProviderListModalCtrl', ['$scope', '$modalInstance', 'providerService',
             function ($scope, $modalInstance, providerService) {
                 $scope.providerList = providerService.providerList;
@@ -511,8 +637,11 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
         .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService',
             function ($rootScope, settingsService, interfaceService, statusService) {
                 var providerList = [];
+                var selectedProvider = {
+                    label: ""
+                };
 
-                var getAllProviders = function () {
+                getAllProviders = function () {
                     angular.forEach(settingsService.restApiUrls, function (elem, url) {
                         interfaceService.getServices(url).success(function (providers) {
                             angular.forEach(providers, function (provider) {
@@ -525,6 +654,7 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                                 if (!isBlacklisted) {
                                     if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
                                         provider.selected = true;
+                                        selectedProvider.label = provider.label;  
                                     } else {
                                         provider.selected = false;
                                     }
@@ -537,11 +667,12 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                         });
                     });
                 };
-
-                var selectProvider = function (selection) {
+                
+                selectProvider = function (selection) {
                     angular.forEach(providerList, function (provider) {
                         if (selection.id === provider.id && selection.url === provider.url) {
                             provider.selected = true;
+                            selectedProvider.label = provider.label;
                             statusService.status.apiProvider = {
                                 url: provider.url,
                                 serviceID: provider.id
@@ -557,51 +688,31 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
 
                 return {
                     providerList: providerList,
+                    selectedProvider: selectedProvider,
                     selectProvider: selectProvider
                 };
             }]);
 angular.module('n52.core.station', ['ui.bootstrap'])
-        .controller('ModalStationCtrl', ['$scope', '$modalInstance', 'interfaceService', 'statusService', 'stationId', 'phenomenonId', 'timeseriesService', '$location',
-            function ($scope, $modalInstance, interfaceService, statusService, stationId, phenomenonId, timeseriesService, $location) {
+        .controller('ModalStationCtrl', ['$scope', '$modalInstance', 'statusService', 'timeseriesService', '$location', 'stationService', 'stationId', 'phenomenonId',
+            function ($scope, $modalInstance, statusService, timeseriesService, $location, stationService, stationId, phenomenonId) {
+                stationService.determineTimeseries(stationId);
                 $scope.isAllSelected = true;
-
-                // load stations
-                interfaceService.getStations(stationId, statusService.status.apiProvider.url).success(function (station, evt) {
-                    // remove non matching phenomenonId
-                    removeNonMatchingPhenoneons(station, phenomenonId);
-
-                    $scope.station = station;
-                    angular.forEach(station.properties.timeseries, function (timeseries, id) {
-                        interfaceService.getTimeseries(id, statusService.status.apiProvider.url).then(function (ts) {
-                            angular.extend(timeseries, ts);
-                            timeseries.selected = true;
-                        });
-                    });
-                });
-
-                removeNonMatchingPhenoneons = function (station, phenomenonId) {
-                    if (phenomenonId) {
-                        var removableIds = [];
-                        angular.forEach(station.properties.timeseries, function (timeseries, tsId) {
-                            if (timeseries.phenomenon.id !== phenomenonId) {
-                                removableIds.push(tsId);
-                            }
-                        });
-                        angular.forEach(removableIds, function (id) {
-                            delete station.properties.timeseries[id];
-                        });
-                    }
-                };
+                $scope.station = stationService.station;
+                $scope.phenomenonId = phenomenonId;
 
                 $scope.toggleAll = function () {
-                    angular.forEach($scope.station.properties.timeseries, function (ts) {
+                    angular.forEach($scope.station.entry.properties.timeseries, function (ts) {
                         ts.selected = $scope.isAllSelected;
                     });
                 };
 
+                $scope.close = function () {
+                    $modalInstance.close();
+                };
+
                 $scope.toggled = function () {
                     var allSelected = true;
-                    angular.forEach($scope.station.properties.timeseries, function (ts) {
+                    angular.forEach($scope.station.entry.properties.timeseries, function (ts) {
                         if (!ts.selected)
                             allSelected = false;
                     });
@@ -609,7 +720,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                 };
 
                 $scope.addTimeseriesSelection = function () {
-                    angular.forEach($scope.station.properties.timeseries, function (timeseries) {
+                    angular.forEach($scope.station.entry.properties.timeseries, function (timeseries) {
                         if (timeseries.selected) {
                             timeseriesService.addTimeseriesById(timeseries.id, statusService.status.apiProvider.url);
                         }
@@ -618,9 +729,10 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                     $modalInstance.close();
                 };
             }])
-        .service('stationModalOpener', ['$modal',
-            function ($modal) {
-                return function (stationId, phenomenonId) {
+        .controller('StationOpenerCtrl', ['$modal', '$rootScope', 'mapService',
+            function ($modal, $rootScope, mapService) {
+                $rootScope.$on('leafletDirectiveMarker.click', function (event, args) {
+                    var stationId = args.modelName;
                     $modal.open({
                         animation: true,
                         templateUrl: 'templates/map/station.html',
@@ -629,10 +741,33 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                                 return stationId;
                             },
                             phenomenonId: function () {
-                                return phenomenonId;
+                                return mapService.map.selectedPhenomenonId;
                             }
                         },
                         controller: 'ModalStationCtrl'
                     });
+                });
+            }])
+        .service('stationService', ['interfaceService', 'statusService',
+            function (interfaceService, statusService) {
+                var station = {
+                    entry: {}
+                };
+                determineTimeseries = function (stationId) {
+                    station.entry = {};
+                    interfaceService.getStations(stationId, statusService.status.apiProvider.url).success(function (result, evt) {
+                        station.entry = result;
+                        angular.forEach(result.properties.timeseries, function (timeseries, id) {
+                            interfaceService.getTimeseries(id, statusService.status.apiProvider.url).then(function (ts) {
+                                angular.extend(timeseries, ts);
+                                timeseries.selected = true;
+                            });
+                        });
+                    });
+                };
+
+                return {
+                    determineTimeseries: determineTimeseries,
+                    station: station
                 };
             }]);

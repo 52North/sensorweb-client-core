@@ -174,7 +174,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                     removeTimeseriesFromDataSet(dataset, id);
                     if (!addTimeseriesToDataSet(dataset, renderOptions, id, data)){
                         updateAllTimeseriesToDataSet(dataset, renderOptions);
-                    };
+                    }
                 }
 
                 function addTimeseriesToDataSet(dataset, renderOptions, id, data) {

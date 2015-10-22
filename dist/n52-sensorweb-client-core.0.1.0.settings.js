@@ -39,25 +39,46 @@ angular.module('n52.core.userSettings', ['ui.bootstrap', 'n52.core.settings', 'n
                     statusService.resetStatus();
                 };
             }])
+        .controller('ToggleGeneralizationCtrl', ['$scope', 'statusService', '$rootScope',
+            function ($scope, statusService, $rootScope) {
+                $scope.isToggled = statusService.status.generalizeData;
+                $scope.toggleGeneralization = function () {
+                    $scope.isToggled = statusService.status.generalizeData = !statusService.status.generalizeData;
+                    $rootScope.$emit('timeExtentChanged');
+                };
+            }])
         .controller('PermalinkInWindowCtrl', ['$scope', 'permalinkGenerationService', '$window',
             function ($scope, permalinkGenerationService, $window) {
-                $scope.openInNewWindow = function () {
-                    var link = permalinkGenerationService.getCurrentPermalink();
+                $scope.openInNewWindow = function (timeseriesId) {
+                    var link = permalinkGenerationService.getCurrentPermalink(timeseriesId);
                     $window.open(link, '_blank');
                 };
             }])
         .controller('PermalinkInMailCtrl', ['$scope', 'permalinkGenerationService', '$window',
             function ($scope, permalinkGenerationService, $window) {
-                $scope.openInMail = function () {
-                    var link = permalinkGenerationService.getCurrentPermalink();
+                $scope.openInMail = function (timeseriesId) {
+                    var link = permalinkGenerationService.getCurrentPermalink(timeseriesId);
                     $window.location = "mailto:?body=" + encodeURIComponent(link);
                 };
             }])
         .controller('PermalinkToClipboardCtrl', ['$scope', 'permalinkGenerationService', '$window', '$translate',
             function ($scope, permalinkGenerationService, $window, $translate) {
-                $scope.copyToClipboard = function () {
-                    var link = permalinkGenerationService.getCurrentPermalink();
+                $scope.copyToClipboard = function (timeseriesId) {
+                    var link = permalinkGenerationService.getCurrentPermalink(timeseriesId);
                     $window.prompt($translate.instant('settings.permalink.clipboardInfo'), link);
+                };
+            }])
+        .controller('QrCodeCtrl', ['$scope', 'permalinkGenerationService',
+            function ($scope, permalinkGenerationService) {
+                $scope.createQrCode = function (timeseriesId) {
+                    if (angular.isUndefined($scope.dataUrl)) {
+                        $scope.dataUrl = qr.toDataURL({
+                            value: permalinkGenerationService.getCurrentPermalink(timeseriesId),
+                            size: 5
+                        });
+                    } else {
+                        $scope.dataUrl = undefined;
+                    }
                 };
             }])
         .directive('swcQrCode', ['permalinkGenerationService',
@@ -67,9 +88,10 @@ angular.module('n52.core.userSettings', ['ui.bootstrap', 'n52.core.settings', 'n
                     templateUrl: 'templates/settings/qr-code-button.html',
                     scope: {},
                     link: function (scope, element, attrs) {
+                        scope.timeseriesId = attrs.timeseriesid;
                         scope.create = function () {
                             var img = qr.image({
-                                value: permalinkGenerationService.getCurrentPermalink(),
+                                value: permalinkGenerationService.getCurrentPermalink(this.timeseriesId),
                                 size: 5
                             });
                             var anchor = element.find('span.qr-code');

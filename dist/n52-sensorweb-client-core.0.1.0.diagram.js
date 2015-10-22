@@ -42,7 +42,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                     },
                     grid: {
                         hoverable: true,
-                        autoHighlight: false
+                        autoHighlight: true
                     },
                     crosshair: {
                         mode: 'x'
@@ -79,7 +79,8 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 angular.merge(options, settingsService.chartOptions);
                 var renderOptions = {
                     showRefValues: true,
-                    showSelection: true
+                    showSelection: true,
+                    showActive: true
                 };
                 var dataset = createDataSet();
                 setTimeExtent();
@@ -163,6 +164,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
         .factory('flotDataHelperServ', ['timeseriesService', 'settingsService', 'barChartHelperService',
             function (timeseriesService, settingsService, barChartHelperService) {
                 function updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesList) {
+                    if (angular.isUndefined(timeseriesList)) timeseriesList = timeseriesService.getAllTimeseries();
                     angular.forEach(timeseriesList, function (ts) {
                         updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, timeseriesService.getData(ts.internalId));
                     });
@@ -170,7 +172,9 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
 
                 function updateTimeseriesInDataSet(dataset, renderOptions, id, data) {
                     removeTimeseriesFromDataSet(dataset, id);
-                    addTimeseriesToDataSet(dataset, renderOptions, id, data);
+                    if (!addTimeseriesToDataSet(dataset, renderOptions, id, data)){
+                        updateAllTimeseriesToDataSet(dataset, renderOptions);
+                    }
                 }
 
                 function addTimeseriesToDataSet(dataset, renderOptions, id, data) {
@@ -195,22 +199,26 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                                 }
                             });
                         }
-                    }
+                        return true;
+                    } 
+                    return false;
                 }
 
                 function createEntry(ts, data, renderOptions) {
-                    // general data settings
-                    var selected = ts.styles.selected && renderOptions.showSelection,
-                    dataEntry = {
+                    var lineWidth = settingsService.commonLineWidth,
+                            selected = ts.styles.selected && renderOptions.showSelection;
+                    if (ts.isActive && renderOptions.showActive) lineWidth = settingsService.activeLineWidth;
+                    if (selected) lineWidth = settingsService.selectedLineWidth;
+                    var dataEntry = {
                         id: ts.internalId,
                         color: ts.styles.color,
                         data: data.values,
                         selected: selected,
                         lines: {
-                            lineWidth: selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
+                            lineWidth: lineWidth
                         },
                         bars: {
-                            lineWidth: selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
+                            lineWidth: lineWidth
                         },
                         yaxis: ts.styles.yaxis
                     };
@@ -288,31 +296,6 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                             height: height
                         });
 
-                        /* tooltips for mouse position */
-//                    $("<div id='tooltip'></div>").css({
-//                        position: "absolute",
-//                        display: "none",
-//                        border: "1px solid #fdd",
-//                        padding: "2px",
-//                        "background-color": "#fee",
-//                        opacity: 0.80
-//                    }).appendTo("body");
-//
-//                    $(plotArea).bind("plothover", function (event, pos, item) {
-//                        debugger;
-//                        if (item) {
-//                            var x = item.datapoint[0].toFixed(2),
-//                                    y = item.datapoint[1].toFixed(2);
-//
-//                            $("#tooltip").html(item.series.label + " of " + x + " = " + y)
-//                                    .css({top: item.pageY + 5, left: item.pageX + 5})
-//                                    .fadeIn(200);
-//                        } else {
-//                            $("#tooltip").hide();
-//                        }
-//                    });
-                        /* tooltip for mouse position */
-
                         plotChart = function (plotArea, dataset, options) {
                             if (dataset && dataset.length !== 0) {
                                 var plotObj = $.plot(plotArea, dataset, options);
@@ -377,7 +360,9 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                                 if (!selected) {
                                                     target.addClass("selected");
                                                 }
+                                                scope.$apply();
                                                 styleService.notifyAllTimeseriesChanged();
+                                                $rootScope.$emit('redrawChart');
                                             }, this));
                                     var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
                                             .appendTo(plot.getPlaceholder())
@@ -437,9 +422,7 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         });
 
                         var redrawChartListener = $rootScope.$on('redrawChart', function () {
-                            setTimeout(function () {
-                                plotChart(plotArea, scope.dataset, scope.options);
-                            }, 100);
+                            plotChart(plotArea, scope.dataset, scope.options);
                         });
 
                         // plot pan ended event
@@ -508,7 +491,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                         minSize: 30
                     },
                     grid: {
-                        hoverable: true,
+                        hoverable: false,
                         autoHighlight: false
                     },
                     xaxis: {
@@ -526,7 +509,11 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 var dataset = [];
                 var renderOptions={
                     showRefValues: false,
-                    showSelection: false
+                    showSelection: false,
+                    showActive: false
+                };
+                var extendedDataRequest = {
+                    generalize: true
                 };
                 setTimeExtent();
                 setSelectionExtent();
@@ -576,7 +563,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                     var ts = timeseriesService.getTimeseries(tsId);
                     if (ts) {
                         var start = options.xaxis.min, end = options.xaxis.max;
-                        interfaceService.getTsData(ts.id, ts.apiUrl, utils.createRequestTimespan(start, end)).success(function (data) {
+                        interfaceService.getTsData(ts.id, ts.apiUrl, utils.createRequestTimespan(start, end), extendedDataRequest).success(function (data) {
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
                         });
                     } else {

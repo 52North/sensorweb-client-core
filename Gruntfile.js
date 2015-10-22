@@ -37,6 +37,9 @@ module.exports = function (grunt) {
         time_files: [
             'src/js/Time/*.js'
         ],
+        helper_files: [
+            'src/js/helper/*.js'
+        ],
         ie9_files: [
             'src/js/IE9/*.js'
         ],
@@ -84,6 +87,10 @@ module.exports = function (grunt) {
             time: {
                 src: '<%= time_files %>',
                 dest: 'dist/<%= name %>.time.js'
+            },
+            helper: {
+                src: '<%= helper_files %>',
+                dest: 'dist/<%= name %>.helper.js'
             },
             ie9: {
                 src: '<%= ie9_files %>',
@@ -147,6 +154,11 @@ module.exports = function (grunt) {
             time: {
                 files: {
                     'dist/<%= name %>.time.min.js': ['<%= concat.time.dest %>']
+                }
+            },
+            helper: {
+                files: {
+                    'dist/<%= name %>.helper.min.js': ['<%= concat.helper.dest %>']
                 }
             },
             ie9: {

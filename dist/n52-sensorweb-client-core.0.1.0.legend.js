@@ -80,14 +80,6 @@ angular.module('n52.core.legend', ['n52.core.timeseries', 'n52.core.exportTs', '
                             $scope.createExportCsv = function (id) {
                                 exportTsService.openInNewWindow(exportTsService.createCsvDownloadLink(id));
                             };
-                            // why apply manualy when selecting the y-axis in the chart?
-                            var allTimeseriesChangedListener = $rootScope.$on('allTimeseriesChanged', function (evt) {
-                                $scope.$apply();
-                            });
-
-                            $scope.$on('$destroy', function () {
-                                allTimeseriesChangedListener();
-                            });
                         }]
                 };
             }])
