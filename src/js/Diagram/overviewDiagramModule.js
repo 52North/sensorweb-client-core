@@ -42,7 +42,8 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                 var dataset = [];
                 var renderOptions={
                     showRefValues: false,
-                    showSelection: false
+                    showSelection: false,
+                    showActive: false
                 };
                 var extendedDataRequest = {
                     generalize: true

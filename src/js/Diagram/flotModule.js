@@ -178,4 +178,4 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         });
                     }
                 };
-            }])
+            }]);

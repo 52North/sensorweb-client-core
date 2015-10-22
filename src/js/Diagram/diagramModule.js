@@ -79,7 +79,8 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 angular.merge(options, settingsService.chartOptions);
                 var renderOptions = {
                     showRefValues: true,
-                    showSelection: true
+                    showSelection: true,
+                    showActive: true
                 };
                 var dataset = createDataSet();
                 setTimeExtent();
@@ -204,18 +205,20 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 }
 
                 function createEntry(ts, data, renderOptions) {
-                    // general data settings
-                    var selected = ts.styles.selected && renderOptions.showSelection,
-                    dataEntry = {
+                    var lineWidth = settingsService.commonLineWidth,
+                            selected = ts.styles.selected && renderOptions.showSelection;
+                    if (ts.isActive && renderOptions.showActive) lineWidth = settingsService.activeLineWidth;
+                    if (selected) lineWidth = settingsService.selectedLineWidth;
+                    var dataEntry = {
                         id: ts.internalId,
                         color: ts.styles.color,
                         data: data.values,
                         selected: selected,
                         lines: {
-                            lineWidth: selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
+                            lineWidth: lineWidth
                         },
                         bars: {
-                            lineWidth: selected ? settingsService.selectedLineWidth : settingsService.commonLineWidth
+                            lineWidth: lineWidth
                         },
                         yaxis: ts.styles.yaxis
                     };

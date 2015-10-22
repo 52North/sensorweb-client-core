@@ -90,6 +90,10 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                     data = createValueArray();
                     $scope.columns = createColumns();
                 });
+                var alltimeseriesChangedListener = $rootScope.$on('allTimeseriesChanged', function () {
+                    data = createValueArray();
+                    $scope.columns = createColumns();
+                });
                 var timeseriesDataChangedListener = $rootScope.$on('timeseriesDataChanged', function (evt, id) {
                     data = createValueArray();
                     $scope.columns = createColumns();
@@ -99,6 +103,7 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                 $scope.$on('$destroy', function () {
                     timeseriesChangedListener();
                     timeseriesDataChangedListener();
+                    alltimeseriesChangedListener();
                 });
                 var data = createValueArray();
                 createTable();
