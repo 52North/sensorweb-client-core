@@ -95,7 +95,9 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                                                 if (!selected) {
                                                     target.addClass("selected");
                                                 }
+                                                scope.$apply();
                                                 styleService.notifyAllTimeseriesChanged();
+                                                $rootScope.$emit('redrawChart');
                                             }, this));
                                     var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
                                             .appendTo(plot.getPlaceholder())
