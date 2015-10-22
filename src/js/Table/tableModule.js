@@ -40,7 +40,8 @@ angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable'])
                             station: ts.parameters.feature.label,
                             phenomenon: ts.parameters.phenomenon.label + " (" + ts.uom + ")",
                             field: ts.internalId,
-                            color: ts.styles.color
+                            color: ts.styles.color,
+                            isActive: ts.isActive
                         });
                     });
                     return columns;
