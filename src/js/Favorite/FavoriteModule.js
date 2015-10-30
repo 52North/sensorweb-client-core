@@ -131,6 +131,9 @@ angular.module('n52.core.favoriteUi', ['n52.core.timeseries', 'n52.core.exportTs
                         },
                         controller: ['$scope', '$modalInstance', 'favorite', 'favoriteService', function ($scope, $modalInstance, favorite, favoriteService) {
                                 $scope.label = favorite.label;
+                                $scope.close = function() {
+                                    $modalInstance.close();
+                                };
                                 $scope.submit = function () {
                                     favoriteService.changeLabel(favorite, $scope.label);
                                     $modalInstance.close();
