@@ -172,6 +172,9 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                         map.selectedPhenomenonId = phenomenon.id;
                         requestStations(phenomenon.id);
                     });
+                    $rootScope.$on('redrawStations', function (evt, phenomenon) {
+                        requestStations(map.selectedPhenomenonId);
+                    });
                     $rootScope.$on('newProviderSelected', function (evt) {
                         requestStations();
                     });
