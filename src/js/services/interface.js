@@ -32,7 +32,13 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                 };
 
                 this.getServices = function (apiUrl) {
-                    return $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true}));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true})).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getStations = function (id, apiUrl, params) {

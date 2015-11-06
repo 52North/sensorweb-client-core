@@ -36,7 +36,7 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
 
                 getAllProviders = function () {
                     angular.forEach(settingsService.restApiUrls, function (elem, url) {
-                        interfaceService.getServices(url).success(function (providers) {
+                        interfaceService.getServices(url).then(function (providers) {
                             angular.forEach(providers, function (provider) {
                                 var isBlacklisted = false;
                                 angular.forEach(settingsService.providerBlackList, function (entry) {
