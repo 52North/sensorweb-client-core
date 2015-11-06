@@ -44,7 +44,13 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                 };
 
                 this.getCategories = function (id, apiUrl, params) {
-                    return $http.get(apiUrl + 'categories/' + _createIdString(id), _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'categories/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getFeatures = function (id, apiUrl, params) {
