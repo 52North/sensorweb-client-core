@@ -100,7 +100,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
-                
+
                 var map = {};
 
                 var init = function () {
@@ -192,7 +192,8 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                             force_latest_values: true,
                             status_intervals: true
                         };
-                        interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).success(createMarkers);
+//                        interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).success(createMarkers);
+                        interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).then(createMarkers);
                     } else {
                         params = {
                             service: statusService.status.apiProvider.serviceID,

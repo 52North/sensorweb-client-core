@@ -14,16 +14,22 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                     };
                 };
 
-                var _createIdString = function (id) {
+                _errorCallback = function (error, reject) {
+                    if (error.data && error.data.userMessage)
+                        console.error(error.data.userMessage);
+                    reject(error);
+                };
+
+                _createIdString = function (id) {
                     return (id === null ? "" : id);
                 };
 
-                function _pimpTs(ts, url) {
+                _pimpTs = function(ts, url) {
                     styleService.createStylesInTs(ts);
                     ts.apiUrl = url;
                     ts.internalId = utils.createInternalId(ts.id, url);
                     return ts;
-                }
+                };
 
                 this.getServices = function (apiUrl) {
                     return $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true}));
@@ -57,14 +63,18 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                     params.status_intervals = true;
                     params.rendering_hints = true;
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'timeseries/' + _createIdString(id), _createRequestConfigs(params)).success(function (data) {
-                            if (angular.isArray(data)) {
-                                angular.forEach(data, function (ts) {
-                                    _pimpTs(ts, apiUrl);
+                        $http.get(apiUrl + 'timeseries/' + _createIdString(id), _createRequestConfigs(params)).then(function (response) {
+                            if (angular.isArray(response.data)) {
+                                var array = [];
+                                angular.forEach(response.data, function (ts) {
+                                    array.push(_pimpTs(ts, apiUrl));
                                 });
+                                resolve(array);
                             } else {
-                                resolve(_pimpTs(data, apiUrl));
+                                resolve(_pimpTs(response.data, apiUrl));
                             }
+                        }, function (error) {
+                            _errorCallback(error, reject);
                         });
                     });
                 };
