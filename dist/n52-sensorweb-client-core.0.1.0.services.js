@@ -297,39 +297,81 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                     };
                 };
 
-                var _createIdString = function (id) {
+                _errorCallback = function (error, reject) {
+                    if (error.data && error.data.userMessage)
+                        console.error(error.data.userMessage);
+                    reject(error);
+                };
+
+                _createIdString = function (id) {
                     return (id === null ? "" : id);
                 };
 
-                function _pimpTs(ts, url) {
+                _pimpTs = function(ts, url) {
                     styleService.createStylesInTs(ts);
                     ts.apiUrl = url;
                     ts.internalId = utils.createInternalId(ts.id, url);
                     return ts;
-                }
+                };
 
                 this.getServices = function (apiUrl) {
-                    return $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true}));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true})).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getStations = function (id, apiUrl, params) {
-                    return $http.get(apiUrl + 'stations/' + _createIdString(id), _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'stations/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getPhenomena = function (id, apiUrl, params) {
-                    return $http.get(apiUrl + 'phenomena/' + _createIdString(id), _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'phenomena/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getCategories = function (id, apiUrl, params) {
-                    return $http.get(apiUrl + 'categories/' + _createIdString(id), _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'categories/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getFeatures = function (id, apiUrl, params) {
-                    return $http.get(apiUrl + 'features/' + _createIdString(id), _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'features/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getProcedures = function (id, apiUrl, params) {
-                    return $http.get(apiUrl + 'procedures/' + _createIdString(id), _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'procedures/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
 
                 this.getTimeseries = function (id, apiUrl, params) {
@@ -340,14 +382,18 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                     params.status_intervals = true;
                     params.rendering_hints = true;
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'timeseries/' + _createIdString(id), _createRequestConfigs(params)).success(function (data) {
-                            if (angular.isArray(data)) {
-                                angular.forEach(data, function (ts) {
-                                    _pimpTs(ts, apiUrl);
+                        $http.get(apiUrl + 'timeseries/' + _createIdString(id), _createRequestConfigs(params)).then(function (response) {
+                            if (angular.isArray(response.data)) {
+                                var array = [];
+                                angular.forEach(response.data, function (ts) {
+                                    array.push(_pimpTs(ts, apiUrl));
                                 });
+                                resolve(array);
                             } else {
-                                resolve(_pimpTs(data, apiUrl));
+                                resolve(_pimpTs(response.data, apiUrl));
                             }
+                        }, function (error) {
+                            _errorCallback(error, reject);
                         });
                     });
                 };
@@ -362,7 +408,13 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                     if (extendedData) {
                         angular.extend(params, extendedData);
                     }
-                    return $http.get(apiUrl + 'timeseries/' + _createIdString(id) + "/getData", _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'timeseries/' + _createIdString(id) + "/getData", _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
             }]);
 angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
@@ -937,7 +989,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
 
                 function _loadTsData(ts) {
                     ts.loadingData = true;
-                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan()).success(function (data) {
+                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan()).then(function (data) {
                         _addTsData(data, ts);
                     });
                 }

@@ -116,19 +116,19 @@ angular.module('n52.core.listSelection', ['n52.core.interface', 'n52.core.status
 
                         $scope.getItems = function (currParam) {
                             if (currParam.type === 'category') {
-                                interfaceService.getCategories(null, statusService.status.apiProvider.url, $scope.createParams()).success(function (data) {
+                                interfaceService.getCategories(null, statusService.status.apiProvider.url, $scope.createParams()).then(function (data) {
                                     currParam.items = data;
                                 });
                             } else if (currParam.type === 'feature') {
-                                interfaceService.getFeatures(null, statusService.status.apiProvider.url, $scope.createParams()).success(function (data) {
+                                interfaceService.getFeatures(null, statusService.status.apiProvider.url, $scope.createParams()).then(function (data) {
                                     currParam.items = data;
                                 });
                             } else if (currParam.type === 'phenomenon') {
-                                interfaceService.getPhenomena(null, statusService.status.apiProvider.url, $scope.createParams()).success(function (data) {
+                                interfaceService.getPhenomena(null, statusService.status.apiProvider.url, $scope.createParams()).then(function (data) {
                                     currParam.items = data;
                                 });
                             } else if (currParam.type === 'procedure') {
-                                interfaceService.getProcedures(null, statusService.status.apiProvider.url, $scope.createParams()).success(function (data) {
+                                interfaceService.getProcedures(null, statusService.status.apiProvider.url, $scope.createParams()).then(function (data) {
                                     currParam.items = data;
                                 });
                             }
@@ -301,7 +301,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
-                
+
                 var map = {};
 
                 var init = function () {
@@ -393,13 +393,13 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                             force_latest_values: true,
                             status_intervals: true
                         };
-                        interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).success(createMarkers);
+                        interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).then(createMarkers);
                     } else {
                         params = {
                             service: statusService.status.apiProvider.serviceID,
                             phenomenon: phenomenon
                         };
-                        interfaceService.getStations(null, statusService.status.apiProvider.url, params).success(createMarkers);
+                        interfaceService.getStations(null, statusService.status.apiProvider.url, params).then(createMarkers);
                     }
                 };
 
@@ -578,7 +578,7 @@ angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
                     var params = {
                         service: statusService.status.apiProvider.serviceID
                     };
-                    interfaceService.getPhenomena(null, statusService.status.apiProvider.url, params).success(function (data, status, headers, config) {
+                    interfaceService.getPhenomena(null, statusService.status.apiProvider.url, params).then(function (data) {
                         phenomena.items = data;
                     });
                 };
@@ -646,7 +646,7 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
 
                 getAllProviders = function () {
                     angular.forEach(settingsService.restApiUrls, function (elem, url) {
-                        interfaceService.getServices(url).success(function (providers) {
+                        interfaceService.getServices(url).then(function (providers) {
                             angular.forEach(providers, function (provider) {
                                 var isBlacklisted = false;
                                 angular.forEach(settingsService.providerBlackList, function (entry) {
@@ -775,7 +775,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                 };
                 determineTimeseries = function (stationId) {
                     station.entry = {};
-                    interfaceService.getStations(stationId, statusService.status.apiProvider.url).success(function (result, evt) {
+                    interfaceService.getStations(stationId, statusService.status.apiProvider.url).then(function (result) {
                         station.entry = result;
                         angular.forEach(result.properties.timeseries, function (timeseries, id) {
                             interfaceService.getTimeseries(id, statusService.status.apiProvider.url).then(function (ts) {
