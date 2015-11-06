@@ -61,7 +61,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                 };
                 determineTimeseries = function (stationId) {
                     station.entry = {};
-                    interfaceService.getStations(stationId, statusService.status.apiProvider.url).success(function (result, evt) {
+                    interfaceService.getStations(stationId, statusService.status.apiProvider.url).then(function (result) {
                         station.entry = result;
                         angular.forEach(result.properties.timeseries, function (timeseries, id) {
                             interfaceService.getTimeseries(id, statusService.status.apiProvider.url).then(function (ts) {

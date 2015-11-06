@@ -192,14 +192,13 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                             force_latest_values: true,
                             status_intervals: true
                         };
-//                        interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).success(createMarkers);
                         interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).then(createMarkers);
                     } else {
                         params = {
                             service: statusService.status.apiProvider.serviceID,
                             phenomenon: phenomenon
                         };
-                        interfaceService.getStations(null, statusService.status.apiProvider.url, params).success(createMarkers);
+                        interfaceService.getStations(null, statusService.status.apiProvider.url, params).then(createMarkers);
                     }
                 };
 
