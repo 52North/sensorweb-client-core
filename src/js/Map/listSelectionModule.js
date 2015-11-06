@@ -124,7 +124,7 @@ angular.module('n52.core.listSelection', ['n52.core.interface', 'n52.core.status
                                     currParam.items = data;
                                 });
                             } else if (currParam.type === 'phenomenon') {
-                                interfaceService.getPhenomena(null, statusService.status.apiProvider.url, $scope.createParams()).success(function (data) {
+                                interfaceService.getPhenomena(null, statusService.status.apiProvider.url, $scope.createParams()).then(function (data) {
                                     currParam.items = data;
                                 });
                             } else if (currParam.type === 'procedure') {

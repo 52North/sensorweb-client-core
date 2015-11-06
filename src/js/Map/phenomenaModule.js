@@ -23,7 +23,7 @@ angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
                     var params = {
                         service: statusService.status.apiProvider.serviceID
                     };
-                    interfaceService.getPhenomena(null, statusService.status.apiProvider.url, params).success(function (data, status, headers, config) {
+                    interfaceService.getPhenomena(null, statusService.status.apiProvider.url, params).then(function (data) {
                         phenomena.items = data;
                     });
                 };
