@@ -125,6 +125,12 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                     if (extendedData) {
                         angular.extend(params, extendedData);
                     }
-                    return $http.get(apiUrl + 'timeseries/' + _createIdString(id) + "/getData", _createRequestConfigs(params));
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'timeseries/' + _createIdString(id) + "/getData", _createRequestConfigs(params)).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
                 };
             }]);

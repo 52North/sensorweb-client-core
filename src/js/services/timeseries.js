@@ -28,7 +28,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
 
                 function _loadTsData(ts) {
                     ts.loadingData = true;
-                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan()).success(function (data) {
+                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan()).then(function (data) {
                         _addTsData(data, ts);
                     });
                 }
