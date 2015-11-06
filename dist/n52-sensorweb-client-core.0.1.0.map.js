@@ -373,6 +373,9 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                         map.selectedPhenomenonId = phenomenon.id;
                         requestStations(phenomenon.id);
                     });
+                    $rootScope.$on('redrawStations', function (evt, phenomenon) {
+                        requestStations(map.selectedPhenomenonId);
+                    });
                     $rootScope.$on('newProviderSelected', function (evt) {
                         requestStations();
                     });
@@ -690,6 +693,23 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                     providerList: providerList,
                     selectedProvider: selectedProvider,
                     selectProvider: selectProvider
+                };
+            }]);
+angular.module('n52.core.map')
+        .controller('ClusterMarkerCtrl', ['$scope', '$rootScope', 'statusService',
+            function ($scope, $rootScope, statusService) {
+                $scope.status = statusService.status;
+                $scope.toggle = function () {
+                    statusService.status.clusterStations = !statusService.status.clusterStations;
+                    $rootScope.$emit('redrawStations');
+                };
+            }])
+        .controller('ConcentrationMarkerCtrl', ['$scope', '$rootScope', 'statusService',
+            function ($scope, $rootScope, statusService) {
+                $scope.status = statusService.status;
+                $scope.toggle = function () {
+                    statusService.status.concentrationMarker = !statusService.status.concentrationMarker;
+                    $rootScope.$emit('redrawStations');
                 };
             }]);
 angular.module('n52.core.station', ['ui.bootstrap'])

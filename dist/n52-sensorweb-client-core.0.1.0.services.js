@@ -141,7 +141,7 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                     delete favorites[tsId];
                     saveFavorites();
                 }
-
+                
                 function hasFavorite(tsId) {
                     return angular.isObject(favorites[tsId]);
                 }
@@ -223,6 +223,7 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                     hasFavorites: hasFavorites,
                     setFavorites: setFavorites,
                     removeFavorite: removeFavorite,
+                    removeAllFavorites: removeAllFavorites,
                     changeLabel: changeLabel,
                     getFavoritesCount: getFavoritesCount,
                     favorites: favorites

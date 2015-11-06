@@ -14,6 +14,9 @@ angular.module('n52.core.favoriteIE9ImExport', ['LocalStorageModule'])
                         $scope.header = data.header;
                         $scope.text = data.text;
                         $scope.content = data.content;
+                        $scope.close = function() {
+                            $modalInstance.close();
+                        };
                         $scope.submit = function () {
                             if (data.submit)
                                 data.submit($scope.content);
