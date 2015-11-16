@@ -84,6 +84,10 @@ angular.module('n52.core.settings', [])
                     // colorlist to select for a different timeseries color
                     colorList: ['#1abc9c', '#27ae60', '#2980b9', '#8e44ad', '#2c3e50', '#f1c40f',
                         '#d35400', '#c0392b', '#7f8c8d'],
+                    // colorlist for the reference values
+                    refColorList: [],
+                    // select the color from the predefined lists
+                    selectColorFromList: false,
                     // interval to display the timeseries in a bar diagram with label and value in hours
                     intervalList: [
                         {label: 'styleChange.barChartInterval.hour', caption: 'byHour', value: 1},

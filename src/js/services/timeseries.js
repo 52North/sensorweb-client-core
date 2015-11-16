@@ -1,6 +1,6 @@
 angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.core.interface', 'n52.core.styleTs'])
-        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService',
-            function ($rootScope, interfaceService, statusService, timeService) {
+        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService', 'styleService',
+            function ($rootScope, interfaceService, statusService, timeService, styleService) {
                 var timeseries = {};
                 var tsData = {};
 
@@ -21,6 +21,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                 }
 
                 function _addTs(ts) {
+                    styleService.createStylesInTs(ts);
                     timeseries[ts.internalId] = ts;
                     statusService.addTimeseries(ts);
                     _loadTsData(ts);
@@ -81,6 +82,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                 }
 
                 function removeTimeseries(internalId) {
+                    styleService.deleteStyle(timeseries[internalId]);
                     delete timeseries[internalId];
                     delete tsData[internalId];
                     statusService.removeTimeseries(internalId);

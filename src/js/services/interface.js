@@ -1,6 +1,6 @@
 angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
-        .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'styleService', 'utils',
-            function ($http, $q, statusService, settingsService, styleService, utils) {
+        .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'utils',
+            function ($http, $q, statusService, settingsService, utils) {
 
                 var _createRequestConfigs = function (params) {
                     if (angular.isUndefined(params)) {
@@ -25,7 +25,6 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                 };
 
                 _pimpTs = function(ts, url) {
-                    styleService.createStylesInTs(ts);
                     ts.apiUrl = url;
                     ts.internalId = utils.createInternalId(ts.id, url);
                     return ts;

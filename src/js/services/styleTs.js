@@ -12,13 +12,20 @@ angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core
 
                 function createStylesInTs(ts) {
                     ts.styles = {};
-                    ts.styles.color = ts.renderingHints && ts.renderingHints.properties.color || colorService.stringToColor(ts.id);
+                    ts.styles.color = ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
                     ts.styles.visible = true;
                     ts.styles.selected = false;
                     ts.styles.zeroScaled = false;
                     ts.styles.groupedAxis = true;
                     angular.forEach(ts.referenceValues, function (refValue) {
-                        refValue.color = colorService.stringToColor(refValue.referenceValueId);
+                        refValue.color = colorService.getRefColor(refValue.referenceValueId);
+                    });
+                }
+                
+                function deleteStyle(ts) {
+                    colorService.removeColor(ts.styles.color);
+                    angular.forEach(ts.referenceValues, function (refValue) {
+                        colorService.removeRefColor(refValue.color);
                     });
                 }
 
@@ -66,6 +73,7 @@ angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core
 
                 return {
                     createStylesInTs: createStylesInTs,
+                    deleteStyle: deleteStyle,
                     notifyAllTimeseriesChanged: notifyAllTimeseriesChanged,
                     toggleSelection: toggleSelection,
                     setSelection: setSelection,
