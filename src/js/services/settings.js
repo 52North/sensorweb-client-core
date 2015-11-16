@@ -39,8 +39,10 @@ angular.module('n52.core.settings', [])
                     saveStatus: false,
                     // default setting for concentration marker
                     concentrationMarker: false,
-                    // map options of leaflet
-                    mapOptions: {},
+                    // base layer in the map
+                    baselayer: {},
+                    // overlay layer in the map
+                    overlays: {},
                     // zoom level in the map, used for user location and station position
                     zoom: 13,
                     // how long a station popup to visualize the location should be visible on the map (in msec)
