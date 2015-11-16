@@ -301,46 +301,18 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
-
-                var map = {};
-
-                var init = function () {
-                    map.markers = {};
-                    map.paths = {};
-                    map.popup = {};
-                    map.bounds = {};
-                    map.center = {};
-                    map.layers = {
-                        baselayers: {
-                            osm: {
-                                name: 'Open Street Map',
-                                type: 'xyz',
-                                url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                layerOptions: {
-                                    showOnSelector: true
-                                }
-                            },
-                            mapbox_light: {
-                                name: 'Mapbox Light',
-                                url: 'http://api.tiles.mapbox.com/v4/{mapid}/{z}/{x}/{y}.png?access_token={apikey}',
-                                type: 'xyz',
-                                layerOptions: {
-                                    apikey: 'pk.eyJ1IjoiYnVmYW51dm9scyIsImEiOiJLSURpX0pnIn0.2_9NrLz1U9bpwMQBhVk97Q',
-                                    mapid: 'bufanuvols.lia22g09'
-                                }
-                            },
-                            cycle: {
-                                name: 'OpenCycleMap',
-                                type: 'xyz',
-                                url: 'http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png',
-                                layerOptions: {
-                                    subdomains: ['a', 'b', 'c'],
-                                    attribution: '&copy; <a href="http://www.opencyclemap.org/copyright">OpenCycleMap</a> contributors - &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                                    continuousWorld: true
-                                }
-                            }
-                        },
-                        overlays: {
+                var baselayer = settingsService.baselayer ? settingsService.baselayer : {
+                    osm: {
+                        name: 'Open Street Map',
+                        type: 'xyz',
+                        url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        layerOptions: {
+                            showOnSelector: true
+                        }
+                    }
+                };
+                var overlays = angular.extend(settingsService.overlays,
+                        {
                             cluster: {
                                 name: 'Stations',
                                 type: 'markercluster',
@@ -348,21 +320,18 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                 layerOptions: {
                                     showOnSelector: false
                                 }
-                            },
-                            hillshade: {
-                                name: 'Hillshade Europa',
-                                type: 'wms',
-                                url: 'http://129.206.228.72/cached/hillshade',
-                                visible: false,
-                                layerOptions: {
-                                    layers: 'europe_wms:hs_srtm_europa',
-                                    format: 'image/png',
-                                    opacity: 0.25,
-                                    attribution: 'Hillshade layer by GIScience http://www.osm-wms.de',
-                                    crs: L.CRS.EPSG900913
-                                }
                             }
-                        }
+                        });
+                var map = {};
+                var init = function () {
+                    map.markers = {};
+                    map.paths = {};
+                    map.popup = {};
+                    map.bounds = {};
+                    map.center = {};
+                    map.layers = {
+                        baselayers: baselayer,
+                        overlays: overlays
                     };
 
                     $rootScope.$on('allPhenomenaSelected', function (evt) {

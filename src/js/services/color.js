@@ -104,7 +104,7 @@ angular.module('n52.core.color', [])
                 }
         
                 function removeColor(color) {
-                    _removeColorFromPool(color, colorPool) 
+                    _removeColorFromPool(color, colorPool);
                 }
                 
                 function setRefColors(list) {

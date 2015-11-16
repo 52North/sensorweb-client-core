@@ -57,11 +57,16 @@ angular.module('n52.core.barChart', [])
             };
         });
 angular.module('n52.core.color', [])
-        .factory('colorService', ['settingsService', function (settingsService) {
+        .factory('colorService', ['settingsService', 'colorPool', function (settingsService, colorPool) {
                 var defaultColorList = ['#1abc9c', '#27ae60', '#2980b9', '#8e44ad', '#2c3e50', '#f1c40f',
                     '#d35400', '#c0392b', '#7f8c8d'];
                 var colorList = settingsService.colorList || defaultColorList;
-
+                var refColorList = settingsService.refColorList || [];
+                var selectFromList = settingsService.selectColorFromList || false;
+                
+                colorPool.setColors(colorList);
+                colorPool.setRefColors(refColorList);
+                
                 function _hashCode(str) {
                     var hash = 0;
                     for (var i = 0; i < str.length; i++) {
@@ -81,13 +86,104 @@ angular.module('n52.core.color', [])
                     return rgb;
                 }
 
+                function _stringToColor(string) {
+                    if (!string)
+                        return "#000000";
+                    return "#" + _intToColorHex(_hashCode(string));
+                }
+
+                function getColor(string) {
+                    var color;
+                    if (selectFromList) {
+                        color = colorPool.getColor();
+                    }
+                    return color ? color : _stringToColor(string);
+                }
+
+                function getRefColor(string) {
+                    var color;
+                    if (selectFromList) {
+                        color = colorPool.getRefColor();
+                    }
+                    return color ? color : _stringToColor(string);
+                }
+                
+                function removeColor(color) {
+                    colorPool.removeColor(color);
+                }
+                
+                function removeRefColor(color) {
+                    colorPool.removeRefColor(color);
+                }
+
                 return  {
-                    stringToColor: function (string) {
-                        if (!string)
-                            return "#000000";
-                        return "#" + _intToColorHex(_hashCode(string));
-                    },
+                    getColor: getColor,
+                    getRefColor: getRefColor,
+                    removeColor: removeColor,
+                    removeRefColor: removeRefColor,
                     colorList: colorList
+                };
+            }])
+        .factory('colorPool', [function () {
+                var colorPool;
+                var refColorPool;
+                
+                function _createPool(list) {
+                    var pool = {};
+                    angular.forEach(list, function(color) {
+                        pool[color] = true;
+                    });
+                    return pool;
+                }
+                
+                function _getColorOfPool(pool) {
+                    var color;
+                    angular.forEach(pool, function(available, entry) {
+                        if(!color && available) {
+                            color = entry;
+                        }
+                    });
+                    if (color) pool[color] = false;
+                    return color;
+                }
+                
+                function _removeColorFromPool(color, pool) {
+                    if (angular.isDefined(pool[color])) {
+                        pool[color] = true;
+                    }
+                }
+                
+                function setColors(list) {
+                    colorPool = _createPool(list);
+                }
+                
+                function getColor() {
+                    return _getColorOfPool(colorPool);
+                }
+        
+                function removeColor(color) {
+                    _removeColorFromPool(color, colorPool);
+                }
+                
+                function setRefColors(list) {
+                    refColorPool = _createPool(list);
+                }
+                
+                function getRefColor() {
+                    return _getColorOfPool(refColorPool);
+                }
+        
+                function removeRefColor(color) {
+                    _removeColorFromPool(color, refColorPool);
+                }
+                
+                return {
+                    setColors: setColors,
+                    setRefColors: setRefColors,
+                    getColor: getColor,
+                    removeColor: removeColor,
+                    getRefColor: getRefColor,
+                    removeRefColor: removeRefColor
                 };
             }]);
 angular.module('n52.core.favorite', ['LocalStorageModule'])
@@ -282,8 +378,8 @@ angular.module('n52.core.favorite', ['LocalStorageModule'])
                 ;
             }]);
 angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
-        .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'styleService', 'utils',
-            function ($http, $q, statusService, settingsService, styleService, utils) {
+        .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'utils',
+            function ($http, $q, statusService, settingsService, utils) {
 
                 var _createRequestConfigs = function (params) {
                     if (angular.isUndefined(params)) {
@@ -308,7 +404,6 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                 };
 
                 _pimpTs = function(ts, url) {
-                    styleService.createStylesInTs(ts);
                     ts.apiUrl = url;
                     ts.internalId = utils.createInternalId(ts.id, url);
                     return ts;
@@ -547,8 +642,10 @@ angular.module('n52.core.settings', [])
                     saveStatus: false,
                     // default setting for concentration marker
                     concentrationMarker: false,
-                    // map options of leaflet
-                    mapOptions: {},
+                    // base layer in the map
+                    baselayer: {},
+                    // overlay layer in the map
+                    overlays: {},
                     // zoom level in the map, used for user location and station position
                     zoom: 13,
                     // how long a station popup to visualize the location should be visible on the map (in msec)
@@ -590,6 +687,10 @@ angular.module('n52.core.settings', [])
                     // colorlist to select for a different timeseries color
                     colorList: ['#1abc9c', '#27ae60', '#2980b9', '#8e44ad', '#2c3e50', '#f1c40f',
                         '#d35400', '#c0392b', '#7f8c8d'],
+                    // colorlist for the reference values
+                    refColorList: [],
+                    // select the color from the predefined lists
+                    selectColorFromList: false,
                     // interval to display the timeseries in a bar diagram with label and value in hours
                     intervalList: [
                         {label: 'styleChange.barChartInterval.hour', caption: 'byHour', value: 1},
@@ -799,13 +900,20 @@ angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core
 
                 function createStylesInTs(ts) {
                     ts.styles = {};
-                    ts.styles.color = ts.renderingHints && ts.renderingHints.properties.color || colorService.stringToColor(ts.id);
+                    ts.styles.color = ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
                     ts.styles.visible = true;
                     ts.styles.selected = false;
                     ts.styles.zeroScaled = false;
                     ts.styles.groupedAxis = true;
                     angular.forEach(ts.referenceValues, function (refValue) {
-                        refValue.color = colorService.stringToColor(refValue.referenceValueId);
+                        refValue.color = colorService.getRefColor(refValue.referenceValueId);
+                    });
+                }
+                
+                function deleteStyle(ts) {
+                    colorService.removeColor(ts.styles.color);
+                    angular.forEach(ts.referenceValues, function (refValue) {
+                        colorService.removeRefColor(refValue.color);
                     });
                 }
 
@@ -853,6 +961,7 @@ angular.module('n52.core.styleTs', ['n52.core.color', 'n52.core.time', 'n52.core
 
                 return {
                     createStylesInTs: createStylesInTs,
+                    deleteStyle: deleteStyle,
                     notifyAllTimeseriesChanged: notifyAllTimeseriesChanged,
                     toggleSelection: toggleSelection,
                     setSelection: setSelection,
@@ -960,8 +1069,8 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                 };
             }]);
 angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.core.interface', 'n52.core.styleTs'])
-        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService',
-            function ($rootScope, interfaceService, statusService, timeService) {
+        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService', 'styleService',
+            function ($rootScope, interfaceService, statusService, timeService, styleService) {
                 var timeseries = {};
                 var tsData = {};
 
@@ -982,6 +1091,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                 }
 
                 function _addTs(ts) {
+                    styleService.createStylesInTs(ts);
                     timeseries[ts.internalId] = ts;
                     statusService.addTimeseries(ts);
                     _loadTsData(ts);
@@ -1042,6 +1152,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                 }
 
                 function removeTimeseries(internalId) {
+                    styleService.deleteStyle(timeseries[internalId]);
                     delete timeseries[internalId];
                     delete tsData[internalId];
                     statusService.removeTimeseries(internalId);
