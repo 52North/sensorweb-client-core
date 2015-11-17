@@ -620,19 +620,17 @@ angular.module('n52.core.settings', [])
                             apiUrl: 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/'
                         }
                     ],
-                    // A list of timeseries-API urls and an appropriate identifier to create internal timeseries ids
+                    // A list of timeseries-API urls and an appropriate identifier to create internal timeseries ids - should be defined in the settings.json
                     restApiUrls: {
-//		'http://192.168.1.135:8080/sensorwebclient-webapp/api/v1/' : 'localhost'
-//		'http://localhost:8090/sensorwebclient-webapp-3.3.0-SNAPSHOT/api/v1/' : 'localhost'
-                        'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/': '52nSensorweb',
-                        'http://sosrest.irceline.be/api/v1/': 'irceline',
-                        'http://www.fluggs.de/sos2/api/v1/': 'fluggs',
-                        'http://sensors.geonovum.nl/sos/api/v1/': 'geonovum'
+//                        'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/': '52nSensorweb',
+//                        'http://sosrest.irceline.be/api/v1/': 'irceline',
+//                        'http://www.fluggs.de/sos2/api/v1/': 'fluggs'
+//                        'http://sensors.geonovum.nl/sos/api/v1/': 'geonovum'
                     },
                     // default selected provider
                     defaultProvider: {
-                        serviceID: 'srv_738111ed219f738cfc85be0c8d87843c',
-                        url: 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/'
+//                        serviceID: 'srv_738111ed219f738cfc85be0c8d87843c',
+//                        url: 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/'
                     },
                     // default setting for clustering stations
                     clusterStations: true,

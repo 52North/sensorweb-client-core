@@ -122,6 +122,9 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                             }
                         });
                 var map = {};
+                var aggregateCounter;
+                var aggregateBounds;
+
                 var init = function () {
                     map.markers = {};
                     map.paths = {};
@@ -153,25 +156,95 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
 
                 var requestStations = function (phenomenon) {
                     var params;
-                    if (statusService.status.concentrationMarker && phenomenon) {
-                        params = {
-                            service: statusService.status.apiProvider.serviceID,
-                            phenomenon: phenomenon,
-                            expanded: true,
-                            force_latest_values: true,
-                            status_intervals: true
-                        };
-                        interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).then(createMarkers);
+                    if (settingsService.aggregateServicesInMap && angular.isUndefined(statusService.status.apiProvider.url)) {
+                        requestAggregatedStations(phenomenon);
                     } else {
-                        params = {
-                            service: statusService.status.apiProvider.serviceID,
-                            phenomenon: phenomenon
-                        };
-                        interfaceService.getStations(null, statusService.status.apiProvider.url, params).then(createMarkers);
+                        var provider = statusService.status.apiProvider;
+                        if (statusService.status.concentrationMarker && phenomenon) {
+                            params = {
+                                service: provider.serviceID,
+                                phenomenon: phenomenon,
+                                expanded: true,
+                                force_latest_values: true,
+                                status_intervals: true
+                            };
+                            interfaceService.getTimeseries(null, provider.url, params).then(function (data) {
+                                createMarkers(data, provider.url, provider.serviceID);
+                            });
+                        } else {
+                            params = {
+                                service: provider.serviceID,
+                                phenomenon: phenomenon
+                            };
+                            interfaceService.getStations(null, provider.url, params).then(function (data) {
+                                createMarkers(data, provider.url, provider.serviceID);
+                            });
+                        }
                     }
                 };
 
-                var createMarkers = function (data) {
+                requestAggregatedStations = function (phenomenon) {
+                    aggregateCounter = 0;
+                    aggregateBounds = null;
+                    angular.copy({}, map.markers);
+                    angular.copy({}, map.paths);
+                    angular.copy({}, map.bounds);
+                    angular.forEach(settingsService.restApiUrls, function (id, url) {
+                        interfaceService.getServices(url).then(function (providers) {
+                            angular.forEach(providers, function (provider) {
+                                aggregateCounter++;
+                                interfaceService.getStations(null, url, {
+                                    service: provider.id,
+                                    phenomenon: phenomenon
+                                }).then(function (data) {
+                                    createAggregatedStations(data, url, provider.id + id);
+                                });
+                            });
+                        });
+                    });
+                };
+
+                var createAggregatedStations = function (data, serviceUrl, serviceId) {
+                    aggregateCounter--;
+                    if (data.length > 0) {
+                        var firstElemCoord = getCoordinates(data[0]);
+                        if (!angular.isObject(aggregateBounds)) {
+                            aggregateBounds = {
+                                topmost: firstElemCoord[1],
+                                bottommost: firstElemCoord[1],
+                                leftmost: firstElemCoord[0],
+                                rightmost: firstElemCoord[0]
+                            };
+                        }
+                        $.each(data, $.proxy(function (n, elem) {
+                            var geom = getCoordinates(elem);
+                            if (!isNaN(geom[0]) || !isNaN(geom[1])) {
+                                if (geom[0] > aggregateBounds.rightmost) {
+                                    aggregateBounds.rightmost = geom[0];
+                                }
+                                if (geom[0] < aggregateBounds.leftmost) {
+                                    aggregateBounds.leftmost = geom[0];
+                                }
+                                if (geom[1] > aggregateBounds.topmost) {
+                                    aggregateBounds.topmost = geom[1];
+                                }
+                                if (geom[1] < aggregateBounds.bottommost) {
+                                    aggregateBounds.bottommost = geom[1];
+                                }
+                                if (statusService.status.concentrationMarker && isTimeseries(elem)) {
+                                    addColoredCircle(geom, elem);
+                                } else {
+                                    addNormalMarker(geom, elem, serviceUrl, serviceId);
+                                }
+                            }
+                        }, this));
+                        angular.copy(leafletBoundsHelpers.createBoundsFromArray([
+                            [parseFloat(aggregateBounds.bottommost), parseFloat(aggregateBounds.leftmost)],
+                            [parseFloat(aggregateBounds.topmost), parseFloat(aggregateBounds.rightmost)]]), map.bounds);
+                    }
+                };
+
+                var createMarkers = function (data, serviceUrl, serviceId) {
                     angular.copy({}, map.markers);
                     angular.copy({}, map.paths);
                     angular.copy({}, map.bounds);
@@ -197,9 +270,9 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                     bottommost = geom[1];
                                 }
                                 if (statusService.status.concentrationMarker && isTimeseries(elem)) {
-                                    addColoredCircle(geom, elem);
+                                    addColoredCircle(geom, elem, serviceUrl, serviceId);
                                 } else {
-                                    addNormalMarker(geom, elem);
+                                    addNormalMarker(geom, elem, serviceUrl, serviceId);
                                 }
                             }
                         }, this));
@@ -221,22 +294,24 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     }
                 };
 
-                var addNormalMarker = function (geom, elem) {
+                var addNormalMarker = function (geom, elem, serviceUrl, serviceId) {
                     var marker = {
                         lat: geom[1],
                         lng: geom[0],
-                        icon: stationMarkerIcon
+                        icon: stationMarkerIcon,
+                        stationsId: elem.properties.id,
+                        url: serviceUrl
                     };
                     if (statusService.status.clusterStations) {
                         marker.layer = 'cluster';
                     }
-                    map.markers[elem.properties.id] = marker;
+                    map.markers[tidyUpStationId(elem.properties.id + serviceId)] = marker;
                 };
 
-                var addColoredCircle = function (geom, elem) {
+                var addColoredCircle = function (geom, elem, serviceUrl, serviceId) {
                     var interval = getMatchingInterval(elem);
                     var fillcolor = interval && interval.color ? interval.color : settingsService.defaultMarkerColor;
-                    map.paths[elem.station.properties.id] = {
+                    map.paths[tidyUpStationId(elem.station.properties.id + serviceId)] = {
                         type: "circleMarker",
                         latlngs: {
                             lat: geom[1],
@@ -248,8 +323,14 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                         radius: 10,
                         weight: 2,
                         opacity: 1,
-                        fillOpacity: 0.8
+                        fillOpacity: 0.8,
+                        stationsId: elem.station.properties.id,
+                        url: serviceUrl
                     };
+                };
+
+                var tidyUpStationId = function (id) {
+                    return id.replace('-', '');
                 };
 
                 var getMatchingInterval = function (elem) {

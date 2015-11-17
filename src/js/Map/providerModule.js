@@ -14,6 +14,11 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
             function ($scope, providerService) {
                 $scope.selectedProvider = providerService.selectedProvider;
             }])
+        .controller('ProviderDeselectProvider', ['$scope', 'providerService', function ($scope, providerService) {
+                $scope.deselectAll = function () {
+                    providerService.selectProvider();
+                };
+            }])
         .controller('ProviderListModalCtrl', ['$scope', '$modalInstance', 'providerService',
             function ($scope, $modalInstance, providerService) {
                 $scope.providerList = providerService.providerList;
@@ -47,7 +52,7 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                                 if (!isBlacklisted) {
                                     if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
                                         provider.selected = true;
-                                        selectedProvider.label = provider.label;  
+                                        selectedProvider.label = provider.label;
                                     } else {
                                         provider.selected = false;
                                     }
@@ -60,10 +65,10 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                         });
                     });
                 };
-                
+
                 selectProvider = function (selection) {
                     angular.forEach(providerList, function (provider) {
-                        if (selection.id === provider.id && selection.url === provider.url) {
+                        if (selection && selection.id === provider.id && selection.url === provider.url) {
                             provider.selected = true;
                             selectedProvider.label = provider.label;
                             statusService.status.apiProvider = {
@@ -71,10 +76,16 @@ angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
                                 serviceID: provider.id
                             };
                             $rootScope.$emit('newProviderSelected');
+                            return;
                         } else {
                             provider.selected = false;
                         }
                     });
+                    if (!selection) {
+                        statusService.status.apiProvider = {};
+                        $rootScope.$emit('newProviderSelected');
+                        return;
+                    }
                 };
 
                 getAllProviders();
