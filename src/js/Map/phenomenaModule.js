@@ -14,17 +14,38 @@ angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
                     return angular.equals(phenomenon, $scope.phenomena.selection);
                 };
             }])
-        .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService',
-            function ($rootScope, interfaceService, statusService) {
+        .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService',
+            function ($rootScope, interfaceService, statusService, settingsService) {
                 var phenomena = {};
                 phenomena.items = [];
 
                 loadPhenomena = function () {
-                    var params = {
-                        service: statusService.status.apiProvider.serviceID
-                    };
-                    interfaceService.getPhenomena(null, statusService.status.apiProvider.url, params).then(function (data) {
-                        phenomena.items = data;
+                    if (settingsService.aggregateServicesInMap && angular.isUndefined(statusService.status.apiProvider.url)) {
+                        loadAggregatedPhenomenons();
+                    } else {
+                        var params = {
+                            service: statusService.status.apiProvider.serviceID
+                        };
+                        interfaceService.getPhenomena(null, statusService.status.apiProvider.url, params).then(function (data) {
+                            phenomena.items = data;
+                        });
+                    }
+                };
+
+                loadAggregatedPhenomenons = function () {
+                    angular.forEach(settingsService.restApiUrls, function (id, url) {
+                        interfaceService.getServices(url).then(function (providers) {
+                            angular.forEach(providers, function (provider) {
+                                var params = {
+                                    service: provider.id
+                                };
+                                interfaceService.getPhenomena(null, url, params).then(function (data) {
+                                    angular.forEach(data, function(entry){
+                                        phenomena.items.push(entry);
+                                    });
+                                });
+                            });
+                        });
                     });
                 };
 
