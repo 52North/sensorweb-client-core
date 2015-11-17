@@ -35,7 +35,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                     $modalInstance.close();
                 };
             }])
-        .controller('StationOpenerCtrl', ['$modal', '$rootScope', 'mapService',
+        .service('StationOpener', ['$modal', '$rootScope', 'mapService',
             function ($modal, $rootScope, mapService) {
                 clickmarker = function (event, args) {
                     $modal.open({
