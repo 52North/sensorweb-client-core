@@ -197,7 +197,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                     service: provider.id,
                                     phenomenon: phenomenon
                                 }).then(function (data) {
-                                    createAggregatedStations(data, url, id);
+                                    createAggregatedStations(data, url, provider.id + id);
                                 });
                             });
                         });
