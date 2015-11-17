@@ -33,6 +33,7 @@ angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
                 };
 
                 loadAggregatedPhenomenons = function () {
+                    phenomena.items = [];
                     angular.forEach(settingsService.restApiUrls, function (id, url) {
                         interfaceService.getServices(url).then(function (providers) {
                             angular.forEach(providers, function (provider) {
