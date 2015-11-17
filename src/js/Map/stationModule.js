@@ -27,7 +27,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
 
                 $scope.addTimeseriesSelection = function (phenomenonId) {
                     angular.forEach($scope.station.entry.properties.timeseries, function (timeseries) {
-                        if (timeseries.selected && timeseries.phenomenon.id == phenomenonId) {
+                        if (timeseries.selected && (!phenomenonId || timeseries.phenomenon.id == phenomenonId)) {
                             timeseriesService.addTimeseriesById(timeseries.id, selection.url);
                         }
                     });
