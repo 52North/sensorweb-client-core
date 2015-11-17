@@ -1,7 +1,6 @@
 angular.module('n52.core.station', ['ui.bootstrap'])
         .controller('ModalStationCtrl', ['$scope', '$modalInstance', 'timeseriesService', '$location', 'stationService', 'selection',
             function ($scope, $modalInstance, timeseriesService, $location, stationService, selection) {
-                debugger;
                 stationService.determineTimeseries(selection.stationId, selection.url);
                 $scope.isAllSelected = true;
                 $scope.station = stationService.station;
