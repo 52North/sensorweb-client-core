@@ -1,6 +1,6 @@
 angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
-        .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'utils',
-            function ($http, $q, statusService, settingsService, utils) {
+        .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'utils', '$log',
+            function ($http, $q, statusService, settingsService, utils, $log) {
 
                 var _createRequestConfigs = function (params) {
                     if (angular.isUndefined(params)) {
@@ -16,7 +16,7 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
 
                 _errorCallback = function (error, reject) {
                     if (error.data && error.data.userMessage)
-                        console.error(error.data.userMessage);
+                        $log.error(error.data.userMessage);
                     reject(error);
                 };
 
