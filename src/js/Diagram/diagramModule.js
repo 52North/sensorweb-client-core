@@ -147,6 +147,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 }
 
                 function createDataSet() {
+                    createYAxis();
                     var dataset = [];
                     if (timeseriesService.getTimeseriesCount() > 0) {
                         angular.forEach(timeseriesService.timeseries, function (elem) {
