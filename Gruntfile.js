@@ -175,7 +175,8 @@ module.exports = function (grunt) {
                     jQuery: true,
                     console: true,
                     module: true
-                }
+                },
+                ignores: ['src/js/flotlib/jquery.flot.navigate.js']
             }
         },
         watch: {
