@@ -638,6 +638,7 @@ angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
                 };
 
                 loadAggregatedPhenomenons = function () {
+                    phenomena.items = [];
                     angular.forEach(settingsService.restApiUrls, function (id, url) {
                         interfaceService.getServices(url).then(function (providers) {
                             angular.forEach(providers, function (provider) {
@@ -821,9 +822,9 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                     $scope.isAllSelected = allSelected;
                 };
 
-                $scope.addTimeseriesSelection = function () {
+                $scope.addTimeseriesSelection = function (phenomenonId) {
                     angular.forEach($scope.station.entry.properties.timeseries, function (timeseries) {
-                        if (timeseries.selected) {
+                        if (timeseries.selected && (!phenomenonId || timeseries.phenomenon.id == phenomenonId)) {
                             timeseriesService.addTimeseriesById(timeseries.id, selection.url);
                         }
                     });
@@ -831,7 +832,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                     $modalInstance.close();
                 };
             }])
-        .controller('StationOpenerCtrl', ['$modal', '$rootScope', 'mapService',
+        .service('StationOpener', ['$modal', '$rootScope', 'mapService',
             function ($modal, $rootScope, mapService) {
                 clickmarker = function (event, args) {
                     $modal.open({

@@ -147,6 +147,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 }
 
                 function createDataSet() {
+                    createYAxis();
                     var dataset = [];
                     if (timeseriesService.getTimeseriesCount() > 0) {
                         angular.forEach(timeseriesService.timeseries, function (elem) {
@@ -324,88 +325,90 @@ angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
                         };
 
                         createYAxis = function (plot) {
-                            // remove old labels
-                            $(plot.getPlaceholder()).find('.yaxisLabel').remove();
+                            if (plot.getOptions().yaxis.show) {
+                                // remove old labels
+                                $(plot.getPlaceholder()).find('.yaxisLabel').remove();
 
-                            // createYAxis
-                            $.each(plot.getAxes(), $.proxy(function (i, axis) {
-                                if (!axis.show)
-                                    return;
-                                var box = axis.box;
-                                if (axis.direction === "y") {
-                                    $("<div class='axisTargetStyle' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
-                                            .data("axis.n", axis.n)
-                                            .appendTo(plot.getPlaceholder());
-                                    $("<div class='axisTarget' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
-                                            .data("axis.n", axis.n)
-                                            .appendTo(plot.getPlaceholder())
-                                            .click($.proxy(function (event) {
-                                                var target = $(event.currentTarget);
-                                                var selected = false;
-                                                $.each($('.axisTarget'), function (index, elem) {
-                                                    elem = $(elem);
-                                                    if (target.data('axis.n') === elem.data('axis.n')) {
-                                                        selected = elem.hasClass("selected");
-                                                        return false; // break loop
+                                // createYAxis
+                                $.each(plot.getAxes(), $.proxy(function (i, axis) {
+                                    if (!axis.show)
+                                        return;
+                                    var box = axis.box;
+                                    if (axis.direction === "y") {
+                                        $("<div class='axisTargetStyle' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
+                                                .data("axis.n", axis.n)
+                                                .appendTo(plot.getPlaceholder());
+                                        $("<div class='axisTarget' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
+                                                .data("axis.n", axis.n)
+                                                .appendTo(plot.getPlaceholder())
+                                                .click($.proxy(function (event) {
+                                                    var target = $(event.currentTarget);
+                                                    var selected = false;
+                                                    $.each($('.axisTarget'), function (index, elem) {
+                                                        elem = $(elem);
+                                                        if (target.data('axis.n') === elem.data('axis.n')) {
+                                                            selected = elem.hasClass("selected");
+                                                            return false; // break loop
+                                                        }
+                                                    });
+                                                    $.each(plot.getData(), function (index, elem) {
+                                                        var ts = timeseriesService.getTimeseries(elem.id);
+                                                        if (target.data('axis.n') === elem.yaxis.n) {
+                                                            styleService.setSelection(ts, !selected, true);
+                                                        } else {
+                                                            styleService.setSelection(ts, false, true);
+                                                        }
+                                                    });
+                                                    if (!selected) {
+                                                        target.addClass("selected");
                                                     }
-                                                });
-                                                $.each(plot.getData(), function (index, elem) {
-                                                    var ts = timeseriesService.getTimeseries(elem.id);
-                                                    if (target.data('axis.n') === elem.yaxis.n) {
-                                                        styleService.setSelection(ts, !selected, true);
-                                                    } else {
-                                                        styleService.setSelection(ts, false, true);
-                                                    }
-                                                });
-                                                if (!selected) {
-                                                    target.addClass("selected");
+                                                    scope.$apply();
+                                                    styleService.notifyAllTimeseriesChanged();
+                                                    $rootScope.$emit('redrawChart');
+                                                }, this));
+                                        var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
+                                                .appendTo(plot.getPlaceholder())
+                                                .data("axis.n", axis.n);
+                                        if (axis.options.tsColors) {
+                                            $.each(axis.options.tsColors, function (idx, color) {
+                                                $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
+                                            });
+                                        }
+                                        yaxisLabel.css("margin-left", -(yaxisLabel.width() - yaxisLabel.height()) / 2 - 3);
+                                    }
+                                }, this));
+
+                                // set selection to axis
+                                $.each(plot.getData(), function (index, elem) {
+                                    if (elem.selected) {
+                                        $('.flot-y' + elem.yaxis.n + '-axis').addClass('selected');
+                                        $.each($('.axisTarget'), function () {
+                                            if ($(this).data('axis.n') === elem.yaxis.n) {
+                                                if (!$(this).hasClass('selected')) {
+                                                    $(this).addClass('selected');
+                                                    return false;
                                                 }
-                                                scope.$apply();
-                                                styleService.notifyAllTimeseriesChanged();
-                                                $rootScope.$emit('redrawChart');
-                                            }, this));
-                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
-                                            .appendTo(plot.getPlaceholder())
-                                            .data("axis.n", axis.n);
-                                    if (axis.options.tsColors) {
-                                        $.each(axis.options.tsColors, function (idx, color) {
-                                            $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
+                                            }
+                                        });
+                                        $.each($('.axisTargetStyle'), function () {
+                                            if ($(this).data('axis.n') === elem.yaxis.n) {
+                                                if (!$(this).hasClass('selected')) {
+                                                    $(this).addClass('selected');
+                                                    return false;
+                                                }
+                                            }
+                                        });
+                                        $.each($('.axisLabel.yaxisLabel'), function () {
+                                            if ($(this).data('axis.n') === elem.yaxis.n) {
+                                                if (!$(this).hasClass('selected')) {
+                                                    $(this).addClass('selected');
+                                                    return false;
+                                                }
+                                            }
                                         });
                                     }
-                                    yaxisLabel.css("margin-left", -(yaxisLabel.width() - yaxisLabel.height()) / 2 - 3);
-                                }
-                            }, this));
-
-                            // set selection to axis
-                            $.each(plot.getData(), function (index, elem) {
-                                if (elem.selected) {
-                                    $('.flot-y' + elem.yaxis.n + '-axis').addClass('selected');
-                                    $.each($('.axisTarget'), function () {
-                                        if ($(this).data('axis.n') === elem.yaxis.n) {
-                                            if (!$(this).hasClass('selected')) {
-                                                $(this).addClass('selected');
-                                                return false;
-                                            }
-                                        }
-                                    });
-                                    $.each($('.axisTargetStyle'), function () {
-                                        if ($(this).data('axis.n') === elem.yaxis.n) {
-                                            if (!$(this).hasClass('selected')) {
-                                                $(this).addClass('selected');
-                                                return false;
-                                            }
-                                        }
-                                    });
-                                    $.each($('.axisLabel.yaxisLabel'), function () {
-                                        if ($(this).data('axis.n') === elem.yaxis.n) {
-                                            if (!$(this).hasClass('selected')) {
-                                                $(this).addClass('selected');
-                                                return false;
-                                            }
-                                        }
-                                    });
-                                }
-                            });
+                                });
+                            }
                         };
 
                         scope.$watch('options', function () {
