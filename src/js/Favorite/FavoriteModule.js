@@ -25,7 +25,7 @@ angular.module('n52.core.favoriteUi', ['n52.core.timeseries', 'n52.core.exportTs
                     }
                 };
             }])
-        .controller('swcFavoriteListCtrl', ['$scope', '$location', 'favoriteService', 'timeseriesService', 'editFavoriteModalOpener',
+        .controller('SwcFavoriteListCtrl', ['$scope', '$location', 'favoriteService', 'timeseriesService', 'editFavoriteModalOpener',
             function ($scope, $location, favoriteService, timeseriesService, editFavoriteModalOpener) {
                 $scope.favorites = favoriteService.favorites;
                 $scope.edit = function (favorite) {
@@ -44,9 +44,6 @@ angular.module('n52.core.favoriteUi', ['n52.core.timeseries', 'n52.core.exportTs
                 $scope.delete = function (favorite) {
                     favoriteService.removeFavorite(favorite.id);
                 };
-            }])
-        .controller('favoriteCounterController', ['$scope', 'favoriteService', function ($scope, favoriteService) {
-                $scope.favorites = favoriteService.favorites;
             }])
         .service('editFavoriteModalOpener', ['$modal', function ($modal) {
                 return function (favorite) {

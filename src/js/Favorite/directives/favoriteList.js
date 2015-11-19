@@ -5,6 +5,6 @@ angular.module('n52.core.favoriteUi')
                 templateUrl: 'templates/favorite/favorite-list.html',
                 scope: {
                 },
-                controller: 'swcFavoriteListCtrl'
+                controller: 'SwcFavoriteListCtrl'
             };
         });
