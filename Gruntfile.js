@@ -11,7 +11,7 @@ module.exports = function (grunt) {
             'src/js/Diagram/*.js'
         ],
         favorite_files: [
-            'src/js/Favorite/*.js'
+            'src/js/Favorite/**/*.js'
         ],
         legend_files: [
             'src/js/Legend/*.js'
