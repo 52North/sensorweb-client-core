@@ -227,6 +227,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                     if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === "bar") {
                         var interval = ts.renderingHints.properties.interval;
                         dataEntry.bars = {
+                            lineWidth: lineWidth,
                             show: true,
                             barWidth: barChartHelperService.intervalToHour(interval) * 60 * 60 * 1000
                         };
