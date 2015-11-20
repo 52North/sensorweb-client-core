@@ -3,10 +3,10 @@ angular.module('n52.core.timeSelectorButtons', ['n52.core.time', 'n52.core.timeR
             return {
                 restrict: 'E',
                 templateUrl: 'templates/time/time-selector-buttons.html',
-                controller: 'TimeSelectorCtrl'
+                controller: 'SwcTimeSelectorCtrl'
             };
         })
-        .controller('TimeSelectorCtrl', ['$scope', 'timeService',
+        .controller('SwcTimeSelectorCtrl', ['$scope', 'timeService',
             function ($scope, timeService) {
                 $scope.time = timeService.time;
 
