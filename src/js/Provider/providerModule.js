@@ -1,37 +1,4 @@
 angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
-        .controller('ProviderButtonCtrl', ['$scope', '$modal',
-            function ($scope, $modal) {
-                $scope.selectProvider = function () {
-                    // open provider list in modal window
-                    $modal.open({
-                        animation: true,
-                        templateUrl: 'templates/map/provider-list-modal.html',
-                        controller: 'ProviderListModalCtrl'
-                    });
-                };
-            }])
-        .controller('ProviderLabelCtrl', ['$scope', 'providerService',
-            function ($scope, providerService) {
-                $scope.selectedProvider = providerService.selectedProvider;
-            }])
-        .controller('ProviderDeselectProvider', ['$scope', 'providerService', function ($scope, providerService) {
-                $scope.deselectAll = function () {
-                    providerService.selectProvider();
-                };
-            }])
-        .controller('ProviderListModalCtrl', ['$scope', '$modalInstance', 'providerService',
-            function ($scope, $modalInstance, providerService) {
-                $scope.providerList = providerService.providerList;
-
-                $scope.close = function () {
-                    $modalInstance.close();
-                };
-
-                $scope.selectProvider = function (provider) {
-                    providerService.selectProvider(provider);
-                    $modalInstance.close();
-                };
-            }])
         .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService',
             function ($rootScope, settingsService, interfaceService, statusService) {
                 var providerList = [];

@@ -1,19 +1,4 @@
 angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
-        .controller('PhenomenonListCtrl', ['$scope', 'PhenomenonListFactory', function ($scope, PhenomenonListFactory) {
-                $scope.phenomena = PhenomenonListFactory.phenomena;
-
-                $scope.showAllPhenomenons = function () {
-                    PhenomenonListFactory.setSelection();
-                };
-
-                $scope.showSpecificPhenomenon = function (phenomenon) {
-                    PhenomenonListFactory.setSelection(phenomenon);
-                };
-
-                $scope.isSelected = function (phenomenon) {
-                    return angular.equals(phenomenon, $scope.phenomena.selection);
-                };
-            }])
         .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService',
             function ($rootScope, interfaceService, statusService, settingsService) {
                 var phenomena = {};
@@ -66,12 +51,5 @@ angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
                 return {
                     setSelection: setSelection,
                     phenomena: phenomena
-                };
-            }])
-        .controller('phenomenaButtonController', ['$scope', 'statusService',
-            function ($scope, statusService) {
-                $scope.status = statusService.status;
-                $scope.togglePhenomena = function () {
-                    statusService.status.showPhenomena = !statusService.status.showPhenomena;
                 };
             }]);

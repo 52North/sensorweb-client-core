@@ -1,5 +1,5 @@
 angular.module('n52.core.station', ['ui.bootstrap'])
-        .controller('ModalStationCtrl', ['$scope', '$modalInstance', 'timeseriesService', '$location', 'stationService', 'selection',
+        .controller('SwcModalStationCtrl', ['$scope', '$modalInstance', 'timeseriesService', '$location', 'stationService', 'selection',
             function ($scope, $modalInstance, timeseriesService, $location, stationService, selection) {
                 stationService.determineTimeseries(selection.stationId, selection.url);
                 $scope.isAllSelected = true;
@@ -27,7 +27,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
 
                 $scope.addTimeseriesSelection = function (phenomenonId) {
                     angular.forEach($scope.station.entry.properties.timeseries, function (timeseries) {
-                        if (timeseries.selected && (!phenomenonId || timeseries.phenomenon.id == phenomenonId)) {
+                        if (timeseries.selected && (!phenomenonId || timeseries.phenomenon.id === phenomenonId)) {
                             timeseriesService.addTimeseriesById(timeseries.id, selection.url);
                         }
                     });
@@ -59,7 +59,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                                 };
                             }
                         },
-                        controller: 'ModalStationCtrl'
+                        controller: 'SwcModalStationCtrl'
                     });
                 };
                 $rootScope.$on('leafletDirectivePath.click', clickmarker);
