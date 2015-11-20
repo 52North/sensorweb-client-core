@@ -1,13 +1,4 @@
 angular.module('n52.core.dataLoading', ['n52.core.timeseries'])
-        .directive('swcDataLoading', ['timeseriesService', function (timeseriesService) {
-                return {
-                    restrict: 'E',
-                    templateUrl: 'templates/loading/data-loading.html',
-                    controller: ['$scope', function ($scope) {
-                            $scope.timeseries = timeseriesService.timeseries;
-                        }]
-                };
-            }])
         .filter('isDataLoading', function () {
             return function (timeseries) {
                 if (Object.keys(timeseries).length > 0) {
