@@ -1,5 +1,5 @@
 angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.time', 'n52.core.flot', 'n52.core.timeSelectorButtons', 'n52.core.settings', 'n52.core.yAxisHide'])
-        .controller('overviewChartCtrl', ['$scope', 'flotOverviewChartServ',
+        .controller('SwcOverviewChartCtrl', ['$scope', 'flotOverviewChartServ',
             function ($scope, flotOverviewChartServ) {
                 $scope.options = flotOverviewChartServ.options;
                 $scope.dataset = flotOverviewChartServ.dataset;
