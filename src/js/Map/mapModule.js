@@ -118,7 +118,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                 rightmost: firstElemCoord[0]
                             };
                         }
-                        $.each(data, $.proxy(function (n, elem) {
+                        angular.forEach(data, function(elem) {
                             var geom = getCoordinates(elem);
                             if (!isNaN(geom[0]) || !isNaN(geom[1])) {
                                 if (geom[0] > aggregateBounds.rightmost) {
@@ -139,7 +139,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                     addNormalMarker(geom, elem, serviceUrl, serviceId);
                                 }
                             }
-                        }, this));
+                        });
                         angular.copy(leafletBoundsHelpers.createBoundsFromArray([
                             [parseFloat(aggregateBounds.bottommost), parseFloat(aggregateBounds.leftmost)],
                             [parseFloat(aggregateBounds.topmost), parseFloat(aggregateBounds.rightmost)]]), map.bounds);
@@ -156,7 +156,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                         var bottommost = firstElemCoord[1];
                         var leftmost = firstElemCoord[0];
                         var rightmost = firstElemCoord[0];
-                        $.each(data, $.proxy(function (n, elem) {
+                        angular.forEach(data, function(elem) {
                             var geom = getCoordinates(elem);
                             if (!isNaN(geom[0]) || !isNaN(geom[1])) {
                                 if (geom[0] > rightmost) {
@@ -177,7 +177,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                                     addNormalMarker(geom, elem, serviceUrl, serviceId);
                                 }
                             }
-                        }, this));
+                        });
                         angular.copy(leafletBoundsHelpers.createBoundsFromArray([
                             [parseFloat(bottommost), parseFloat(leftmost)],
                             [parseFloat(topmost), parseFloat(rightmost)]]), map.bounds);
@@ -239,7 +239,7 @@ angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.
                     var matchedInterval = null;
                     if (elem.lastValue && elem.statusIntervals) {
                         var lastValue = elem.lastValue.value;
-                        $.each(elem.statusIntervals, function (idx, interval) {
+                        angular.forEach(elem.statusIntervals, function (interval) {
                             if (interval.upper === null) {
                                 interval.upper = Number.MAX_VALUE;
                             }
