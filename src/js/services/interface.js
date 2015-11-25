@@ -89,6 +89,18 @@ angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
                         });
                     });
                 };
+                
+                this.search = function (apiUrl, arrayParams) {
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'search', _createRequestConfigs({
+                            q: arrayParams.join(',')
+                        })).then(function(response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
+                };
 
                 this.getTimeseries = function (id, apiUrl, params) {
                     if (angular.isUndefined(params))
