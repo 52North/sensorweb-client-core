@@ -12,11 +12,9 @@ angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
                     }
                     return "ts=" + encodeURIComponent(ids.join());
                 };
-
                 createTimeParam = function () {
                     return "timespan=" + encodeURIComponent(timeService.getCurrentTimespan());
                 };
-
                 getCurrentPermalink = function (timeseriesId) {
                     var params = [];
                     var url = $location.absUrl();
@@ -33,57 +31,32 @@ angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
                     params.push(createTimeseriesParam(timeseriesId));
                     return link + params.join("&");
                 };
-
                 return {
                     getCurrentPermalink: getCurrentPermalink
                 };
             }]);
-
 angular.module('n52.core.permalinkEval', ['n52.core.utils'])
-        .factory('permalinkEvaluationService', ['$location', 'utils', function ($location, utils) {
+        .factory('permalinkEvaluationService', ['$location', 'utils',
+            function ($location, utils) {
                 var parameters = $location.search();
-
-                hasParam = function (name, parameters) {
+                hasParam = function (name) {
                     return angular.isDefined(parameters[name]);
                 };
-
                 getParam = function (name) {
                     if (hasParam(name, parameters)) {
                         return parameters[name];
-                    } else {
-                        return null;
-                    }
-                };
-
-                getTime = function () {
-                    if (hasParam("timespan", parameters)) {
-                        var timespan = parameters.timespan.split('/');
-                        var time = {};
-                        time.start = moment(timespan[0]);
-                        time.end = moment(timespan[1]);
-                        time.duration = moment.duration(time.end.diff(time.start));
-                        return time;
                     }
                     return null;
                 };
-
-                getTimeseries = function () {
-                    if (hasParam("ts", parameters)) {
-                        var timeseries = {};
-                        angular.forEach(parameters.ts.split(","), function (internalID) {
-                            var comb = utils.getTimeseriesCombinationByInternalId(internalID);
-                            if (Object.keys(comb).length > 0) {
-                                timeseries[internalID] = comb;
-                            }
-                        });
-                        return timeseries;
+                getParameterArray = function (param) {
+                    var array = getParam(param);
+                    if (angular.isString(array)) {
+                        return array.split(',');
                     }
                     return null;
                 };
-
                 return {
                     getParam: getParam,
-                    getTime: getTime,
-                    getTimeseries: getTimeseries
+                    getParameterArray: getParameterArray
                 };
             }]);

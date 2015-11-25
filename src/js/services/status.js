@@ -1,6 +1,6 @@
 angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
-        .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService', 'permalinkEvaluationService',
-            function ($rootScope, localStorageService, settingsService, permalinkEvaluationService) {
+        .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService',
+            function ($rootScope, localStorageService, settingsService) {
                 var storageKey = 'status';
 
                 // init default status
@@ -26,15 +26,6 @@ angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
                 var storage = localStorageService.get(storageKey) || {};
                 scope.status = angular.extend(angular.copy(defStatus), storage);
 
-                // extend status with possible permalink options
-                var permalinkTime = permalinkEvaluationService.getTime();
-                if (permalinkTime)
-                    scope.status.timespan = permalinkTime;
-
-                var permalinkTimeseries = permalinkEvaluationService.getTimeseries();
-                if (permalinkTimeseries)
-                    scope.status.timeseries = permalinkTimeseries;
-
                 scope.$watch('status', function (newStatus) {
                     if (newStatus.saveStatus) {
                         localStorageService.set(storageKey, newStatus);
@@ -50,7 +41,13 @@ angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
                 removeTimeseries = function (internalId) {
                     delete scope.status.timeseries[internalId];
                 };
-
+                
+                removeAllTimeseries = function() {
+                    angular.forEach(scope.status.timeseries, function(ts, id) {
+                        removeTimeseries(id);
+                    });
+                };
+                
                 addTimeseries = function (timeseries) {
                     scope.status.timeseries[timeseries.internalId] = timeseries;
                 };
@@ -62,6 +59,7 @@ angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
                 return {
                     resetStatus: resetStatus,
                     addTimeseries: addTimeseries,
+                    removeAllTimeseries: removeAllTimeseries,
                     removeTimeseries: removeTimeseries,
                     getTimeseries: getTimeseries,
                     status: scope.status

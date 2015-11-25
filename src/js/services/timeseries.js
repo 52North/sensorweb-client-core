@@ -4,11 +4,6 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                 var timeseries = {};
                 var tsData = {};
 
-                // load timeseries from status
-                angular.forEach(statusService.getTimeseries(), function (ts) {
-                    addTimeseriesById(ts.id, ts.apiUrl);
-                });
-
                 $rootScope.$on('timeExtentChanged', function (evt) {
                     _loadAllData();
                 });
