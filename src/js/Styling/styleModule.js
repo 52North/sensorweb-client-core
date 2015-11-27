@@ -9,7 +9,7 @@ angular.module('n52.core.style', ['ui.bootstrap'])
                                 return timeseries;
                             }
                         },
-                        controller: 'ModalStyleEditorCtrl'
+                        controller: 'SwcModalStyleEditorCtrl'
                     });
                 };
             }]);
