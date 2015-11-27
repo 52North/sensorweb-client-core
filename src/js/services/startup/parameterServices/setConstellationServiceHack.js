@@ -1,4 +1,4 @@
-angular.module('n52.client.menu')
+angular.module('n52.core.startup')
         .service('SetConstellationServiceHack', ['permalinkEvaluationService', '$log', 'settingsService', 'interfaceService', 'timeseriesService',
             function (permalinkEvaluationService, $log, settingsService, interfaceService, timeseriesService) {
                 var featuresParam = 'features', proceduresParam = 'procedures', phenomenaParam = 'phenomena';
