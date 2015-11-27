@@ -7,7 +7,6 @@ angular.module('n52.core.timeRange')
                     function ($scope, timeService) {
                         $scope.newTimeExtent = function () {
                             timeService.setPresetInterval($scope.item.interval);
-                            $scope.modalInstance.close();
                         };
                     }]
             };

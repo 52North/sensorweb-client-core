@@ -1,0 +1,18 @@
+angular.module('n52.core.timeRange')
+        .directive('swcSelectDateTime', [
+            function () {
+                return {
+                    restrict: 'E',
+                    templateUrl: 'templates/time/date-time-selection.html',
+                    scope: {
+                        date: '='
+                    },
+                    controller: ['$scope', 'timeService',
+                        function ($scope) {
+                            $scope.isToggled = false;
+                            $scope.toggle = function() {
+                                $scope.isToggled = !$scope.isToggled;
+                            };
+                        }]
+                };
+            }]);

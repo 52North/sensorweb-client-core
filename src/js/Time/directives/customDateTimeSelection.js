@@ -1,3 +1,4 @@
+// uses https://github.com/smalot/bootstrap-datetimepicker
 angular.module('n52.core.timeRange')
         .directive('swcCustomDateTimeSelection', ['settingsService', 'timeService', '$translate',
             function (settingsService, timeService, $translate) {
