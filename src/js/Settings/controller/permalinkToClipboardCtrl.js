@@ -1,5 +1,5 @@
 angular.module('n52.core.userSettings')
-        .controller('PermalinkToClipboardCtrl', ['$scope', 'permalinkGenerationService', '$window', '$translate',
+        .controller('SwcPermalinkToClipboardCtrl', ['$scope', 'permalinkGenerationService', '$window', '$translate',
             function ($scope, permalinkGenerationService, $window, $translate) {
                 $scope.copyToClipboard = function (timeseriesId) {
                     var link = permalinkGenerationService.getCurrentPermalink(timeseriesId);

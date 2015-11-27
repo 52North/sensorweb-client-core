@@ -1,5 +1,5 @@
 angular.module('n52.core.userSettings')
-        .controller('QrCodeCtrl', ['$scope', 'permalinkGenerationService',
+        .controller('SwcQrCodeCtrl', ['$scope', 'permalinkGenerationService',
             function ($scope, permalinkGenerationService) {
                 $scope.createQrCode = function (timeseriesId) {
                     if (angular.isUndefined($scope.dataUrl)) {

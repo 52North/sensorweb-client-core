@@ -1,5 +1,5 @@
 angular.module('n52.core.userSettings')
-        .controller('ClusterMarkerCtrl', ['$scope', '$rootScope', 'statusService',
+        .controller('SwcClusterMarkerCtrl', ['$scope', '$rootScope', 'statusService',
             function ($scope, $rootScope, statusService) {
                 $scope.status = statusService.status;
                 $scope.toggle = function () {
