@@ -6,5 +6,5 @@ angular.module('n52.core.startup')
                     if (angular.isString(lang)) {
                         $translate.use(lang);
                     }
-                }
+                };
             }]);
