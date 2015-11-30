@@ -1,6 +1,6 @@
 angular.module('n52.core.exportTs', ['n52.core.timeseries', 'n52.core.time'])
-        .factory('exportTsService', ['timeService', '$window', '$translate', 'timeseriesService',
-            function (timeService, $window, $translate, timeseriesService) {
+        .factory('exportTsService', ['timeService', '$window', '$translate',
+            function (timeService, $window, $translate) {
 
                 function createCsvDownloadLink(ts) {
                     var apiUrl = ts.apiUrl, tsId = ts.id;
