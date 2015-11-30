@@ -1,5 +1,5 @@
 angular.module('n52.core.noDataWarning', ['n52.core.timeseries'])
-        .controller('NoDataWarningCtrl', ['$scope', 'timeseriesService', function ($scope, timeseriesService) {
+        .controller('SwcNoDataWarningCtrl', ['$scope', 'timeseriesService', function ($scope, timeseriesService) {
                 $scope.timeseries = timeseriesService.timeseries;
             }])
         .filter('isNoDataVisible', function () {
