@@ -1,4 +1,4 @@
-angular.module('n52.core.timeRange')
+angular.module('n52.core.timeUi')
         .controller('SwcTimeRangeCtrl', ['$scope', 'modalOpener',
             function ($scope, modalOpener) {
                 $scope.open = function () {

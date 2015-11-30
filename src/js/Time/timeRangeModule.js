@@ -1,1 +1,1 @@
-angular.module('n52.core.timeRange', ['n52.core.time', 'ui.bootstrap', 'n52.core.settings']);
+angular.module('n52.core.timeUi', ['n52.core.time', 'ui.bootstrap', 'n52.core.settings']);

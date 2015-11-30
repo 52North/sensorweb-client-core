@@ -1,4 +1,4 @@
-angular.module('n52.core.timeRange')
+angular.module('n52.core.timeUi')
         .directive('swcPredefinedTimeRangeButton', function () {
             return {
                 restrict: 'E',
