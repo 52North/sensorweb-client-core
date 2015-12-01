@@ -65,13 +65,11 @@ angular.module('n52.core.listSelection')
                     if ($scope.selectedParameterIndex < $scope.parameters.length - 1) {
                         $scope.openNext($scope.selectedParameterIndex + 1);
                     } else {
-                        debugger;
                         $scope.addToDiagram($scope.createParams());
                     }
                 };
                 
                 $scope.addToDiagram = function (params) {
-                    debugger;
                     timeseriesService.addTimeseriesById(null, statusService.status.apiProvider.url, params);
                 };
 
