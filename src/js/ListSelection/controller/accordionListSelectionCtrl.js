@@ -1,21 +1,11 @@
 angular.module('n52.core.listSelection')
-        .controller('SwcAccordionListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$location',
-            function ($scope, interfaceService, statusService, timeseriesService, $location) {
+        .controller('SwcAccordionListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService',
+            function ($scope, interfaceService, statusService, timeseriesService) {
                 angular.forEach($scope.parameters, function (param, openedIdx) {
-                    $scope.$watch('parameters[' + openedIdx + '].isOpen', function (newVal, oldVal) {
+                    $scope.$watch('parameters[' + openedIdx + '].isOpen', function (newVal) {
                         if (newVal) {
                             $scope.selectedParameterIndex = openedIdx;
-                            // TODO nachfolger disablen und zurücksetzen
-                            angular.forEach($scope.parameters, function (param, idx) {
-                                if (idx > openedIdx) {
-                                    param.isDisabled = true;
-                                    delete param.selectedId;
-                                    delete param.items;
-                                }
-                                if (idx >= openedIdx) {
-                                    delete param.headerAddition;
-                                }
-                            });
+                            $scope.disableFollowingParameters();
                         }
                     });
                 });
@@ -55,13 +45,33 @@ angular.module('n52.core.listSelection')
                 $scope.openNext = function (idx) {
                     $scope.parameters[idx].isDisabled = false;
                     $scope.selectedParameterIndex = idx;
+                    if (idx - 1 >= 0)
+                        $scope.parameters[idx - 1].isOpen = false;
                     $scope.parameters[idx].isOpen = true;
                     $scope.getItems($scope.parameters[idx]);
                 };
 
-                $scope.openItem = function (item) {
-                    $scope.parameters[$scope.selectedParameterIndex].selectedId = item.id;
-                    $scope.parameters[$scope.selectedParameterIndex].headerAddition = item.label;
+                $scope.disableFollowingParameters = function () {
+                    angular.forEach($scope.parameters, function (param, idx) {
+                        if (idx > $scope.selectedParameterIndex) {
+                            param.isDisabled = true;
+                            param.isOpen = false;
+                            delete param.selectedId;
+                            delete param.items;
+                        }
+                        if (idx >= $scope.selectedParameterIndex) {
+                            delete param.headerAddition;
+                        }
+                    });
+                }
+
+                $scope.openItem = function (item, paramIndex) {
+                    if (angular.isNumber(paramIndex))
+                        $scope.selectedParameterIndex = paramIndex;
+                    $scope.disableFollowingParameters();
+                    $scope.addItem(item, $scope.selectedParameterIndex)
+                    $scope.deselectItems($scope.parameters[$scope.selectedParameterIndex].items);
+                    item.selected = true;
                     if ($scope.selectedParameterIndex < $scope.parameters.length - 1) {
                         $scope.openNext($scope.selectedParameterIndex + 1);
                     } else {
@@ -69,6 +79,18 @@ angular.module('n52.core.listSelection')
                     }
                 };
                 
+                $scope.addItem = function (item, idx) {
+                    var parameters = $scope.parameters[idx];
+                    parameters.selectedId = item.id;
+                    parameters.headerAddition = item.label;
+                }
+
+                $scope.deselectItems = function (items) {
+                    angular.forEach(items, function (item) {
+                        item.selected = false;
+                    });
+                };
+
                 $scope.addToDiagram = function (params) {
                     timeseriesService.addTimeseriesById(null, statusService.status.apiProvider.url, params);
                 };
