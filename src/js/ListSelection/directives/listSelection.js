@@ -1,12 +1,12 @@
 angular.module('n52.core.listSelection')
-        .directive('swcModalAccordionListSelection', [
+        .directive('swcListSelection', [
             function () {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/listSelection/accordion-modal-list-selection.html',
+                    templateUrl: 'templates/listSelection/list-selection.html',
                     scope: {
                         parameters: '='
                     },
-                    controller: 'SwcModalAccordionListSelectionCtrl'
+                    controller: 'SwcListSelectionCtrl'
                 };
             }]);

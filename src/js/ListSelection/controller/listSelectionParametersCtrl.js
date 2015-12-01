@@ -1,5 +1,5 @@
 angular.module('n52.core.listSelection')
-        .controller('SwcModalListSelectionCtrl', ['$scope',
+        .controller('SwcListSelectionParametersCtrl', ['$scope',
             function ($scope) {
                 $scope.categoryParams = [
                     {

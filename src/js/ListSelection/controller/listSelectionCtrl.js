@@ -1,5 +1,5 @@
 angular.module('n52.core.listSelection')
-        .controller('SwcAccordionListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService',
+        .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService',
             function ($scope, interfaceService, statusService, timeseriesService) {
                 angular.forEach($scope.parameters, function (param, openedIdx) {
                     $scope.$watch('parameters[' + openedIdx + '].isOpen', function (newVal) {
