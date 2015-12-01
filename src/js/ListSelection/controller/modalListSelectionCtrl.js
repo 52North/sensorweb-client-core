@@ -1,8 +1,6 @@
 angular.module('n52.core.listSelection')
-        .controller('SwcModalListSelectionCtrl', ['$scope', '$modalInstance',
-            function ($scope, $modalInstance) {
-                $scope.modalInstance = $modalInstance;
-
+        .controller('SwcModalListSelectionCtrl', ['$scope',
+            function ($scope) {
                 $scope.categoryParams = [
                     {
                         type: 'category',
@@ -59,8 +57,4 @@ angular.module('n52.core.listSelection')
                         header: 'listSelection.headers.procedure'
                     }
                 ];
-
-                $scope.close = function () {
-                    $modalInstance.close();
-                };
             }]);

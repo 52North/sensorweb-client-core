@@ -1,5 +1,5 @@
 angular.module('n52.core.listSelection')
-        .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$location',
+        .controller('SwcAccordionListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$location',
             function ($scope, interfaceService, statusService, timeseriesService, $location) {
                 angular.forEach($scope.parameters, function (param, openedIdx) {
                     $scope.$watch('parameters[' + openedIdx + '].isOpen', function (newVal, oldVal) {
@@ -65,10 +65,14 @@ angular.module('n52.core.listSelection')
                     if ($scope.selectedParameterIndex < $scope.parameters.length - 1) {
                         $scope.openNext($scope.selectedParameterIndex + 1);
                     } else {
-                        timeseriesService.addTimeseriesById(null, statusService.status.apiProvider.url, $scope.createParams());
-                        $location.url('/diagram');
-                        $scope.$parent.modalInstance.close();
+                        debugger;
+                        $scope.addToDiagram($scope.createParams());
                     }
+                };
+                
+                $scope.addToDiagram = function (params) {
+                    debugger;
+                    timeseriesService.addTimeseriesById(null, statusService.status.apiProvider.url, params);
                 };
 
                 $scope.openNext(0);
