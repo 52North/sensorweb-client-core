@@ -42,13 +42,18 @@ angular.module('n52.core.listSelection')
                     }
                 };
 
-                $scope.openNext = function (idx) {
-                    $scope.parameters[idx].isDisabled = false;
-                    $scope.selectedParameterIndex = idx;
-                    if (idx - 1 >= 0)
-                        $scope.parameters[idx - 1].isOpen = false;
-                    $scope.parameters[idx].isOpen = true;
-                    $scope.getItems($scope.parameters[idx]);
+                $scope.openNext = function (currentIdx) {
+                    angular.forEach($scope.parameters, function(param, idx) {
+                        if (idx >= currentIdx) {
+                            delete param.selectedId;
+                        }
+                    });
+                    $scope.parameters[currentIdx].isDisabled = false;
+                    $scope.selectedParameterIndex = currentIdx;
+                    if (currentIdx - 1 >= 0)
+                        $scope.parameters[currentIdx - 1].isOpen = false;
+                    $scope.parameters[currentIdx].isOpen = true;
+                    $scope.getItems($scope.parameters[currentIdx]);
                 };
 
                 $scope.disableFollowingParameters = function () {
@@ -63,13 +68,13 @@ angular.module('n52.core.listSelection')
                             delete param.headerAddition;
                         }
                     });
-                }
+                };
 
                 $scope.openItem = function (item, paramIndex) {
                     if (angular.isNumber(paramIndex))
                         $scope.selectedParameterIndex = paramIndex;
                     $scope.disableFollowingParameters();
-                    $scope.addItem(item, $scope.selectedParameterIndex)
+                    $scope.addItem(item, $scope.selectedParameterIndex);
                     $scope.deselectItems($scope.parameters[$scope.selectedParameterIndex].items);
                     item.selected = true;
                     if ($scope.selectedParameterIndex < $scope.parameters.length - 1) {
@@ -83,7 +88,7 @@ angular.module('n52.core.listSelection')
                     var parameters = $scope.parameters[idx];
                     parameters.selectedId = item.id;
                     parameters.headerAddition = item.label;
-                }
+                };
 
                 $scope.deselectItems = function (items) {
                     angular.forEach(items, function (item) {
