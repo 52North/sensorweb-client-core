@@ -43,11 +43,6 @@ angular.module('n52.core.listSelection')
                 };
 
                 $scope.openNext = function (currentIdx) {
-                    angular.forEach($scope.parameters, function(param, idx) {
-                        if (idx >= currentIdx) {
-                            delete param.selectedId;
-                        }
-                    });
                     $scope.parameters[currentIdx].isDisabled = false;
                     $scope.selectedParameterIndex = currentIdx;
                     if (currentIdx - 1 >= 0)
