@@ -1,19 +1,19 @@
 angular.module('n52.core.modal', ['ui.bootstrap'])
-        .service('modalOpener', ['$modal',
-            function ($modal) {
+        .service('modalOpener', ['$uibModal',
+            function ($uibModal) {
                 this.open = function (configs) {
                     var defaults = {
                         animation: true,
                         controller: 'ModalWindowCtrl'
                     };
                     angular.extend(defaults, configs);
-                    $modal.open(defaults);
+                    $uibModal.open(defaults);
                 };
             }])
-        .controller('ModalWindowCtrl', ['$scope', '$modalInstance',
-            function ($scope, $modalInstance) {
-                $scope.modal = $modalInstance;
+        .controller('ModalWindowCtrl', ['$scope', '$uibModalInstance',
+            function ($scope, $uibModalInstance) {
+                $scope.modal = $uibModalInstance;
                 $scope.close = function () {
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                 };
             }]);

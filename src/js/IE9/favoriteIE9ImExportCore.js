@@ -1,8 +1,8 @@
 mainApp.requires.push('n52.core.favoriteIE9ImExport');
 angular.module('n52.core.favoriteIE9ImExport', ['LocalStorageModule'])
-        .service('imExportFavoriteModalOpener', ['$modal', function ($modal) {
+        .service('imExportFavoriteModalOpener', ['$uibModal', function ($uibModal) {
                 return function (data) {
-                    $modal.open({
+                    $uibModal.open({
                         animation: true,
                         templateUrl: 'templates/ie9/import-export.html',
                         resolve: {
@@ -10,17 +10,17 @@ angular.module('n52.core.favoriteIE9ImExport', ['LocalStorageModule'])
                                 return data;
                             }
                         },
-                        controller: ['$scope', '$modalInstance', 'data', function ($scope, $modalInstance, data) {
+                        controller: ['$scope', '$uibModalInstance', 'data', function ($scope, $uibModalInstance, data) {
                                 $scope.header = data.header;
                                 $scope.text = data.text;
                                 $scope.content = data.content;
                                 $scope.close = function () {
-                                    $modalInstance.close();
+                                    $uibModalInstance.close();
                                 };
                                 $scope.submit = function () {
                                     if (data.submit)
                                         data.submit($scope.content);
-                                    $modalInstance.close();
+                                    $uibModalInstance.close();
                                 };
                             }]
                     });

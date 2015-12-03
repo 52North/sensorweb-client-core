@@ -1,9 +1,9 @@
 angular.module('n52.core.style')
-        .controller('SwcModalStyleEditorCtrl', ['$scope', 'timeseries', '$modalInstance',
-            function ($scope, timeseries, $modalInstance) {
+        .controller('SwcModalStyleEditorCtrl', ['$scope', 'timeseries', '$uibModalInstance',
+            function ($scope, timeseries, $uibModalInstance) {
                 $scope.timeseries = timeseries;
-                $scope.modalInstance = $modalInstance;
+                $scope.modalInstance = $uibModalInstance;
                 $scope.close = function () {
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                 };
             }]);

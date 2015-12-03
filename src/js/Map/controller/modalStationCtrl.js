@@ -1,6 +1,6 @@
 angular.module('n52.core.station', ['ui.bootstrap'])
-        .controller('SwcModalStationCtrl', ['$scope', '$modalInstance', 'timeseriesService', '$location', 'stationService', 'selection',
-            function ($scope, $modalInstance, timeseriesService, $location, stationService, selection) {
+        .controller('SwcModalStationCtrl', ['$scope', '$uibModalInstance', 'timeseriesService', '$location', 'stationService', 'selection',
+            function ($scope, $uibModalInstance, timeseriesService, $location, stationService, selection) {
                 stationService.determineTimeseries(selection.stationId, selection.url);
                 $scope.isAllSelected = true;
                 $scope.station = stationService.station;
@@ -13,7 +13,7 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                 };
 
                 $scope.close = function () {
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                 };
 
                 $scope.toggled = function () {
@@ -32,13 +32,13 @@ angular.module('n52.core.station', ['ui.bootstrap'])
                         }
                     });
                     $location.url('/diagram');
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                 };
             }])
-        .service('StationOpener', ['$modal', '$rootScope', 'mapService',
-            function ($modal, $rootScope, mapService) {
+        .service('StationOpener', ['$uibModal', '$rootScope', 'mapService',
+            function ($uibModal, $rootScope, mapService) {
                 clickmarker = function (event, args) {
-                    $modal.open({
+                    $uibModal.open({
                         animation: true,
                         templateUrl: 'templates/map/station.html',
                         resolve: {

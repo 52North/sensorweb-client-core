@@ -1,14 +1,14 @@
 angular.module('n52.core.provider')
-        .controller('SwcProviderListModalCtrl', ['$scope', '$modalInstance', 'providerService',
-            function ($scope, $modalInstance, providerService) {
+        .controller('SwcProviderListModalCtrl', ['$scope', '$uibModalInstance', 'providerService',
+            function ($scope, $uibModalInstance, providerService) {
                 $scope.providerList = providerService.providerList;
 
                 $scope.close = function () {
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                 };
 
                 $scope.selectProvider = function (provider) {
                     providerService.selectProvider(provider);
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                 };
             }]);

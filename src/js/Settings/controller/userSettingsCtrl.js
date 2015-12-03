@@ -1,8 +1,8 @@
 angular.module('n52.core.userSettings')
-        .controller('SwcUserSettingsCtrl', ['$scope', '$modal',
-            function ($scope, $modal) {
+        .controller('SwcUserSettingsCtrl', ['$scope', '$uibModal',
+            function ($scope, $uibModal) {
                 $scope.open = function () {
-                    $modal.open({
+                    $uibModal.open({
                         animation: true,
                         templateUrl: 'templates/settings/user-settings-modal.html',
                         controller: 'SwcUserSettingsWindowCtrl'

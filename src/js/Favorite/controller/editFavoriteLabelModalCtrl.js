@@ -5,9 +5,9 @@ angular.module('n52.core.favoriteUi')
                     editFavoriteModalOpener(favorite);
                 };
             }])
-        .service('editFavoriteModalOpener', ['$modal', function ($modal) {
+        .service('editFavoriteModalOpener', ['$uibModal', function ($uibModal) {
                 return function (favorite) {
-                    $modal.open({
+                    $uibModal.open({
                         animation: true,
                         templateUrl: 'templates/favorite/favorite-edit-label-modal.html',
                         resolve: {
@@ -15,15 +15,15 @@ angular.module('n52.core.favoriteUi')
                                 return favorite;
                             }
                         },
-                        controller: ['$scope', '$modalInstance', 'favorite', 'favoriteService', 
-                            function ($scope, $modalInstance, favorite, favoriteService) {
+                        controller: ['$scope', '$uibModalInstance', 'favorite', 'favoriteService', 
+                            function ($scope, $uibModalInstance, favorite, favoriteService) {
                                 $scope.label = favorite.label;
                                 $scope.close = function () {
-                                    $modalInstance.close();
+                                    $uibModalInstance.close();
                                 };
                                 $scope.submit = function () {
                                     favoriteService.changeLabel(favorite, $scope.label);
-                                    $modalInstance.close();
+                                    $uibModalInstance.close();
                                 };
                             }]
                     });

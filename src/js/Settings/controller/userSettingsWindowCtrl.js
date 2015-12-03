@@ -1,8 +1,8 @@
 angular.module('n52.core.userSettings')
-        .controller('SwcUserSettingsWindowCtrl', ['$scope', '$modalInstance',
-            function ($scope, $modalInstance) {
-                $scope.modal = $modalInstance;
+        .controller('SwcUserSettingsWindowCtrl', ['$scope', '$uibModalInstance',
+            function ($scope, $uibModalInstance) {
+                $scope.modal = $uibModalInstance;
                 $scope.close = function () {
-                    $modalInstance.close();
+                    $uibModalInstance.close();
                 };
             }]);
