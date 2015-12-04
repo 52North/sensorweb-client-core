@@ -5,10 +5,12 @@ angular.module('n52.core.timeUi')
                     restrict: 'E',
                     templateUrl: 'templates/time/date-time-selection.html',
                     scope: {
-                        date: '='
+                        date: '=',
+                        title: '='
                     },
                     controller: ['$scope', 'timeService',
                         function ($scope) {
+                            debugger;
                             $scope.isToggled = false;
                             $scope.toggle = function() {
                                 $scope.isToggled = !$scope.isToggled;
