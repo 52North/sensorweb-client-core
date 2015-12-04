@@ -10,7 +10,6 @@ angular.module('n52.core.timeUi')
                     },
                     controller: ['$scope', 'timeService',
                         function ($scope) {
-                            debugger;
                             $scope.isToggled = false;
                             $scope.toggle = function() {
                                 $scope.isToggled = !$scope.isToggled;
