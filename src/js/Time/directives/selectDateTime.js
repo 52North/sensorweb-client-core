@@ -6,7 +6,9 @@ angular.module('n52.core.timeUi')
                     templateUrl: 'templates/time/date-time-selection.html',
                     scope: {
                         date: '=',
-                        title: '='
+                        title: '=',
+                        max: '=',
+                        min: '='
                     },
                     controller: ['$scope', 'timeService',
                         function ($scope) {
