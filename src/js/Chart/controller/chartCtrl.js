@@ -103,7 +103,7 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
                 $rootScope.$on('timeExtentChanged', function () {
                     setTimeExtent();
                 });
-                
+
                 function setTimeExtent() {
                     options.xaxis.min = timeService.time.start.toDate().getTime();
                     options.xaxis.max = timeService.time.end.toDate().getTime();
@@ -165,7 +165,8 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
         .factory('flotDataHelperServ', ['timeseriesService', 'settingsService', 'barChartHelperService',
             function (timeseriesService, settingsService, barChartHelperService) {
                 function updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesList) {
-                    if (angular.isUndefined(timeseriesList)) timeseriesList = timeseriesService.getAllTimeseries();
+                    if (angular.isUndefined(timeseriesList))
+                        timeseriesList = timeseriesService.getAllTimeseries();
                     angular.forEach(timeseriesList, function (ts) {
                         updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, timeseriesService.getData(ts.internalId));
                     });
@@ -173,43 +174,47 @@ angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.
 
                 function updateTimeseriesInDataSet(dataset, renderOptions, id, data) {
                     removeTimeseriesFromDataSet(dataset, id);
-                    if (!addTimeseriesToDataSet(dataset, renderOptions, id, data)){
+                    if (!updateTimeseriesToDataSet(dataset, renderOptions, id, data)) {
                         updateAllTimeseriesToDataSet(dataset, renderOptions);
                     }
                 }
 
-                function addTimeseriesToDataSet(dataset, renderOptions, id, data) {
-                    if (timeseriesService.isTimeseriesVisible(id)) {
-                        var ts = timeseriesService.getTimeseries(id);
-                        if (data && data.values) {
-                            var dataEntry = createEntry(ts, data, renderOptions);
-                            dataset.push(dataEntry);
-                        }
-                        // add possible ref values
-                        if (renderOptions.showRefValues) {
-                            angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
-                                if (refValue.visible) {
-                                    var data = timeseriesService.getData(id);
-                                    if (data && data.referenceValues) {
-                                        dataset.push({
-                                            id: refValue.referenceValueId,
-                                            color: refValue.color,
-                                            data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId]
-                                        });
+                function updateTimeseriesToDataSet(dataset, renderOptions, id, data) {
+                    if (timeseriesService.hasTimeseries(id)) {
+                        if (timeseriesService.isTimeseriesVisible(id)) {
+                            var ts = timeseriesService.getTimeseries(id);
+                            if (data && data.values) {
+                                var dataEntry = createEntry(ts, data, renderOptions);
+                                dataset.push(dataEntry);
+                            }
+                            // add possible ref values
+                            if (renderOptions.showRefValues) {
+                                angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
+                                    if (refValue.visible) {
+                                        var data = timeseriesService.getData(id);
+                                        if (data && data.referenceValues) {
+                                            dataset.push({
+                                                id: refValue.referenceValueId,
+                                                color: refValue.color,
+                                                data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId]
+                                            });
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                         return true;
-                    } 
+                    }
                     return false;
                 }
 
                 function createEntry(ts, data, renderOptions) {
                     var lineWidth = settingsService.commonLineWidth,
                             selected = ts.styles.selected && renderOptions.showSelection;
-                    if (ts.isActive && renderOptions.showActive) lineWidth = settingsService.activeLineWidth;
-                    if (selected) lineWidth = settingsService.selectedLineWidth;
+                    if (ts.isActive && renderOptions.showActive)
+                        lineWidth = settingsService.activeLineWidth;
+                    if (selected)
+                        lineWidth = settingsService.selectedLineWidth;
                     var dataEntry = {
                         id: ts.internalId,
                         color: ts.styles.color,
