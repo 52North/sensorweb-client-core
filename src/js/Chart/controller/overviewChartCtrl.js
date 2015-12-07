@@ -100,7 +100,7 @@ angular.module('n52.core.overviewDiagram', ['n52.core.timeseries', 'n52.core.tim
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
                         });
                     } else {
-                        flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, tsId);
+                        flotDataHelperServ.removeTimeseriesFromDataSet(dataset, tsId);
                     }
                 }
 
