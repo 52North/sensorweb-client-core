@@ -17,7 +17,14 @@ angular.module('n52.core.table')
                         var scrollableHeight = parent.prop('scrollHeight');
                         var hiddenContentHeight = scrollableHeight - visibleHeight;
                         if (hiddenContentHeight - parent.scrollTop() <= threshold) {
-                            // Scroll is almost at the bottom. Loading more rows
+                            scope.$apply(attrs.whenScrollEnds);
+                        }
+                    });
+                    element.scroll(function (evt) {
+                        var scrollHeight = evt.currentTarget.scrollHeight;
+                        var scrollTop = evt.currentTarget.scrollTop;
+                        var hiddenContentHeight = scrollHeight - scrollTop - visibleHeight;
+                        if (hiddenContentHeight - parent.scrollTop() <= threshold) {
                             scope.$apply(attrs.whenScrollEnds);
                         }
                     });
