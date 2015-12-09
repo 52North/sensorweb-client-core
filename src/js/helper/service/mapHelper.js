@@ -1,4 +1,4 @@
-angular.module('n52.core.helper', [])
+angular.module('n52.core.helper')
         .factory('mapHelper', [
             function () {
                 adjustBounds = function (latlng, bounds) {

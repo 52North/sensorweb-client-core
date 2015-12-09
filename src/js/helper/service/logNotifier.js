@@ -1,4 +1,4 @@
-angular.module('n52.core.logging', [])
+angular.module('n52.core.helper')
         .config(['$provide',
             function ($provide) {
                 $provide.decorator('$log', ['$delegate', 'Logging',

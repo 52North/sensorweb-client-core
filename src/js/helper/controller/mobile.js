@@ -1,4 +1,4 @@
-angular.module('n52.core.mobile', [])
+angular.module('n52.core.helper')
         .controller('IsMobileCtrl', ['$scope', 'isMobile',
             function ($scope, isMobile) {
                 $scope.isMobile = isMobile();
