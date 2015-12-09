@@ -7,8 +7,12 @@ angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
                     end: moment(statusService.status.timespan.end)
                 };
 
-                function getCurrentTimespan() {
-                    return utils.createRequestTimespan(time.start, time.end);
+                function getCurrentTimespan(buffer) {
+                    if (angular.isObject(buffer)) {
+                        return utils.createRequestTimespan(moment(time.start).subtract(buffer), moment(time.end).add(buffer));
+                    } else {
+                        return utils.createRequestTimespan(time.start, time.end);
+                    }
                 }
 
                 function setFlexibleTimeExtent(start, end) {

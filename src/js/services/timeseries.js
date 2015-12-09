@@ -1,6 +1,8 @@
 angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.core.interface', 'n52.core.styleTs'])
-        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService', 'styleService',
-            function ($rootScope, interfaceService, statusService, timeService, styleService) {
+        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService', 'styleService', 'settingsService',
+            function ($rootScope, interfaceService, statusService, timeService, styleService, settingsService) {
+                var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');
+                
                 var timeseries = {};
                 var tsData = {};
 
@@ -16,6 +18,7 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
                 }
 
                 function _addTs(ts) {
+                    ts.timebuffer = defaultDuration;
                     styleService.createStylesInTs(ts);
                     timeseries[ts.internalId] = ts;
                     statusService.addTimeseries(ts);
@@ -24,12 +27,25 @@ angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.c
 
                 function _loadTsData(ts) {
                     ts.loadingData = true;
-                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan()).then(function (data) {
+                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan(ts.timebuffer)).then(function (data) {
                         _addTsData(data, ts);
                     });
                 }
 
+                function _createNewTimebuffer(data) {
+                    if (data.length >= 2) {
+                        var newDuration = moment.duration(data[1][0] - data[0][0]);
+                        if (newDuration > defaultDuration) {
+                            return newDuration;
+                        } else {
+                            return defaultDuration;
+                        }
+                    }
+                    return defaultDuration;
+                }
+
                 function _addTsData(data, ts) {
+                    ts.timebuffer = _createNewTimebuffer(data[ts.id].values);
                     tsData[ts.internalId] = data[ts.id];
                     if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
                         ts.hasDataInCurrentExtent = false;
