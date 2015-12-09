@@ -46,7 +46,6 @@ angular.module('n52.core.timeUi')
                             var start = moment($('#startPicker').data('date'));
                             var end = moment($('#endPicker').data('date'));
                             timeService.setFlexibleTimeExtent(start, end);
-                            $scope.modalInstance.close();
                         };
                     }
                 };
