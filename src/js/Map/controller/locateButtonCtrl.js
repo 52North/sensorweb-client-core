@@ -1,4 +1,4 @@
-angular.module('n52.core.locate', ['n52.core.station'])
+angular.module('n52.core.locate', [])
         .controller('SwcLocateButtonCtrl', ['$scope', 'locateService', function ($scope, locateService) {
                 $scope.isToggled = false;
                 $scope.locateUser = function () {

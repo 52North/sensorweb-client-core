@@ -1,4 +1,4 @@
-angular.module('n52.core.dataLoading', ['n52.core.timeseries'])
+angular.module('n52.core.dataLoading', [])
         .filter('isDataLoading', function () {
             return function (timeseries) {
                 if (Object.keys(timeseries).length > 0) {

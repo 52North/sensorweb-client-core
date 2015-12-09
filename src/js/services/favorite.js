@@ -1,4 +1,4 @@
-angular.module('n52.core.favorite', ['LocalStorageModule'])
+angular.module('n52.core.favorite', [])
         .factory('favoriteService', ['localStorageService', '$translate', 'settingsService', 'interfaceService',
             function (localStorageService, $translate, settingsService, interfaceService) {
                 var storageKey = 'favorites';

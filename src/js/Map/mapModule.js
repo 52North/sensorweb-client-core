@@ -1,4 +1,4 @@
-angular.module('n52.core.map', ['leaflet-directive', 'n52.core.interface', 'n52.core.status', 'n52.core.phenomena', 'n52.core.provider', 'n52.core.station', 'n52.core.locate'])
+angular.module('n52.core.map', [])
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};

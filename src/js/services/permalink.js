@@ -1,4 +1,4 @@
-angular.module('n52.core.permalinkGen', ['n52.core.timeseries'])
+angular.module('n52.core.permalinkGen', [])
         .factory('permalinkGenerationService', ['$location', 'timeseriesService', 'timeService',
             function ($location, timeseriesService, timeService) {
                 createTimeseriesParam = function (timeseriesId) {

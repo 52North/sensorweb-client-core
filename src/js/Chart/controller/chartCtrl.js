@@ -1,4 +1,4 @@
-angular.module('n52.core.diagram', ['n52.core.time', 'n52.core.flot', 'n52.core.settings', 'n52.core.yAxisHide'])
+angular.module('n52.core.diagram', [])
         .controller('SwcChartCtrl', ['$scope', 'diagramBehaviourService', 'flotChartServ',
             function ($scope, diagramBehaviourService, flotChartService) {
                 $scope.behaviour = diagramBehaviourService.behaviour;

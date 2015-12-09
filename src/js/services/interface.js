@@ -1,4 +1,4 @@
-angular.module('n52.core.interface', ['ngResource', 'n52.core.status'])
+angular.module('n52.core.interface', [])
         .service('interfaceService', ['$http', '$q', 'statusService', 'settingsService', 'utils', '$log',
             function ($http, $q, statusService, settingsService, utils, $log) {
 

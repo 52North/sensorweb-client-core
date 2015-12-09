@@ -1,1 +1,1 @@
-angular.module('n52.core.userSettings', ['ui.bootstrap', 'n52.core.settings', 'n52.core.status', 'n52.core.permalinkGen']);
+angular.module('n52.core.userSettings', []);

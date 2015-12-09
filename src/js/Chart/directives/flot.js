@@ -1,4 +1,4 @@
-angular.module('n52.core.flot', ['n52.core.time', 'n52.core.barChart'])
+angular.module('n52.core.flot', [])
         .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService', '$rootScope',
             function (timeService, $window, $translate, timeseriesService, styleService, $rootScope) {
                 return {

@@ -1,4 +1,4 @@
-angular.module('n52.core.timeseries', ['n52.core.color', 'n52.core.time', 'n52.core.interface', 'n52.core.styleTs'])
+angular.module('n52.core.timeseries', [])
         .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService', 'styleService', 'settingsService',
             function ($rootScope, interfaceService, statusService, timeService, styleService, settingsService) {
                 var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');

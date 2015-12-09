@@ -1,4 +1,4 @@
-angular.module('n52.core.noDataWarning', ['n52.core.timeseries'])
+angular.module('n52.core.noDataWarning', [])
         .controller('SwcNoDataWarningCtrl', ['$scope', 'timeseriesService', function ($scope, timeseriesService) {
                 $scope.timeseries = timeseriesService.timeseries;
             }])

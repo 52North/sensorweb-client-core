@@ -1,4 +1,4 @@
-angular.module('n52.core.status', ['LocalStorageModule', 'n52.core.settings'])
+angular.module('n52.core.status', [])
         .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService',
             function ($rootScope, localStorageService, settingsService) {
                 var storageKey = 'status';

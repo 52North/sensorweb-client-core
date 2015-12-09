@@ -1,4 +1,4 @@
-angular.module('n52.core.modal', ['ui.bootstrap'])
+angular.module('n52.core.modal', [])
         .service('modalOpener', ['$uibModal',
             function ($uibModal) {
                 this.open = function (configs) {

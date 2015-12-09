@@ -1,4 +1,4 @@
-angular.module('n52.core.time', ['ngResource', 'n52.core.status'])
+angular.module('n52.core.time', [])
         .factory('timeService', ['$rootScope', 'statusService', 'utils', 
             function ($rootScope, statusService, utils) {
                 var time = {

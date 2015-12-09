@@ -1,4 +1,4 @@
-angular.module('n52.core.phenomena', ['n52.core.interface', 'n52.core.status'])
+angular.module('n52.core.phenomena', [])
         .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService',
             function ($rootScope, interfaceService, statusService, settingsService) {
                 var phenomena = {};

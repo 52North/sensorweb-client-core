@@ -1,4 +1,4 @@
-angular.module('n52.core.exportTs', ['n52.core.timeseries', 'n52.core.time'])
+angular.module('n52.core.exportTs', [])
         .factory('exportTsService', ['timeService', '$window', '$translate',
             function (timeService, $window, $translate) {
 

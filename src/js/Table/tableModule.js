@@ -1,1 +1,1 @@
-angular.module('n52.core.table', ['n52.core.timeseries', 'ngTable']);
+angular.module('n52.core.table', []);

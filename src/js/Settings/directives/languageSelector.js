@@ -1,4 +1,4 @@
-angular.module('n52.core.translateSelector', ['pascalprecht.translate', 'n52.core.settings'])
+angular.module('n52.core.translateSelector', [])
         .directive('swcLanguageSelector', function () {
             return {
                 restrict: 'E',

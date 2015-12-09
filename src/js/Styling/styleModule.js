@@ -1,4 +1,4 @@
-angular.module('n52.core.style', ['ui.bootstrap'])
+angular.module('n52.core.style', [])
         .service('styleModalOpener', ['$uibModal', function ($uibModal) {
                 return function (timeseries) {
                     $uibModal.open({

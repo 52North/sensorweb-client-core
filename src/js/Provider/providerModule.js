@@ -1,4 +1,4 @@
-angular.module('n52.core.provider', ['n52.core.interface', 'n52.core.status'])
+angular.module('n52.core.provider', [])
         .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService',
             function ($rootScope, settingsService, interfaceService, statusService) {
                 var providerList = [];

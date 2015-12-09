@@ -1,1 +1,1 @@
-angular.module('n52.core.favoriteUi', ['n52.core.timeseries', 'n52.core.style', 'n52.core.favorite', 'n52.core.utils', 'ui-notification']);
+angular.module('n52.core.favoriteUi', []);
