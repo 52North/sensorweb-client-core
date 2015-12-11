@@ -1,7 +1,7 @@
 angular.module('n52.core.station', [])
         .controller('SwcModalStationCtrl', ['$scope', '$uibModalInstance', 'timeseriesService', '$location', 'stationService', 'selection',
             function ($scope, $uibModalInstance, timeseriesService, $location, stationService, selection) {
-                stationService.determineTimeseries(selection.stationId, selection.url);
+                stationService.determineTimeseries(selection.station, selection.url);
                 $scope.isAllSelected = true;
                 $scope.station = stationService.station;
                 $scope.phenomenonId = selection.phenomenonId;
@@ -43,17 +43,17 @@ angular.module('n52.core.station', [])
                         templateUrl: 'templates/map/station.html',
                         resolve: {
                             selection: function () {
-                                var stationsId;
+                                var station;
                                 var url;
                                 if (args.model) {
-                                    stationsId = args.model.stationsId ? args.model.stationsId : "";
+                                    station = args.model.station ? args.model.station : "";
                                     url = args.model.url ? args.model.url : "";
                                 } else if (args.leafletObject && args.leafletObject.options) {
-                                    stationsId = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : "";
+                                    station = args.leafletObject.options.station ? args.leafletObject.options.station : "";
                                     url = args.leafletObject.options.url ? args.leafletObject.options.url : "";
                                 }
                                 return {
-                                    stationId: stationsId,
+                                    station: station,
                                     phenomenonId: mapService.map.selectedPhenomenonId,
                                     url: url
                                 };
@@ -70,9 +70,9 @@ angular.module('n52.core.station', [])
                 var station = {
                     entry: {}
                 };
-                determineTimeseries = function (stationId, url) {
+                determineTimeseries = function (stationResult, url) {
                     station.entry = {};
-                    interfaceService.getStations(stationId, url).then(function (result) {
+                    interfaceService.getTimeseriesForStation(stationResult, url).then(function (result) {
                         station.entry = result;
                         angular.forEach(result.properties.timeseries, function (timeseries, id) {
                             interfaceService.getTimeseries(id, url).then(function (ts) {

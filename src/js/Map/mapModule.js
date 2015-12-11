@@ -78,7 +78,7 @@ angular.module('n52.core.map', [])
                                 service: provider.serviceID,
                                 phenomenon: phenomenon
                             };
-                            interfaceService.getStations(null, provider.url, params).then(function (data) {
+                            interfaceService.getStations(provider.url, params).then(function (data) {
                                 createMarkers(data, provider.url, provider.serviceID);
                             });
                         }
@@ -95,7 +95,7 @@ angular.module('n52.core.map', [])
                         interfaceService.getServices(url).then(function (providers) {
                             angular.forEach(providers, function (provider) {
                                 aggregateCounter++;
-                                interfaceService.getStations(null, url, {
+                                interfaceService.getStations(url, {
                                     service: provider.id,
                                     phenomenon: phenomenon
                                 }).then(function (data) {
@@ -201,19 +201,19 @@ angular.module('n52.core.map', [])
                         lat: geom[1],
                         lng: geom[0],
                         icon: stationMarkerIcon,
-                        stationsId: elem.properties.id,
+                        station: elem,
                         url: serviceUrl
                     };
                     if (statusService.status.clusterStations) {
                         marker.layer = 'cluster';
                     }
-                    map.markers[tidyUpStationId(elem.properties.id + serviceId)] = marker;
+                    map.markers[tidyUpStationId(elem.getId() + serviceId)] = marker;
                 };
 
                 var addColoredCircle = function (geom, elem, serviceUrl, serviceId) {
                     var interval = getMatchingInterval(elem);
                     var fillcolor = interval && interval.color ? interval.color : settingsService.defaultMarkerColor;
-                    map.paths[tidyUpStationId(elem.station.properties.id + serviceId)] = {
+                    map.paths[tidyUpStationId(elem.station.getId() + serviceId)] = {
                         type: "circleMarker",
                         latlngs: {
                             lat: geom[1],
@@ -226,7 +226,7 @@ angular.module('n52.core.map', [])
                         weight: 2,
                         opacity: 1,
                         fillOpacity: 0.8,
-                        stationsId: elem.station.properties.id,
+                        station: elem.station.getId(),
                         url: serviceUrl
                     };
                 };
