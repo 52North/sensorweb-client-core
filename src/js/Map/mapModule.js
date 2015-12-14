@@ -303,4 +303,27 @@ angular.module('n52.core.map', [])
                     locateUser: locateUser,
                     showStation: showStation
                 };
+            }])
+        .service('stationService', ['interfaceService',
+            function (interfaceService) {
+                var station = {
+                    entry: {}
+                };
+                determineTimeseries = function (stationId, url) {
+                    station.entry = {};
+                    interfaceService.getStations(stationId, url).then(function (result) {
+                        station.entry = result;
+                        angular.forEach(result.properties.timeseries, function (timeseries, id) {
+                            interfaceService.getTimeseries(id, url).then(function (ts) {
+                                angular.extend(timeseries, ts);
+                                timeseries.selected = true;
+                            });
+                        });
+                    });
+                };
+
+                return {
+                    determineTimeseries: determineTimeseries,
+                    station: station
+                };
             }]);
