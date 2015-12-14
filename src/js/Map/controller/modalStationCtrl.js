@@ -1,4 +1,4 @@
-angular.module('n52.core.station', [])
+angular.module('n52.core.map')
         .controller('SwcModalStationCtrl', ['$scope', '$uibModalInstance', 'timeseriesService', '$location', 'stationService', 'selection',
             function ($scope, $uibModalInstance, timeseriesService, $location, stationService, selection) {
                 stationService.determineTimeseries(selection.stationId, selection.url);

@@ -1,4 +1,4 @@
-angular.module('n52.core.station', [])
+angular.module('n52.core.map')
         .directive('swcModalStationOpener', [
             function () {
                 return {
