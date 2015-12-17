@@ -35,18 +35,21 @@ angular.module('n52.core.time', [])
                     if (interval.till && interval.duration && !interval.from) {
                         time.start = moment(time.end).subtract(time.duration);
                     }
+                    if (interval.till && interval.from && !interval.duration) {
+                        time.duration = moment.duration(time.end.diff(time.start));
+                    }
                     fireNewTimeExtent();
                 }
 
                 function stepBack() {
-                    time.start = time.start.subtract(time.duration);
-                    time.end = time.end.subtract(time.duration);
+                    time.start = moment(time.start).subtract(time.duration);
+                    time.end = moment(time.end).subtract(time.duration);
                     fireNewTimeExtent();
                 }
 
                 function stepForward() {
-                    time.start = time.start.add(time.duration);
-                    time.end = time.end.add(time.duration);
+                    time.start = moment(time.start).add(time.duration);
+                    time.end = moment(time.end).add(time.duration);
                     fireNewTimeExtent();
                 }
 
