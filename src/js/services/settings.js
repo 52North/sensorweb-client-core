@@ -100,7 +100,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.lastHour',
                                 interval: {
                                     from: moment().subtract(1, 'hours'),
-                                    till: moment()
+                                    till: moment(),
+                                    duration: moment.duration(1, 'hours')
                                 }
                             },
                             {
@@ -108,7 +109,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.today',
                                 interval: {
                                     from: moment().startOf('day'),
-                                    till: moment().endOf('day')
+                                    till: moment().endOf('day'),
+                                    duration: moment.duration(1, 'days')
                                 }
                             },
                             {
@@ -116,7 +118,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.yesterday',
                                 interval: {
                                     from: moment().subtract(1, 'days').startOf('day'),
-                                    till: moment().subtract(1, 'days').endOf('day')
+                                    till: moment().subtract(1, 'days').endOf('day'),
+                                    duration: moment.duration(1, 'days')
                                 }
                             },
                             {
@@ -124,7 +127,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.todayYesterday',
                                 interval: {
                                     from: moment().subtract(1, 'days').startOf('day'),
-                                    till: moment().endOf('day')
+                                    till: moment().endOf('day'),
+                                    duration: moment.duration(2, 'days')
                                 }
                             },
                             {
@@ -132,7 +136,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.thisWeek',
                                 interval: {
                                     from: moment().startOf('week'),
-                                    till: moment().endOf('week')
+                                    till: moment().endOf('week'),
+                                    duration: moment.duration(1, 'weeks')
                                 }
                             },
                             {
@@ -140,7 +145,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.lastWeek',
                                 interval: {
                                     from: moment().subtract(1, 'weeks').startOf('week'),
-                                    till: moment().subtract(1, 'weeks').endOf('week')
+                                    till: moment().subtract(1, 'weeks').endOf('week'),
+                                    duration: moment.duration(1, 'weeks')
                                 }
                             },
                             {
@@ -148,7 +154,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.thisMonth',
                                 interval: {
                                     from: moment().startOf('month'),
-                                    till: moment().endOf('month')
+                                    till: moment().endOf('month'),
+                                    duration: moment.duration(1, 'months')
                                 }
                             },
                             {
@@ -156,7 +163,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.lastMonth',
                                 interval: {
                                     from: moment().subtract(1, 'months').startOf('month'),
-                                    till: moment().subtract(1, 'months').endOf('month')
+                                    till: moment().subtract(1, 'months').endOf('month'),
+                                    duration: moment.duration(1, 'months')
                                 }
                             },
                             {
@@ -164,7 +172,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.thisYear',
                                 interval: {
                                     from: moment().startOf('year'),
-                                    till: moment().endOf('year')
+                                    till: moment().endOf('year'),
+                                    duration: moment.duration(1, 'years')
                                 }
                             },
                             {
@@ -172,7 +181,8 @@ angular.module('n52.core.settings', [])
                                 label: 'timeSelection.presets.lastYear',
                                 interval: {
                                     from: moment().subtract(1, 'years').startOf('year'),
-                                    till: moment().subtract(1, 'years').endOf('year')
+                                    till: moment().subtract(1, 'years').endOf('year'),
+                                    duration: moment.duration(1, 'years')
                                 }
                             }
                         ]
