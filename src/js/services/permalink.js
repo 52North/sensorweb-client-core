@@ -56,6 +56,7 @@ angular.module('n52.core.permalinkEval', ['n52.core.utils'])
                     return null;
                 };
                 return {
+                    hasParam: hasParam,
                     getParam: getParam,
                     getParameterArray: getParameterArray
                 };
