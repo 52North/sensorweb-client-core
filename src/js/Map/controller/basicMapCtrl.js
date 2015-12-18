@@ -1,6 +1,6 @@
 angular.module('n52.core.map')
-        .controller('SwcBasicMapCtrl', ['$scope', 'mapService', 'leafletData', '$log', '$translate', '$compile', '$rootScope',
-            function ($scope, mapService, leafletData, $log, $translate, $compile, $rootScope) {
+        .controller('SwcBasicMapCtrl', ['$scope', 'mapService', 'leafletData', '$translate', '$rootScope',
+            function ($scope, mapService, leafletData, $translate, $rootScope) {
                 $scope.map = mapService.map;
 
                 // adds a leaflet geosearch
@@ -21,24 +21,10 @@ angular.module('n52.core.map')
                         }).addTo(map);
                     });
                 });
-
+                
                 $rootScope.$on('resizeMap', function () {
                     leafletData.getMap().then(function (map) {
                         map.invalidateSize(false);
                     });
                 });
-
-                // add popup
-                $scope.$watch('map.popup', function (newObj) {
-                    if (angular.isDefined(newObj) && newObj.latlng) {
-                        leafletData.getMap().then(function (map) {
-                            var template = angular.element(newObj.content);
-                            var linkFunction = $compile(template);
-                            var newScope = $scope.$new();
-                            angular.extend(newScope, newObj.scope);
-                            var result = linkFunction(newScope)[0];
-                            L.popup().setLatLng(newObj.latlng).setContent(result).openOn(map);
-                        });
-                    }
-                }, true);
             }]);

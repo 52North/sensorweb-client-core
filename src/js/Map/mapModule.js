@@ -1,6 +1,6 @@
 angular.module('n52.core.map', [])
-        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate', '$http', '$location',
-            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate, $http, $location) {
+        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate',
+            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
                 var baselayer = settingsService.baselayer ? settingsService.baselayer : {
                     osm: {
@@ -118,7 +118,7 @@ angular.module('n52.core.map', [])
                                 rightmost: firstElemCoord[0]
                             };
                         }
-                        angular.forEach(data, function(elem) {
+                        angular.forEach(data, function (elem) {
                             var geom = getCoordinates(elem);
                             if (!isNaN(geom[0]) || !isNaN(geom[1])) {
                                 if (geom[0] > aggregateBounds.rightmost) {
@@ -156,7 +156,7 @@ angular.module('n52.core.map', [])
                         var bottommost = firstElemCoord[1];
                         var leftmost = firstElemCoord[0];
                         var rightmost = firstElemCoord[0];
-                        angular.forEach(data, function(elem) {
+                        angular.forEach(data, function (elem) {
                             var geom = getCoordinates(elem);
                             if (!isNaN(geom[0]) || !isNaN(geom[1])) {
                                 if (geom[0] > rightmost) {
@@ -272,36 +272,10 @@ angular.module('n52.core.map', [])
                     });
                 };
 
-                var showStation = function (timeseries) {
-                    if (timeseries && timeseries.station) {
-                        $http.get('templates/map/locateStation.html').success(function (content) {
-                            map.popup = {
-                                content: content,
-                                scope: {
-                                    timeseries: timeseries,
-                                    backToDiagram: function () {
-                                        $location.url('/diagram');
-                                    }
-                                },
-                                latlng: {
-                                    lat: timeseries.station.geometry.coordinates[1],
-                                    lng: timeseries.station.geometry.coordinates[0]
-                                }
-                            };
-                            map.center = {
-                                lat: timeseries.station.geometry.coordinates[1],
-                                lng: timeseries.station.geometry.coordinates[0],
-                                zoom: 12
-                            };
-                        });
-                    }
-                };
-
                 init();
                 return {
                     map: map,
-                    locateUser: locateUser,
-                    showStation: showStation
+                    locateUser: locateUser
                 };
             }])
         .service('stationService', ['interfaceService',
