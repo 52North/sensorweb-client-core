@@ -255,27 +255,9 @@ angular.module('n52.core.map', [])
                     return matchedInterval;
                 };
 
-                var locateUser = function () {
-                    map.center = {
-                        autoDiscover: true,
-                        zoom: 12
-                    };
-                    // wait for successfull user location
-                    $rootScope.$on('leafletDirectiveMap.locationfound', function (evt, args) {
-                        angular.copy({
-                            content: '<p>' + $translate.instant('map.userLocation') + '</p>',
-                            latlng: args.leafletEvent.latlng
-                        }, map.popup);
-                    });
-                    $rootScope.$on('leafletDirectiveMap.locationerror', function (error) {
-                        alert(error + error.message);
-                    });
-                };
-
                 init();
                 return {
-                    map: map,
-                    locateUser: locateUser
+                    map: map
                 };
             }])
         .service('stationService', ['interfaceService',
