@@ -24,7 +24,7 @@ angular.module('n52.core.interface', [])
                     return (id === null ? "" : id);
                 };
 
-                _pimpTs = function(ts, url) {
+                _pimpTs = function (ts, url) {
                     ts.apiUrl = url;
                     ts.internalId = utils.createInternalId(ts.id, url);
                     return ts;
@@ -32,7 +32,7 @@ angular.module('n52.core.interface', [])
 
                 this.getServices = function (apiUrl) {
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true})).then(function(response) {
+                        $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true})).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
@@ -42,7 +42,7 @@ angular.module('n52.core.interface', [])
 
                 this.getStations = function (id, apiUrl, params) {
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'stations/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                        $http.get(apiUrl + 'stations/' + _createIdString(id), _createRequestConfigs(params)).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
@@ -52,7 +52,7 @@ angular.module('n52.core.interface', [])
 
                 this.getPhenomena = function (id, apiUrl, params) {
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'phenomena/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                        $http.get(apiUrl + 'phenomena/' + _createIdString(id), _createRequestConfigs(params)).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
@@ -62,7 +62,7 @@ angular.module('n52.core.interface', [])
 
                 this.getCategories = function (id, apiUrl, params) {
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'categories/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                        $http.get(apiUrl + 'categories/' + _createIdString(id), _createRequestConfigs(params)).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
@@ -72,7 +72,7 @@ angular.module('n52.core.interface', [])
 
                 this.getFeatures = function (id, apiUrl, params) {
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'features/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                        $http.get(apiUrl + 'features/' + _createIdString(id), _createRequestConfigs(params)).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
@@ -82,19 +82,19 @@ angular.module('n52.core.interface', [])
 
                 this.getProcedures = function (id, apiUrl, params) {
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'procedures/' + _createIdString(id), _createRequestConfigs(params)).then(function(response) {
+                        $http.get(apiUrl + 'procedures/' + _createIdString(id), _createRequestConfigs(params)).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
                         });
                     });
                 };
-                
+
                 this.search = function (apiUrl, arrayParams) {
                     return $q(function (resolve, reject) {
                         $http.get(apiUrl + 'search', _createRequestConfigs({
                             q: arrayParams.join(',')
-                        })).then(function(response) {
+                        })).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
@@ -128,7 +128,7 @@ angular.module('n52.core.interface', [])
 
                 this.getTsData = function (id, apiUrl, timespan, extendedData) {
                     var params = {
-                        timespan: timespan,
+                        timespan: utils.createRequestTimespan(timespan.start, timespan.end),
                         generalize: statusService.status.generalizeData || false,
                         expanded: true,
                         format: 'flot'
@@ -137,7 +137,7 @@ angular.module('n52.core.interface', [])
                         angular.extend(params, extendedData);
                     }
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'timeseries/' + _createIdString(id) + "/getData", _createRequestConfigs(params)).then(function(response) {
+                        $http.get(apiUrl + 'timeseries/' + _createIdString(id) + "/getData", _createRequestConfigs(params)).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);

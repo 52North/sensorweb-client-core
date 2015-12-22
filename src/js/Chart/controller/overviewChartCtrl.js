@@ -4,8 +4,8 @@ angular.module('n52.core.overviewDiagram', [])
                 $scope.options = flotOverviewChartServ.options;
                 $scope.dataset = flotOverviewChartServ.dataset;
             }])
-        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'utils', 'flotDataHelperServ', 'settingsService',
-            function (timeseriesService, timeService, $rootScope, interfaceService, utils, flotDataHelperServ, settingsService) {
+        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'flotDataHelperServ', 'settingsService',
+            function (timeseriesService, timeService, $rootScope, interfaceService, flotDataHelperServ, settingsService) {
                 var options = {
                     series: {
                         downsample: {
@@ -40,7 +40,7 @@ angular.module('n52.core.overviewDiagram', [])
                 };
                 angular.merge(options, settingsService.overviewChartOptions);
                 var dataset = [];
-                var renderOptions={
+                var renderOptions = {
                     showRefValues: false,
                     showSelection: false,
                     showActive: false
@@ -85,7 +85,7 @@ angular.module('n52.core.overviewDiagram', [])
                         to: timeService.time.end.toDate().getTime()
                     };
                 }
-                
+
                 function loadAllOverViewData() {
                     angular.forEach(timeseriesService.timeseries, function (ts) {
                         loadOverViewData(ts.internalId);
@@ -96,7 +96,7 @@ angular.module('n52.core.overviewDiagram', [])
                     var ts = timeseriesService.getTimeseries(tsId);
                     if (ts) {
                         var start = options.xaxis.min, end = options.xaxis.max;
-                        interfaceService.getTsData(ts.id, ts.apiUrl, utils.createRequestTimespan(start, end), extendedDataRequest).then(function (data) {
+                        interfaceService.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, extendedDataRequest).then(function (data) {
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
                         });
                     } else {
