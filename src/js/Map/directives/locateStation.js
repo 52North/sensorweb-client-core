@@ -1,5 +1,5 @@
 angular.module('n52.core.map')
-        .service('locatStationService', ['$injector', '$rootScope', 'settingsService',
+        .service('locateStationService', ['$injector', '$rootScope', 'settingsService',
             function ($injector, $rootScope, settingsService) {
                 this.showStation = function (mapId, mapService, timeseries) {
                     var service = $injector.get(mapService);
