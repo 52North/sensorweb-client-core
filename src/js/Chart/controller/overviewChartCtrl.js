@@ -93,14 +93,17 @@ angular.module('n52.core.overviewDiagram', [])
                 }
 
                 function loadOverViewData(tsId) {
+                    options.loading = true;
                     var ts = timeseriesService.getTimeseries(tsId);
                     if (ts) {
                         var start = options.xaxis.min, end = options.xaxis.max;
                         interfaceService.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, extendedDataRequest).then(function (data) {
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
+                            options.loading = false;
                         });
                     } else {
                         flotDataHelperServ.removeTimeseriesFromDataSet(dataset, tsId);
+                        options.loading = false;
                     }
                 }
 
