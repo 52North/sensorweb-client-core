@@ -1,28 +1,35 @@
 angular.module('n52.core.locate', [])
-        .controller('SwcLocateButtonCtrl', ['$scope', 'locateService', function ($scope, locateService) {
-                $scope.isToggled = false;
-                $scope.locateUser = function () {
-                    $scope.isToggled = !$scope.isToggled;
-                    locateService.locate($scope.isToggled);
+        .directive('swcLocateUser', ['locateService',
+            function (locateService) {
+                return {
+                    restrict: 'A',
+                    link: function (scope, elem, attr) {
+                        var mapId = attr.swcLocateUser;
+                        scope.locateUser = function () {
+                            scope.isToggled = !scope.isToggled;
+                            locateService.locateUser(mapId, scope.isToggled);
+                        };
+                        scope.$on("$destroy", function(){
+                            locateService.locateUser(mapId, false);
+                        });
+                    }
                 };
             }])
-        .factory('locateService', ['leafletData', 'settingsService',
-            function (leafletData, settingsService) {
-                var marker;
-                var locateIcon = settingsService.locateIconOptions ? L.icon(settingsService.locateIconOptions) : new L.Icon.Default();
-                leafletData.getMap().then(function (map) {
-                    map.on('locationfound', function (evt) {
-                        removeMarker(map);
-                        marker = L.marker(evt.latlng, {icon: locateIcon}).addTo(map);
-                    });
-                });
-                locate = function (search) {
-                    leafletData.getMap().then(function (map) {
+        .factory('locateService', ['leafletData', 'settingsService', '$rootScope',
+            function (leafletData, settingsService, $rootScope) {
+                var marker,
+                        locateIcon = settingsService.locateIconOptions ? L.icon(settingsService.locateIconOptions) : new L.Icon.Default();
+                locateUser = function (mapId, search) {
+                    leafletData.getMap(mapId).then(function (map) {
                         if (search) {
+                            map.on('locationfound', function (evt) {
+                                removeMarker(map);
+                                marker = L.marker(evt.latlng, {icon: locateIcon}).addTo(map);
+                            });
                             map.locate({
                                 watch: true,
-                                setView: true,
-                                maxZoom: map.getZoom()
+                                setView: true
+//                                maxZoom: map.getZoom()
                             });
                         } else {
                             map.stopLocate();
@@ -36,6 +43,6 @@ angular.module('n52.core.locate', [])
                     }
                 };
                 return {
-                    locate: locate
+                    locateUser: locateUser
                 };
             }]);
