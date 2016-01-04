@@ -1,6 +1,6 @@
 angular.module('n52.core.map')
-        .service('locatStationService', ['leafletData', '$injector', '$rootScope', 'settingsService',
-            function (leafletData, $injector, $rootScope, settingsService) {
+        .service('locatStationService', ['$injector', '$rootScope', 'settingsService',
+            function ($injector, $rootScope, settingsService) {
                 this.showStation = function (mapId, mapService, timeseries) {
                     var service = $injector.get(mapService);
                     var map = service.map;
@@ -13,7 +13,7 @@ angular.module('n52.core.map')
                             icon: settingsService.stationIconOptions,
                             message: "<swc-locate-station timeseriesid='" + timeseries.internalId + "'></swc-locate-station>"
                         };
-                        map.markers["selectedStation"] = selectedStation;
+                        map.markers.selectedStation = selectedStation;
                         map.center = {
                             lat: timeseries.station.geometry.coordinates[1],
                             lng: timeseries.station.geometry.coordinates[0],
@@ -22,12 +22,12 @@ angular.module('n52.core.map')
                         var popupClosed = $rootScope.$on('leafletDirectiveMap.' + mapId + '.popupclose', function () {
                             popupClosed();
                             mapClosed();
-                            delete map.markers["selectedStation"];
+                            delete map.markers.selectedStation;
                         });
                         var mapClosed = $rootScope.$on('leafletDirectiveMap.' + mapId + '.unload', function () {
                             popupClosed();
                             mapClosed();
-                            delete map.markers["selectedStation"];
+                            delete map.markers.selectedStation;
                         });
                     }
                 };
@@ -40,9 +40,6 @@ angular.module('n52.core.map')
                     scope: {},
                     link: function (scope, element, attrs) {
                         scope.timeseries = timeseriesService.getTimeseries(attrs.timeseriesid);
-                        scope.close = function () {
-                            debugger;
-                        };
                     }
                 };
             }]);

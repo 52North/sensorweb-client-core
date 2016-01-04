@@ -28,7 +28,6 @@ angular.module('n52.core.interface')
                             }
 
                             if ((timespan.end - timespan.start) > maxTimeExtent.asMilliseconds()) {
-                                debugger;
                                 promises = [];
                                 var start = moment(timespan.start);
                                 while (start.isBefore(moment(timespan.end))) {
