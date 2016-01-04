@@ -1,8 +1,8 @@
 angular.module('n52.core.legend')
-        .controller('SwcShowInMapCtrl', ['$scope', 'mapService', '$location',
-            function ($scope, mapService, $location) {
+        .controller('SwcShowInMapCtrl', ['$scope', 'locatStationService', '$location',
+            function ($scope, locatStationService, $location) {
                 $scope.showInMap = function (ts) {
-                    mapService.showStation(ts);
+                    locatStationService.showStation('stationMap', 'mapService', ts);
                     $location.url('/map');
                 };
             }]);
