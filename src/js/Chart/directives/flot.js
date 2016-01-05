@@ -34,7 +34,7 @@ angular.module('n52.core.flot', [])
                         plotChart = function (plotArea, dataset, options) {
                             if (dataset && dataset.length !== 0) {
                                 var plotObj = $.plot(plotArea, dataset, options);
-                                createPlotAnnotation();
+                                createPlotAnnotation(plotArea, options);
                                 createYAxis(plotObj);
                                 setSelection(plotObj, options);
                             } else {
@@ -54,8 +54,10 @@ angular.module('n52.core.flot', [])
                             }
                         };
 
-                        createPlotAnnotation = function () {
-                            plotArea.append("<div class='chart-annotation'>" + $translate.instant('chart.annotation') + "</div>");
+                        createPlotAnnotation = function (plotArea, options) {
+                            if (!options.annotation || !options.annotation.hide) {
+                                plotArea.append("<div class='chart-annotation'>" + $translate.instant('chart.annotation') + "</div>");
+                            }
                         };
 
                         createYAxis = function (plot) {

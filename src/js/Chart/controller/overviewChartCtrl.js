@@ -36,6 +36,9 @@ angular.module('n52.core.overviewDiagram', [])
                     },
                     legend: {
                         show: false
+                    },
+                    annotation: {
+                        hide: true
                     }
                 };
                 angular.merge(options, settingsService.overviewChartOptions);
