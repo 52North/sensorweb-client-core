@@ -1,6 +1,6 @@
 angular.module('n52.core.map', [])
-        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', '$translate',
-            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, $translate) {
+        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService',
+            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
                 var baselayer = settingsService.baselayer ? settingsService.baselayer : {
                     osm: {
@@ -24,6 +24,11 @@ angular.module('n52.core.map', [])
                             }
                         });
                 var map = {};
+                if (settingsService.showScale) {
+                    map.controls = {
+                        scale : true
+                    };
+                }
                 var aggregateCounter;
                 var aggregateBounds;
 
