@@ -4,6 +4,7 @@ angular.module('n52.core.favorite', [])
                 var storageKey = 'favorites';
                 var favorites = {};
                 var groupIdx = Object.keys(favorites).length;
+                if (groupIdx === 0) groupIdx++;
 
                 // load favorites
                 setFavorites(localStorageService.get(storageKey));
