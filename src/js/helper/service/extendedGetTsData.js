@@ -1,3 +1,4 @@
+/* this extension splits one getData request in a couple of requests if the supported timespan is to great */
 angular.module('n52.core.interface')
         .config(['$provide',
             function ($provide) {
