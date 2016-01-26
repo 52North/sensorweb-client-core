@@ -110,7 +110,7 @@ angular.module('n52.core.flot', [])
                                                 $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
                                             });
                                         }
-                                        yaxisLabel.css("margin-left", -(yaxisLabel.width() - yaxisLabel.height()) / 2 - 3);
+                                        yaxisLabel.css("margin-left", -(yaxisLabel.width() - yaxisLabel.height()) / 2);
                                     }
                                 }, this));
 
