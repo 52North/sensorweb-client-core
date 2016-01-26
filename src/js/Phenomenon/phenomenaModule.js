@@ -2,6 +2,7 @@ angular.module('n52.core.phenomena', [])
         .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService',
             function ($rootScope, interfaceService, statusService, settingsService) {
                 var phenomena = {};
+                phenomena.selection = null;
                 phenomena.items = [];
 
                 loadPhenomena = function () {
