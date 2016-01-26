@@ -4,8 +4,8 @@ angular.module('n52.core.overviewDiagram', [])
                 $scope.options = flotOverviewChartServ.options;
                 $scope.dataset = flotOverviewChartServ.dataset;
             }])
-        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'flotDataHelperServ', 'settingsService',
-            function (timeseriesService, timeService, $rootScope, interfaceService, flotDataHelperServ, settingsService) {
+        .factory('flotOverviewChartServ', ['timeseriesService', 'timeService', '$rootScope', 'interfaceService', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
+            function (timeseriesService, timeService, $rootScope, interfaceService, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
                 var options = {
                     series: {
                         downsample: {
@@ -29,7 +29,8 @@ angular.module('n52.core.overviewDiagram', [])
                     },
                     xaxis: {
                         mode: "time",
-                        timezone: "browser"
+                        timezone: "browser",
+                        monthNames: monthNamesTranslaterServ.getMonthNames()
                     },
                     yaxis: {
                         show: false
@@ -54,6 +55,10 @@ angular.module('n52.core.overviewDiagram', [])
                 setTimeExtent();
                 setSelectionExtent();
                 loadAllOverViewData();
+
+                $rootScope.$on('$translateChangeEnd', function () {
+                    options.xaxis.monthNames = monthNamesTranslaterServ.getMonthNames();
+                });
 
                 $rootScope.$on('timeseriesChanged', function (evt, id) {
                     loadOverViewData(id);
