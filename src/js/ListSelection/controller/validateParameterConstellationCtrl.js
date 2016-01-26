@@ -1,28 +1,28 @@
 angular.module('n52.core.listSelection')
         .controller('SwcValidateParameterConstellationCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService',
             function ($scope, interfaceService, statusService, timeseriesService) {
-                var timeseries;
+                $scope.series;
                 $scope.isActive = false;
                 $scope.validate = function(params) {
                     interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).then(function (data) {
                         if (angular.isArray(data)) {
-                            timeseries = data[0];
+                            $scope.series = data[0];
                         } else {
-                            timeseries = data;
+                            $scope.series = data;
                         }
-                        checkActive();
+                        $scope.checkActive($scope.series);
                     });
                 };
-                $scope.toggleTs = function() {
-                    if (!timeseriesService.hasTimeseries(timeseries.internalId)) {
-                        timeseriesService.addTimeseries(timeseries);
+                $scope.toggleTs = function(series) {
+                    if (!timeseriesService.hasTimeseries(series.internalId)) {
+                        timeseriesService.addTimeseries(series);
                     } else {
-                        timeseriesService.removeTimeseries(timeseries.internalId);
+                        timeseriesService.removeTimeseries(series.internalId);
                     }
-                    checkActive();
+                    $scope.checkActive(series);
                 };
-                checkActive = function() {
-                    if (!timeseriesService.hasTimeseries(timeseries.internalId)) {
+                $scope.checkActive = function(series) {
+                    if (!timeseriesService.hasTimeseries(series.internalId)) {
                         $scope.isActive = false;
                     } else {
                         $scope.isActive = true;
