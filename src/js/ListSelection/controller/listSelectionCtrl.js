@@ -1,6 +1,6 @@
 angular.module('n52.core.listSelection')
-        .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService',
-            function ($scope, interfaceService, statusService, timeseriesService) {
+        .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$rootScope',
+            function ($scope, interfaceService, statusService, timeseriesService, $rootScope) {
                 angular.forEach($scope.parameters, function (param, openedIdx) {
                     $scope.$watch('parameters[' + openedIdx + '].isOpen', function (newVal) {
                         if (newVal) {
@@ -8,6 +8,17 @@ angular.module('n52.core.listSelection')
                             $scope.disableFollowingParameters();
                         }
                     });
+                });
+
+                _clearSelection = function() {
+                    angular.forEach($scope.parameters, function(parameter) {
+                        delete parameter.selectedId;
+                    });
+                };
+
+                $rootScope.$on('newProviderSelected', function () {
+                    _clearSelection();
+                    $scope.openNext(0);
                 });
 
                 $scope.createParams = function () {
@@ -78,7 +89,7 @@ angular.module('n52.core.listSelection')
                         $scope.addToDiagram($scope.createParams());
                     }
                 };
-                
+
                 $scope.addItem = function (item, idx) {
                     var parameters = $scope.parameters[idx];
                     parameters.selectedId = item.id;
