@@ -6,6 +6,7 @@ angular.module('n52.core.style')
                 controller: ['$scope', 'colorService', 'styleService',
                     function ($scope, colorService, styleService) {
                         $scope.colorList = colorService.colorList;
+                        $scope.currentColor = $scope.timeseries.styles.color;
 
                         $scope.selectColor = function (ts, color) {
                             styleService.updateColor(ts, color);
