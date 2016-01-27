@@ -74,6 +74,11 @@ angular.module('n52.core.diagram', [])
                     pan: {
                         interactive: true,
                         frameRate: 10
+                    },
+                    touch: {
+                        delayTouchEnded: 200,
+                        pan: 'x',
+                        scale: ''
                     }
                 };
                 angular.merge(options, settingsService.chartOptions);

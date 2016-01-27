@@ -1,6 +1,4 @@
 /* Flot plugin for adding the ability to pan and zoom the plot.
- * 
- *** Modified to support touch events and onPanEnd event ***
 
 Copyright (c) 2007-2014 IOLA and Ole Laursen.
 Licensed under the MIT license.
@@ -105,6 +103,8 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
 (function(d){function e(a){var b=a||window.event,c=[].slice.call(arguments,1),f=0,e=0,g=0,a=d.event.fix(b);a.type="mousewheel";b.wheelDelta&&(f=b.wheelDelta/120);b.detail&&(f=-b.detail/3);g=f;void 0!==b.axis&&b.axis===b.HORIZONTAL_AXIS&&(g=0,e=-1*f);void 0!==b.wheelDeltaY&&(g=b.wheelDeltaY/120);void 0!==b.wheelDeltaX&&(e=-1*b.wheelDeltaX/120);c.unshift(a,f,e,g);return(d.event.dispatch||d.event.handle).apply(this,c)}var c=["DOMMouseScroll","mousewheel"];if(d.event.fixHooks)for(var h=c.length;h;)d.event.fixHooks[c[--h]]=d.event.mouseHooks;d.event.special.mousewheel={setup:function(){if(this.addEventListener)for(var a=c.length;a;)this.addEventListener(c[--a],e,!1);else this.onmousewheel=e},teardown:function(){if(this.removeEventListener)for(var a=c.length;a;)this.removeEventListener(c[--a],e,!1);else this.onmousewheel=null}};d.fn.extend({mousewheel:function(a){return a?this.bind("mousewheel",a):this.trigger("mousewheel")},unmousewheel:function(a){return this.unbind("mousewheel",a)}})})(jQuery);
 
 
+
+
 (function ($) {
     var options = {
         xaxis: {
@@ -119,8 +119,7 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
         pan: {
             interactive: false,
             cursor: "move",
-            frameRate: 20,
-            touch: false
+            frameRate: 20
         }
     };
 
@@ -145,18 +144,14 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
             panTimeout = null;
 
         function onDragStart(e) {
-            if (e.type === "touchstart" && e.originalEvent.touches.length === 1) { // only accept single touch
-                options.pan.touch = true;
-            } else if (e.which !== 1 || e.originalEvent.touches && e.originalEvent.touches.length > 1) { // only accept left-click
-                return;
-            }
+            if (e.which != 1)  // only accept left-click
+                return false;
             var c = plot.getPlaceholder().css('cursor');
             if (c)
                 prevCursor = c;
             plot.getPlaceholder().css('cursor', plot.getOptions().pan.cursor);
-            var coordHolder = options.pan.touch ? e.originalEvent.changedTouches[0] : e;
-            prevPageX = coordHolder.pageX;
-            prevPageY = coordHolder.pageY;
+            prevPageX = e.pageX;
+            prevPageY = e.pageY;
         }
         
         function onDrag(e) {
@@ -165,11 +160,10 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
                 return;
 
             panTimeout = setTimeout(function () {
-                var coordHolder = options.pan.touch ? e.originalEvent.changedTouches[0] : e;
-                plot.pan({ left: prevPageX - coordHolder.pageX,
-                           top: prevPageY - coordHolder.pageY });
-                prevPageX = coordHolder.pageX;
-                prevPageY = coordHolder.pageY;
+                plot.pan({ left: prevPageX - e.pageX,
+                           top: prevPageY - e.pageY });
+                prevPageX = e.pageX;
+                prevPageY = e.pageY;
                                                     
                 panTimeout = null;
             }, 1 / frameRate * 1000);
@@ -180,18 +174,14 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
                 clearTimeout(panTimeout);
                 panTimeout = null;
             }
-            
-            var coordHolder = options.pan.touch ? e.originalEvent.changedTouches[0] : e;
+                    
             plot.getPlaceholder().css('cursor', prevCursor);
-            plot.pan({ left: prevPageX - coordHolder.pageX,
-                       top: prevPageY - coordHolder.pageY });
+            plot.pan({ left: prevPageX - e.pageX,
+                       top: prevPageY - e.pageY });
             plot.getPlaceholder().trigger("plotpanEnd", [ plot ]);
         }
         
-        var eventHolder;
-        
-        function bindEvents(plot, evtHolder) {
-            eventHolder = evtHolder;
+        function bindEvents(plot, eventHolder) {
             var o = plot.getOptions();
             if (o.zoom.interactive) {
                 eventHolder[o.zoom.trigger](onZoomClick);
@@ -202,30 +192,8 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
                 eventHolder.bind("dragstart", { distance: 10 }, onDragStart);
                 eventHolder.bind("drag", onDrag);
                 eventHolder.bind("dragend", onDragEnd);
-                eventHolder.bind("touchstart", function(e) {
-                    eventHolder.unbind("dragstart", onDragStart);
-                    onDragStart(e);
-                });
-                eventHolder.bind("touchmove", function(e) {
-                    eventHolder.unbind("drag", onDrag);
-                    onDrag(e);
-                });
-                eventHolder.bind("touchend", function(e) {
-                    eventHolder.unbind("dragend", onDragEnd);
-                    onDragEnd(e);
-                });
             }
         }
-        
-        plot.unbindPanZoomEvents = function (args) {
-            eventHolder.unbind("mousewheel", onMouseWheel);
-            eventHolder.unbind("dragstart", onDragStart);
-            eventHolder.unbind("drag", onDrag);
-            eventHolder.unbind("dragend", onDragEnd);
-            eventHolder.unbind("touchstart");
-            eventHolder.unbind("touchmove");
-            eventHolder.unbind("touchend");
-        };
 
         plot.zoomOut = function (args) {
             if (!args)
@@ -283,18 +251,18 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
 
                 //Check that we are in panRange
                 if (pr) {
-                    if (pr[0] !== null && min < pr[0]) {
+                    if (pr[0] != null && min < pr[0]) {
                         min = pr[0];
                     }
-                    if (pr[1] !== null && max > pr[1]) {
+                    if (pr[1] != null && max > pr[1]) {
                         max = pr[1];
                     }
                 }
 
                 var range = max - min;
                 if (zr &&
-                    ((zr[0] !== null && range < zr[0] && amount >1) ||
-                     (zr[1] !== null && range > zr[1] && amount <1)))
+                    ((zr[0] != null && range < zr[0] && amount >1) ||
+                     (zr[1] != null && range > zr[1] && amount <1)))
                     return;
             
                 opts.min = min;
@@ -323,7 +291,7 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
                 var opts = axis.options,
                     min, max, d = delta[axis.direction];
 
-                min = axis.c2p(axis.p2c(axis.min) + d);
+                min = axis.c2p(axis.p2c(axis.min) + d),
                 max = axis.c2p(axis.p2c(axis.max) + d);
 
                 var pr = opts.panRange;
@@ -332,13 +300,13 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
                 
                 if (pr) {
                     // check whether we hit the wall
-                    if (pr[0] !== null && pr[0] > min) {
+                    if (pr[0] != null && pr[0] > min) {
                         d = pr[0] - min;
                         min += d;
                         max += d;
                     }
                     
-                    if (pr[1] !== null && pr[1] < max) {
+                    if (pr[1] != null && pr[1] < max) {
                         d = pr[1] - max;
                         min += d;
                         max += d;
@@ -362,9 +330,6 @@ Licensed under the MIT License ~ http://threedubmedia.googlecode.com/files/MIT-L
             eventHolder.unbind("dragstart", onDragStart);
             eventHolder.unbind("drag", onDrag);
             eventHolder.unbind("dragend", onDragEnd);
-            eventHolder.unbind("touchstart");
-            eventHolder.unbind("touchmove");
-            eventHolder.unbind("touchend");
             if (panTimeout)
                 clearTimeout(panTimeout);
         }
