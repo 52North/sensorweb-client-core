@@ -94,7 +94,7 @@ angular.module('n52.core.diagram', [])
                     createYAxis();
                     flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, id, timeseriesService.getData(id));
                 });
-                
+
                 $rootScope.$on('$translateChangeEnd', function () {
                     options.xaxis.monthNames = monthNamesTranslaterServ.getMonthNames();
                 });
@@ -203,7 +203,7 @@ angular.module('n52.core.diagram', [])
                                         var data = timeseriesService.getData(id);
                                         if (data && data.referenceValues) {
                                             dataset.push({
-                                                id: refValue.referenceValueId,
+                                                id: id + '_refVal_' + refValue.referenceValueId,
                                                 color: refValue.color,
                                                 data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId]
                                             });
@@ -256,22 +256,14 @@ angular.module('n52.core.diagram', [])
                 }
 
                 function removeTimeseriesFromDataSet(dataset, id) {
-                    removeData(dataset, id);
-                    if (timeseriesService.getTimeseries(id)) {
-                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
-                            removeData(dataset, refValue.referenceValueId);
-                        });
-                    }
+                    return removeData(dataset, id);
                 }
 
                 function removeData(dataset, id) {
-                    var idx;
-                    angular.forEach(dataset, function (elem, i) {
-                        if (elem.id === id)
-                            idx = i;
-                    });
-                    if (idx >= 0)
-                        dataset.splice(idx, 1);
+                    for (var i = dataset.length - 1; i >= 0; i--) {
+                        if (dataset[i].id.indexOf(id) === 0)
+                            dataset.splice(i, 1);
+                    }
                 }
 
                 return {
