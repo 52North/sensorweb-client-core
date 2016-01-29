@@ -5,7 +5,8 @@ angular.module('n52.core.listSelection')
                     restrict: 'E',
                     templateUrl: 'templates/listSelection/list-selection.html',
                     scope: {
-                        parameters: '='
+                        parameters: '=',
+                        listselectionid: '='
                     },
                     controller: 'SwcListSelectionCtrl'
                 };
