@@ -6,8 +6,8 @@ angular.module('n52.core.status', [])
                 // init default status
                 var defStatus = {
                     apiProvider: settingsService.defaultProvider,
-                    showLegend: false,
-                    showPhenomena: false,
+                    showLegend: settingsService.showLegendOnStartup || false,
+                    showPhenomena: settingsService.showPhenomenaListOnStartup || false,
                     saveStatus: settingsService.saveStatus,
                     generalizeData: settingsService.generalizeData,
                     clusterStations: settingsService.clusterStations,
