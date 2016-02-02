@@ -48,9 +48,9 @@ angular.module('n52.core.timeseries', [])
                     ts.timebuffer = _createNewTimebuffer(data[ts.id].values);
                     tsData[ts.internalId] = data[ts.id];
                     if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
-                        ts.hasDataInCurrentExtent = false;
+                        ts.hasNoDataInCurrentExtent = false;
                     } else {
-                        ts.hasDataInCurrentExtent = true;
+                        ts.hasNoDataInCurrentExtent = true;
                     }
                     $rootScope.$emit('timeseriesDataChanged', ts.internalId);
                     ts.loadingData = false;
