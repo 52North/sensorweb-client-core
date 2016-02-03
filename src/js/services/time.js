@@ -76,7 +76,6 @@ angular.module('n52.core.time', [])
 
                 function fireNewTimeExtent() {
                     statusService.setTime(time);
-//                    statusService.status.timespan = time;
                     $rootScope.$emit('timeExtentChanged');
                 }
 
