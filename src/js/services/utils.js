@@ -26,11 +26,26 @@ angular.module('n52.core.utils', [])
                     });
                     return combination;
                 }
+                
+                function createBufferedCurrentTimespan (time, buffer) {
+                    if (angular.isObject(buffer)) {
+                        return {
+                            start: moment(time.start).subtract(buffer),
+                            end: moment(time.end).add(buffer)
+                        };
+                    } else {
+                        return {
+                            start: time.start,
+                            end: time.end
+                        };
+                    }
+                };
 
                 return {
                     createRequestTimespan: createRequestTimespan,
                     getTimeseriesCombinationByInternalId: getTimeseriesCombinationByInternalId,
                     createInternalId: createInternalId,
-                    isFileAPISupported: isFileAPISupported
+                    isFileAPISupported: isFileAPISupported,
+                    createBufferedCurrentTimespan: createBufferedCurrentTimespan
                 };
             }]);
