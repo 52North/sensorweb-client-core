@@ -121,23 +121,24 @@ angular.module('n52.core.diagram', [])
                 function createYAxis() {
                     var axesList = {};
                     angular.forEach(timeseriesService.getAllTimeseries(), function (elem) {
+                        uom = elem.uom || elem.parameters.phenomenon.label;
                         if (elem.styles.groupedAxis === undefined || elem.styles.groupedAxis) {
-                            if (!axesList.hasOwnProperty(elem.uom)) {
-                                axesList[elem.uom] = {
+                            if (!axesList.hasOwnProperty(uom)) {
+                                axesList[uom] = {
                                     id: ++Object.keys(axesList).length,
-                                    uom: elem.uom,
+                                    uom: uom,
                                     tsColors: [elem.styles.color],
                                     zeroScaled: elem.styles.zeroScaled
                                 };
-                                elem.styles.yaxis = axesList[elem.uom].id;
+                                elem.styles.yaxis = axesList[uom].id;
                             } else {
-                                axesList[elem.uom].tsColors.push(elem.styles.color);
-                                elem.styles.yaxis = axesList[elem.uom].id;
+                                axesList[uom].tsColors.push(elem.styles.color);
+                                elem.styles.yaxis = axesList[uom].id;
                             }
                         } else {
                             axesList[elem.id] = {
                                 id: ++Object.keys(axesList).length,
-                                uom: elem.uom + " @ " + elem.station.properties.label,
+                                uom: uom + " @ " + elem.station.properties.label,
                                 tsColors: [elem.styles.color],
                                 zeroScaled: elem.styles.zeroScaled
                             };

@@ -36,9 +36,13 @@ angular.module('n52.core.table')
                         phenomenon: 'Zeit', field: 'time', visible: true
                     });
                     angular.forEach(timeseriesService.getAllTimeseries(), function (ts) {
+                        var phenomenonLabel = ts.parameters.phenomenon.label;
+                        if (ts.uom) {
+                            phenomenonLabel += " (" + ts.uom + ")";
+                        }
                         columns.push({
                             station: ts.parameters.feature.label,
-                            phenomenon: ts.parameters.phenomenon.label + " (" + ts.uom + ")",
+                            phenomenon: phenomenonLabel,
                             field: ts.internalId,
                             color: ts.styles.color,
                             isActive: ts.isActive
