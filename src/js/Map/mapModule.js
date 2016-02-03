@@ -26,13 +26,14 @@ angular.module('n52.core.map', [])
                 var map = {};
                 if (settingsService.showScale) {
                     map.controls = {
-                        scale : true
+                        scale: true
                     };
                 }
                 var aggregateCounter;
                 var aggregateBounds;
 
                 var init = function () {
+                    map.loading = false;
                     map.markers = {};
                     map.paths = {};
                     map.popup = {};
@@ -62,6 +63,8 @@ angular.module('n52.core.map', [])
                 };
 
                 var requestStations = function (phenomenon) {
+                    angular.copy({}, map.markers);
+                    map.loading = true;
                     var params;
                     if (settingsService.aggregateServicesInMap && angular.isUndefined(statusService.status.apiProvider.url)) {
                         requestAggregatedStations(phenomenon);
@@ -90,10 +93,9 @@ angular.module('n52.core.map', [])
                     }
                 };
 
-                requestAggregatedStations = function (phenomenon) {
+                var requestAggregatedStations = function (phenomenon) {
                     aggregateCounter = 0;
                     aggregateBounds = null;
-                    angular.copy({}, map.markers);
                     angular.copy({}, map.paths);
                     angular.copy({}, map.bounds);
                     angular.forEach(settingsService.restApiUrls, function (id, url) {
@@ -149,10 +151,10 @@ angular.module('n52.core.map', [])
                             [parseFloat(aggregateBounds.bottommost), parseFloat(aggregateBounds.leftmost)],
                             [parseFloat(aggregateBounds.topmost), parseFloat(aggregateBounds.rightmost)]]), map.bounds);
                     }
+                    map.loading = false;
                 };
 
                 var createMarkers = function (data, serviceUrl, serviceId) {
-                    angular.copy({}, map.markers);
                     angular.copy({}, map.paths);
                     angular.copy({}, map.bounds);
                     if (data.length > 0) {
@@ -187,6 +189,7 @@ angular.module('n52.core.map', [])
                             [parseFloat(bottommost), parseFloat(leftmost)],
                             [parseFloat(topmost), parseFloat(rightmost)]]), map.bounds);
                     }
+                    map.loading = false;
                 };
 
                 var isTimeseries = function (elem) {
