@@ -70,7 +70,7 @@ angular.module('n52.core.plugin.restricted-time-selection', [])
                             if (hasData) {
                                 return true;
                             } else {
-                                Notification.info($translate.instant('chart.hasNoData'));
+                                Notification.error($translate.instant('chart.hasNoData'));
                                 return false;
                             }
                         };
