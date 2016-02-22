@@ -78,6 +78,14 @@ angular.module('n52.core.time', [])
                     statusService.setTime(time);
                     $rootScope.$emit('timeExtentChanged');
                 }
+                
+                function getStartInMillies() {
+                    return time.start.unix() * 1000;
+                }
+                
+                function getEndInMillies() {
+                    return time.end.unix() * 1000;
+                }
 
                 return {
                     jumpToLastTimeStamp: jumpToLastTimeStamp,
@@ -88,6 +96,8 @@ angular.module('n52.core.time', [])
                     isInCurrentTimespan: isInCurrentTimespan,
                     stepBack: stepBack,
                     stepForward: stepForward,
+                    getStartInMillies: getStartInMillies,
+                    getEndInMillies: getEndInMillies,
                     time: time
                 };
             }]);
