@@ -135,8 +135,8 @@ angular.module('n52.core.settings', [])
                                 name: 'thisWeek',
                                 label: 'timeSelection.presets.thisWeek',
                                 interval: {
-                                    from: moment().startOf('week'),
-                                    till: moment().endOf('week'),
+                                    from: moment().startOf('isoWeek'),
+                                    till: moment().endOf('isoWeek'),
                                     duration: moment.duration(1, 'weeks')
                                 }
                             },
@@ -144,8 +144,8 @@ angular.module('n52.core.settings', [])
                                 name: 'lastWeek',
                                 label: 'timeSelection.presets.lastWeek',
                                 interval: {
-                                    from: moment().subtract(1, 'weeks').startOf('week'),
-                                    till: moment().subtract(1, 'weeks').endOf('week'),
+                                    from: moment().subtract(1, 'weeks').startOf('isoWeek'),
+                                    till: moment().subtract(1, 'weeks').endOf('isoWeek'),
                                     duration: moment.duration(1, 'weeks')
                                 }
                             },
