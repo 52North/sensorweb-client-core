@@ -40,6 +40,10 @@ angular.module('n52.core.overviewDiagram', [])
                     },
                     annotation: {
                         hide: true
+                    },
+                    touch: {
+                        pan: '',
+                        scale: ''
                     }
                 };
                 angular.merge(options, settingsService.overviewChartOptions);
