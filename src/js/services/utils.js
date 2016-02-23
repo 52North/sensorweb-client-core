@@ -39,7 +39,7 @@ angular.module('n52.core.utils', [])
                             end: time.end
                         };
                     }
-                };
+                }
 
                 return {
                     createRequestTimespan: createRequestTimespan,

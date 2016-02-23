@@ -110,7 +110,7 @@ Use as follow:
             }
         }
 
-        function processOptions(plot, options) {
+        function processOptions(plot) {
             var placeholder = plot.getPlaceholder();
             var options = plot.getOptions();
             
@@ -158,8 +158,8 @@ Use as follow:
 //                    if (axis.direction === options.touch.scale.toLowerCase() || options.touch.scale.toLowerCase() == 'xy') {
                         axis.touch = {
                             min: axis.min,
-                            max: axis.max,
-                        }
+                            max: axis.max
+                        };
 //                    }
                     });
 
