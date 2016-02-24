@@ -61,6 +61,8 @@ angular.module('n52.core.plugin.restricted-time-selection', [])
                         };
 
                         var hasTimeseriesDataInPeriod = function (start, end) {
+                            if (timeseriesService.getTimeseriesCount() === 0)
+                                return true;
                             var hasData = false;
                             angular.forEach(timeseriesService.getAllTimeseries(), function (series) {
                                 if (end > series.firstValue.timestamp && series.lastValue.timestamp > start) {
