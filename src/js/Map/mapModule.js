@@ -147,9 +147,7 @@ angular.module('n52.core.map', [])
                                 }
                             }
                         });
-                        angular.copy(leafletBoundsHelpers.createBoundsFromArray([
-                            [parseFloat(aggregateBounds.bottommost), parseFloat(aggregateBounds.leftmost)],
-                            [parseFloat(aggregateBounds.topmost), parseFloat(aggregateBounds.rightmost)]]), map.bounds);
+                        setBounds(aggregateBounds.bottommost, aggregateBounds.leftmost, aggregateBounds.topmost, aggregateBounds.rightmost);
                     }
                     map.loading = false;
                 };
@@ -185,11 +183,27 @@ angular.module('n52.core.map', [])
                                 }
                             }
                         });
+                        setBounds(bottommost, leftmost, topmost, rightmost);
+                    }
+                    map.loading = false;
+                };
+
+                var setBounds = function (bottommost, leftmost, topmost, rightmost) {
+                    if (bottommost === topmost && leftmost === rightmost) {
+                        var southWest = L.latLng(parseFloat(bottommost), parseFloat(leftmost)),
+                                northEast = L.latLng(parseFloat(topmost), parseFloat(rightmost)),
+                                bounds = L.latLngBounds(southWest, northEast),
+                                center = bounds.getCenter();
+                        angular.copy({
+                            lat: center.lat,
+                            lng: center.lng,
+                            zoom: 12
+                        }, map.center);
+                    } else {
                         angular.copy(leafletBoundsHelpers.createBoundsFromArray([
                             [parseFloat(bottommost), parseFloat(leftmost)],
                             [parseFloat(topmost), parseFloat(rightmost)]]), map.bounds);
                     }
-                    map.loading = false;
                 };
 
                 var isTimeseries = function (elem) {
