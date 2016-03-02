@@ -12,6 +12,7 @@ angular.module('n52.core.listSelection')
 
                 _clearSelection = function () {
                     angular.forEach($scope.parameters, function (parameter) {
+                        delete parameter.items;
                         delete parameter.selectedId;
                     });
                 };

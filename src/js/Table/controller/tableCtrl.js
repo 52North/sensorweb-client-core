@@ -1,6 +1,6 @@
 angular.module('n52.core.table')
-        .controller('SwcTableCtrl', ['$scope', '$filter', 'ngTableParams', 'timeseriesService', '$rootScope',
-            function ($scope, $filter, ngTableParams, timeseriesService, $rootScope) {
+        .controller('SwcTableCtrl', ['$scope', '$filter', 'ngTableParams', 'timeseriesService', 'timeService', '$rootScope',
+            function ($scope, $filter, ngTableParams, timeseriesService, timeService, $rootScope) {
                 // http://ngmodules.org/modules/ng-table
                 createValueArray = function () {
                     var array = [];
@@ -9,8 +9,7 @@ angular.module('n52.core.table')
                     angular.forEach(timeseriesService.getAllTimeseries(), function (ts) {
                         var data = timeseriesService.getData(ts.internalId);
                         if (data.values.length > 0) {
-//                        var values = removeOverlappingValues(ts.getValues());
-                            var values = data.values;
+                            var values = removeOverlappingValues(data.values);
                             angular.forEach(values, function (pair) {
                                 var time = pair[0];
                                 var value = pair[1];
@@ -36,9 +35,13 @@ angular.module('n52.core.table')
                         phenomenon: 'Zeit', field: 'time', visible: true
                     });
                     angular.forEach(timeseriesService.getAllTimeseries(), function (ts) {
+                        var phenomenonLabel = ts.parameters.phenomenon.label;
+                        if (ts.uom) {
+                            phenomenonLabel += " (" + ts.uom + ")";
+                        }
                         columns.push({
                             station: ts.parameters.feature.label,
-                            phenomenon: ts.parameters.phenomenon.label + " (" + ts.uom + ")",
+                            phenomenon: phenomenonLabel,
                             field: ts.internalId,
                             color: ts.styles.color,
                             isActive: ts.isActive
@@ -66,14 +69,14 @@ angular.module('n52.core.table')
                 };
                 removeOverlappingValues = function (values) {
                     // remove values before start
-                    var start = TimeController.getCurrentStartAsMillis();
+                    var start = timeService.getStartInMillies();
                     var count = 0;
                     while (values[count][0] < start)
                         count++;
                     values.splice(0, count);
                     // remove values after the end
                     var idx = values.length - 1;
-                    var end = TimeController.getCurrentEndAsMillis();
+                    var end = timeService.getEndInMillies();
                     count = 0;
                     while (values[idx][0] > end) {
                         count++;

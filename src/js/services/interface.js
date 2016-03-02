@@ -27,6 +27,9 @@ angular.module('n52.core.interface', [])
                 _pimpTs = function (ts, url) {
                     ts.apiUrl = url;
                     ts.internalId = utils.createInternalId(ts.id, url);
+                    if (ts.uom === settingsService.undefinedUomString) {
+                        delete ts.uom;
+                    }
                     return ts;
                 };
 

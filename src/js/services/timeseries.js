@@ -1,8 +1,8 @@
 angular.module('n52.core.timeseries', [])
-        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'timeService', 'styleService', 'settingsService',
-            function ($rootScope, interfaceService, statusService, timeService, styleService, settingsService) {
+        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'styleService', 'settingsService', 'utils',
+            function ($rootScope, interfaceService, statusService, styleService, settingsService, utils) {
                 var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');
-                
+
                 var timeseries = {};
                 var tsData = {};
 
@@ -27,9 +27,10 @@ angular.module('n52.core.timeseries', [])
 
                 function _loadTsData(ts) {
                     ts.loadingData = true;
-                    interfaceService.getTsData(ts.id, ts.apiUrl, timeService.getCurrentTimespan(ts.timebuffer)).then(function (data) {
-                        _addTsData(data, ts);
-                    });
+                    interfaceService.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer))
+                            .then(function (data) {
+                                _addTsData(data, ts);
+                            });
                 }
 
                 function _createNewTimebuffer(data) {
@@ -48,9 +49,9 @@ angular.module('n52.core.timeseries', [])
                     ts.timebuffer = _createNewTimebuffer(data[ts.id].values);
                     tsData[ts.internalId] = data[ts.id];
                     if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
-                        ts.hasDataInCurrentExtent = false;
+                        ts.hasNoDataInCurrentExtent = false;
                     } else {
-                        ts.hasDataInCurrentExtent = true;
+                        ts.hasNoDataInCurrentExtent = true;
                     }
                     $rootScope.$emit('timeseriesDataChanged', ts.internalId);
                     ts.loadingData = false;

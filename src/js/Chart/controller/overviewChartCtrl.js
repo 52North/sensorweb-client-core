@@ -40,6 +40,10 @@ angular.module('n52.core.overviewDiagram', [])
                     },
                     annotation: {
                         hide: true
+                    },
+                    touch: {
+                        pan: '',
+                        scale: ''
                     }
                 };
                 angular.merge(options, settingsService.overviewChartOptions);
@@ -166,14 +170,15 @@ angular.module('n52.core.overviewDiagram', [])
 
         function onMouseMove(e) {
             if (selection.dragging) {
-                updateSelection(e);
+                if (e.originalEvent.touches && e.originalEvent.touches[0]) {
+                    updateSelection(e.originalEvent.touches[0].pageX);
+                } else {
+                    updateSelection(e.pageX);
+                }
             }
         }
 
         function onMouseDown(e) {
-            if (e.which !== 1)
-                return;
-
             // cancel out any text selections
             document.body.focus();
 
@@ -190,7 +195,8 @@ angular.module('n52.core.overviewDiagram', [])
                     return false;
                 };
             }
-            var mouseX = getPositionInPlot(e.pageX);
+            
+            var mouseX = getPositionInPlot(e.pageX || e.originalEvent.touches[0].pageX);
 
             determineDragging(selection.slider, mouseX);
 
@@ -198,7 +204,7 @@ angular.module('n52.core.overviewDiagram', [])
                 onMouseUp(e);
             };
 
-            $(document).one("mouseup", mouseUpHandler);
+            $(document).one("mouseup touchend", mouseUpHandler);
         }
 
         function onMouseUp(e) {
@@ -258,26 +264,26 @@ angular.module('n52.core.overviewDiagram', [])
             return clamp(0, posX - offset.left - plotOffset.left, plot.width());
         }
 
-        function updateSelection(pos) {
-            if (pos.pageX === null)
+        function updateSelection(pageX) {
+            if (pageX === null)
                 return;
 
             if (selection.dragging === "left") {
-                selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                selection.start = getPositionInPlot(pageX - selection.offsetLeft);
                 if (!isSelectionValid())
                     selection.start = selection.end - plot.getOptions().selection.minSize;
             }
 
             if (selection.dragging === "right") {
-                selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft);
+                selection.end = getPositionInPlot(pageX - selection.offsetLeft);
                 if (!isSelectionValid())
                     selection.end = selection.start + plot.getOptions().selection.minSize;
             }
 
             if (selection.dragging === "inner") {
                 var width = selection.end - selection.start;
-                selection.start = getPositionInPlot(pos.pageX - selection.offsetLeft);
-                selection.end = getPositionInPlot(pos.pageX - selection.offsetLeft + width);
+                selection.start = getPositionInPlot(pageX - selection.offsetLeft);
+                selection.end = getPositionInPlot(pageX - selection.offsetLeft + width);
                 if (selection.start <= 0) {
                     selection.start = 0;
                     selection.end = selection.start + width;
@@ -364,8 +370,8 @@ angular.module('n52.core.overviewDiagram', [])
         plot.hooks.bindEvents.push(function (plot, eventHolder) {
             var o = plot.getOptions();
             if (o.selection.mode !== null) {
-                eventHolder.mousemove(onMouseMove);
-                eventHolder.mousedown(onMouseDown);
+                eventHolder.bind('mousemove touchmove', onMouseMove);
+                eventHolder.bind('mousedown touchstart', onMouseDown);
             }
         });
 

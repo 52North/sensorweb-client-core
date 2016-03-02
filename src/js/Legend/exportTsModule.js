@@ -1,10 +1,10 @@
 angular.module('n52.core.exportTs', [])
-        .factory('exportTsService', ['timeService', '$window', '$translate', 'utils',
-            function (timeService, $window, $translate, utils) {
+        .factory('exportTsService', ['statusService', '$window', '$translate', 'utils',
+            function (statusService, $window, $translate, utils) {
 
                 function createCsvDownloadLink(ts) {
                     var apiUrl = ts.apiUrl, tsId = ts.id;
-                    var timespan = timeService.getCurrentTimespan();
+                    var timespan = statusService.getTime();
                     var kvp = "?generalize=" + false;
                     kvp = kvp + "&timespan=" + encodeURIComponent(utils.createRequestTimespan(timespan.start, timespan.end));
                     kvp = kvp + "&locale=" + $translate.preferredLanguage();

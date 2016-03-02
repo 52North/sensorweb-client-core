@@ -110,7 +110,7 @@ Use as follow:
             }
         }
 
-        function processOptions(plot, options) {
+        function processOptions(plot) {
             var placeholder = plot.getPlaceholder();
             var options = plot.getOptions();
             
@@ -145,200 +145,200 @@ Use as follow:
             if (options.touch.css) {
                 placeholder.parent('div').css({'overflow': 'hidden'});
             }
+            
+            if (options.touch && (options.touch.pan || options.touch.scale)) {
+                placeholder.bind('touchstart', function (evt) {
+                    clearTimeout(eventdelayTouchEnded); // cancel pending event
+                    var touches = evt.originalEvent.touches;
+                    var placeholder = plot.getPlaceholder();
+                    var options = plot.getOptions();
 
-            placeholder.bind('touchstart', function(evt) {
-                clearTimeout(eventdelayTouchEnded); // cancel pending event
-                var touches = evt.originalEvent.touches;
-                var placeholder = plot.getPlaceholder();
-                var options = plot.getOptions();
-
-                // remember initial axis dimensions
-                $.each(plot.getAxes(), function(index, axis) {
+                    // remember initial axis dimensions
+                    $.each(plot.getAxes(), function (index, axis) {
 //                    if (axis.direction === options.touch.scale.toLowerCase() || options.touch.scale.toLowerCase() == 'xy') {
                         axis.touch = {
                             min: axis.min,
-                            max: axis.max,
-                        }
+                            max: axis.max
+                        };
 //                    }
+                    });
+
+                    tapTimestamp = getTimestamp();
+                    if (touches.length === 1) {
+                        isPanning = true;
+                        lastTouchPosition = {
+                            x: touches[0].pageX,
+                            y: touches[0].pageY
+                        };
+                        lastTouchDistance = 0;
+                        tapNum++;
+                    } else if (touches.length === 2) {
+                        isZooming = true;
+                        lastTouchPosition = {
+                            x: (touches[0].pageX + touches[1].pageX) / 2,
+                            y: (touches[0].pageY + touches[1].pageY) / 2
+                        };
+                        lastTouchDistance = Math.sqrt(Math.pow(touches[1].pageX - touches[0].pageX, 2) + Math.pow(touches[1].pageY - touches[0].pageY, 2));
+                    }
+
+                    var offset = placeholder.offset();
+                    var rect = {
+                        x: offset.left,
+                        y: offset.top,
+                        width: placeholder.width(),
+                        height: placeholder.height()
+                    };
+                    startTouchPosition = {
+                        x: lastTouchPosition.x,
+                        y: lastTouchPosition.y
+                    };
+
+                    if (startTouchPosition.x < rect.x) {
+                        startTouchPosition.x = rect.x;
+                    } else if (startTouchPosition.x > rect.x + rect.width) {
+                        startTouchPosition.x = rect.x + rect.width;
+                    }
+
+                    if (startTouchPosition.y < rect.y) {
+                        startTouchPosition.y = rect.y;
+                    } else if (startTouchPosition.y > rect.y + rect.height) {
+                        startTouchPosition.y = rect.y + rect.height;
+                    }
+
+                    scaleOrigin = {
+                        x: Math.round((startTouchPosition.x / rect.width) * 100),
+                        y: Math.round((startTouchPosition.y / rect.height) * 100)
+                    };
+
+                    if (options.touch.css) {
+                        placeholder.css('transform-origin', scaleOrigin.x + '% ' + scaleOrigin.y + '%');
+                    }
+
+                    placeholder.trigger("touchstarted", [startTouchPosition]);
+                    // return false to prevent touch scrolling.
+                    return false;
                 });
 
-                tapTimestamp = getTimestamp();
-                if (touches.length === 1) {
-                    isPanning = true;
-                    lastTouchPosition = {
-                        x: touches[0].pageX,
-                        y: touches[0].pageY
-                    };
-                    lastTouchDistance = 0;
-                    tapNum++;
-                }
-                else if (touches.length === 2) {
-                    isZooming = true;
-                    lastTouchPosition = {
-                        x: (touches[0].pageX + touches[1].pageX) / 2,
-                        y: (touches[0].pageY + touches[1].pageY) / 2
-                    };
-                    lastTouchDistance = Math.sqrt(Math.pow(touches[1].pageX - touches[0].pageX, 2) + Math.pow(touches[1].pageY - touches[0].pageY, 2));
-                }
+                placeholder.bind('touchmove', function (evt) {
+                    var options = plot.getOptions();
+                    var touches = evt.originalEvent.touches;
+                    var position, distance, delta;
 
-                var offset = placeholder.offset();
-                var rect = {
-                    x: offset.left,
-                    y: offset.top,
-                    width: placeholder.width(),
-                    height: placeholder.height()
-                };
-                startTouchPosition = {
-                    x: lastTouchPosition.x,
-                    y: lastTouchPosition.y
-                };
+                    if (isPanning && touches.length === 1) {
+                        position = {
+                            x: touches[0].pageX,
+                            y: touches[0].pageY
+                        };
+                        delta = {
+                            x: lastTouchPosition.x - position.x,
+                            y: lastTouchPosition.y - position.y
+                        };
 
-                if (startTouchPosition.x < rect.x) {
-                    startTouchPosition.x = rect.x;
-                }
-                else if (startTouchPosition.x > rect.x + rect.width) {
-                    startTouchPosition.x = rect.x + rect.width;
-                }
+                        // transform via the delta
+                        pan(delta);
 
-                if (startTouchPosition.y < rect.y) {
-                    startTouchPosition.y = rect.y;
-                }
-                else if (startTouchPosition.y > rect.y + rect.height) {
-                    startTouchPosition.y = rect.y + rect.height;
-                }
+                        lastTouchPosition = position;
+                        lastTouchDistance = 0;
+                    } else if (isZooming && touches.length === 2) {
+                        distance = Math.sqrt(Math.pow(touches[1].pageX - touches[0].pageX, 2) + Math.pow(touches[1].pageY - touches[0].pageY, 2));
+                        position = {
+                            x: (touches[0].pageX + touches[1].pageX) / 2,
+                            y: (touches[0].pageY + touches[1].pageY) / 2
+                        };
+                        delta = distance - lastTouchDistance;
 
-                scaleOrigin = {
-                    x: Math.round((startTouchPosition.x / rect.width) * 100),
-                    y: Math.round((startTouchPosition.y / rect.height) * 100)
-                };
-                
-                if (options.touch.css) {
-                    placeholder.css('transform-origin', scaleOrigin.x + '% ' + scaleOrigin.y + '%');
-                }
-                
-                placeholder.trigger("touchstarted", [ startTouchPosition ]);
-                // return false to prevent touch scrolling.
-                return false;
-            });
+                        // scale via the delta
+                        scale(delta);
 
-            placeholder.bind('touchmove', function(evt) {
-                var options = plot.getOptions();
-                var touches = evt.originalEvent.touches;
-                var position, distance, delta;
-
-                if (isPanning && touches.length === 1) {
-                    position = {
-                        x: touches[0].pageX,
-                        y: touches[0].pageY
-                    };
-                    delta = {
-                        x: lastTouchPosition.x - position.x,
-                        y: lastTouchPosition.y - position.y
-                    };
-
-                    // transform via the delta
-                    pan(delta);
-
-                    lastTouchPosition = position;
-                    lastTouchDistance = 0;
-                }
-                else if (isZooming && touches.length === 2) {
-                    distance = Math.sqrt(Math.pow(touches[1].pageX - touches[0].pageX, 2) + Math.pow(touches[1].pageY - touches[0].pageY, 2));
-                    position = {
-                        x: (touches[0].pageX + touches[1].pageX) / 2,
-                        y: (touches[0].pageY + touches[1].pageY) / 2
-                    };
-                    delta = distance - lastTouchDistance;
-
-                    // scale via the delta
-                    scale(delta);
-
-                    lastTouchPosition = position;
-                    lastTouchDistance = distance;
-                }
-                
-                if (!options.touch.css) {  // no css updates
-                    var now = new Date().getTime(),
-                    framedelay = now - lastRedraw; // ms for each update
-                    if (framedelay > 50) {
-                        lastRedraw = now;
-                        window.requestAnimationFrame(redraw);
-                    }
-                } 
-            });
-
-            placeholder.bind('touchend', function(evt) {
-                var placeholder = plot.getPlaceholder();
-                var options = plot.getOptions();
-                var touches = evt.originalEvent.changedTouches;
-
-                // reset the tap counter
-                tapTimer = setTimeout(function() { tapNum = 0; }, options.touch.dbltapThreshold);  
-                // check if tap or dbltap
-                if (isPanning && touches.length === 1 && (tapTimestamp + options.touch.tapThreshold) - getTimestamp() >= 0 &&
-                    startTouchPosition.x >= lastTouchPosition.x - options.touch.tapPrecision &&
-                    startTouchPosition.x <= lastTouchPosition.x + options.touch.tapPrecision &&
-                    startTouchPosition.y >= lastTouchPosition.y - options.touch.tapPrecision &&
-                    startTouchPosition.y <= lastTouchPosition.y + options.touch.tapPrecision)
-                {
-                    //Fire plugin Tap event
-                    if (tapNum === 2) { 
-                        placeholder.trigger("dbltap", [ lastTouchPosition ]); 
-                    } else { 
-                        placeholder.trigger("tap", [ lastTouchPosition ]); 
+                        lastTouchPosition = position;
+                        lastTouchDistance = distance;
                     }
 
-                    if (options.touch.simulClick) {
-                        // Simulate mouse click event
-                        // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/MouseEvent
-                        var simulatedEvent = new MouseEvent("click", {
-                            bubbles: true,
-                            cancelable: true,
-                            view: window,
-                            detail: tapNum, // num of clicks
-                            screenX: touches[0].screenX,
-                            screenY: touches[0].screenY,
-                            clientX: touches[0].clientX,
-                            clientY: touches[0].clientY,
-                            button: 0  // left mouse button
-                        });
-                        touches[0].target.dispatchEvent(simulatedEvent);
-                    }
-                }
-                else 
-                {
-                    var r = {};
-                    c1 = { x: 0, y: 0};
-                    c2 = { x: plot.width(), y: plot.height()};
-                    $.each(plot.getAxes(), function (name, axis) {
-                        if (axis.used) {
-                            var p1 = axis.c2p(c1[axis.direction]), p2 = axis.c2p(c2[axis.direction]); 
-                            r[name] = { from: Math.min(p1, p2), to: Math.max(p1, p2) };
+                    if (!options.touch.css) {  // no css updates
+                        var now = new Date().getTime(),
+                                framedelay = now - lastRedraw; // ms for each update
+                        if (framedelay > 50) {
+                            lastRedraw = now;
+                            window.requestAnimationFrame(redraw);
                         }
-                    });
+                    }
+                });
 
-                    eventdelayTouchEnded = setTimeout(function(){ placeholder.trigger("touchended", [ r ]); }, options.touch.delayTouchEnded);
-                }
-        
-                isPanning = false;
-                isZooming = false;
-                lastTouchPosition = { x: -1, y: -1 };
-                startTouchPosition = lastTouchPosition;
-                lastTouchDistance = 0;
-                relativeOffset = { x: 0, y: 0 };
-                relativeScale = 1.0;
-                scaleOrigin = { x: 50, y: 50 };
-                
-                if (options.touch.css) {
-                    placeholder.css({
-                        'transform': 'translate(' + relativeOffset.x + 'px,' + relativeOffset.y + 'px) scale(' + relativeScale + ')',
-                        'transform-origin': scaleOrigin.x + '% ' + scaleOrigin.y + '%'
-                    });
-                }
-                
+                placeholder.bind('touchend', function (evt) {
+                    var placeholder = plot.getPlaceholder();
+                    var options = plot.getOptions();
+                    var touches = evt.originalEvent.changedTouches;
 
-            });
+                    // reset the tap counter
+                    tapTimer = setTimeout(function () {
+                        tapNum = 0;
+                    }, options.touch.dbltapThreshold);
+                    // check if tap or dbltap
+                    if (isPanning && touches.length === 1 && (tapTimestamp + options.touch.tapThreshold) - getTimestamp() >= 0 &&
+                            startTouchPosition.x >= lastTouchPosition.x - options.touch.tapPrecision &&
+                            startTouchPosition.x <= lastTouchPosition.x + options.touch.tapPrecision &&
+                            startTouchPosition.y >= lastTouchPosition.y - options.touch.tapPrecision &&
+                            startTouchPosition.y <= lastTouchPosition.y + options.touch.tapPrecision)
+                    {
+                        //Fire plugin Tap event
+                        if (tapNum === 2) {
+                            placeholder.trigger("dbltap", [lastTouchPosition]);
+                        } else {
+                            placeholder.trigger("tap", [lastTouchPosition]);
+                        }
 
+                        if (options.touch.simulClick) {
+                            // Simulate mouse click event
+                            // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/MouseEvent
+                            var simulatedEvent = new MouseEvent("click", {
+                                bubbles: true,
+                                cancelable: true,
+                                view: window,
+                                detail: tapNum, // num of clicks
+                                screenX: touches[0].screenX,
+                                screenY: touches[0].screenY,
+                                clientX: touches[0].clientX,
+                                clientY: touches[0].clientY,
+                                button: 0  // left mouse button
+                            });
+                            touches[0].target.dispatchEvent(simulatedEvent);
+                        }
+                    } else
+                    {
+                        var r = {};
+                        c1 = {x: 0, y: 0};
+                        c2 = {x: plot.width(), y: plot.height()};
+                        $.each(plot.getAxes(), function (name, axis) {
+                            if (axis.used) {
+                                var p1 = axis.c2p(c1[axis.direction]), p2 = axis.c2p(c2[axis.direction]);
+                                r[name] = {from: Math.min(p1, p2), to: Math.max(p1, p2)};
+                            }
+                        });
+
+                        eventdelayTouchEnded = setTimeout(function () {
+                            placeholder.trigger("touchended", [r]);
+                        }, options.touch.delayTouchEnded);
+                    }
+
+                    isPanning = false;
+                    isZooming = false;
+                    lastTouchPosition = {x: -1, y: -1};
+                    startTouchPosition = lastTouchPosition;
+                    lastTouchDistance = 0;
+                    relativeOffset = {x: 0, y: 0};
+                    relativeScale = 1.0;
+                    scaleOrigin = {x: 50, y: 50};
+
+                    if (options.touch.css) {
+                        placeholder.css({
+                            'transform': 'translate(' + relativeOffset.x + 'px,' + relativeOffset.y + 'px) scale(' + relativeScale + ')',
+                            'transform-origin': scaleOrigin.x + '% ' + scaleOrigin.y + '%'
+                        });
+                    }
+
+
+                });
+            }
         }
 
         function redraw() {

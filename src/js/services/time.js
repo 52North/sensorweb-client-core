@@ -2,24 +2,10 @@ angular.module('n52.core.time', [])
         .factory('timeService', ['$rootScope', 'statusService',
             function ($rootScope, statusService) {
                 var time = {
-                    duration: moment.duration(statusService.status.timespan.duration),
-                    start: moment(statusService.status.timespan.start),
-                    end: moment(statusService.status.timespan.end)
+                    duration: moment.duration(statusService.getTime().duration),
+                    start: moment(statusService.getTime().start),
+                    end: moment(statusService.getTime().end)
                 };
-
-                function getCurrentTimespan(buffer) {
-                    if (angular.isObject(buffer)) {
-                        return {
-                            start: moment(time.start).subtract(buffer),
-                            end: moment(time.end).add(buffer)
-                        };
-                    } else {
-                        return {
-                            start: time.start,
-                            end: time.end
-                        };
-                    }
-                }
 
                 function setFlexibleTimeExtent(start, end) {
                     time.start = start;
@@ -89,12 +75,19 @@ angular.module('n52.core.time', [])
                 }
 
                 function fireNewTimeExtent() {
-                    statusService.status.timespan = time;
+                    statusService.setTime(time);
                     $rootScope.$emit('timeExtentChanged');
+                }
+                
+                function getStartInMillies() {
+                    return time.start.unix() * 1000;
+                }
+                
+                function getEndInMillies() {
+                    return time.end.unix() * 1000;
                 }
 
                 return {
-                    getCurrentTimespan: getCurrentTimespan,
                     jumpToLastTimeStamp: jumpToLastTimeStamp,
                     jumpToFirstTimeStamp: jumpToFirstTimeStamp,
                     centerTimespan: centerTimespan,
@@ -103,6 +96,8 @@ angular.module('n52.core.time', [])
                     isInCurrentTimespan: isInCurrentTimespan,
                     stepBack: stepBack,
                     stepForward: stepForward,
+                    getStartInMillies: getStartInMillies,
+                    getEndInMillies: getEndInMillies,
                     time: time
                 };
             }]);
