@@ -6,8 +6,8 @@ angular.module('n52.core.status', [])
                 // init default status
                 var defStatus = {
                     apiProvider: settingsService.defaultProvider,
-                    showLegend: false,
-                    showPhenomena: false,
+                    showLegend: settingsService.showLegendOnStartup || false,
+                    showPhenomena: settingsService.showPhenomenaListOnStartup || false,
                     saveStatus: settingsService.saveStatus,
                     generalizeData: settingsService.generalizeData,
                     clusterStations: settingsService.clusterStations,
@@ -41,13 +41,13 @@ angular.module('n52.core.status', [])
                 removeTimeseries = function (internalId) {
                     delete scope.status.timeseries[internalId];
                 };
-                
-                removeAllTimeseries = function() {
-                    angular.forEach(scope.status.timeseries, function(ts, id) {
+
+                removeAllTimeseries = function () {
+                    angular.forEach(scope.status.timeseries, function (ts, id) {
                         removeTimeseries(id);
                     });
                 };
-                
+
                 addTimeseries = function (timeseries) {
                     scope.status.timeseries[timeseries.internalId] = timeseries;
                 };
@@ -56,12 +56,22 @@ angular.module('n52.core.status', [])
                     return scope.status.timeseries;
                 };
 
+                getTime = function () {
+                    return scope.status.timespan;
+                };
+                
+                setTime = function (time) {
+                    scope.status.timespan = time;
+                };
+
                 return {
                     resetStatus: resetStatus,
                     addTimeseries: addTimeseries,
                     removeAllTimeseries: removeAllTimeseries,
                     removeTimeseries: removeTimeseries,
                     getTimeseries: getTimeseries,
+                    getTime: getTime,
+                    setTime: setTime,
                     status: scope.status
                 };
             }]);

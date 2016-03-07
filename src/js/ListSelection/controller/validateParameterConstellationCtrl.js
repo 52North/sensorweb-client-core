@@ -1,7 +1,6 @@
 angular.module('n52.core.listSelection')
         .controller('SwcValidateParameterConstellationCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService',
             function ($scope, interfaceService, statusService, timeseriesService) {
-                $scope.series;
                 $scope.isActive = false;
                 $scope.validate = function(params) {
                     interfaceService.getTimeseries(null, statusService.status.apiProvider.url, params).then(function (data) {

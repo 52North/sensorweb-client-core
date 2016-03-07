@@ -1,6 +1,6 @@
 angular.module('n52.core.permalinkGen', [])
-        .factory('permalinkGenerationService', ['$location', 'timeseriesService', 'timeService', 'utils',
-            function ($location, timeseriesService, timeService, utils) {
+        .factory('permalinkGenerationService', ['$location', 'timeseriesService', 'statusService', 'utils',
+            function ($location, timeseriesService, statusService, utils) {
                 createTimeseriesParam = function (timeseriesId) {
                     var ids = [];
                     if (angular.isUndefined(timeseriesId)) {
@@ -13,7 +13,7 @@ angular.module('n52.core.permalinkGen', [])
                     return "ts=" + encodeURIComponent(ids.join());
                 };
                 createTimeParam = function () {
-                    var timespan = timeService.getCurrentTimespan();
+                    var timespan = statusService.getTime();
                     return "timespan=" + encodeURIComponent(utils.createRequestTimespan(timespan.start, timespan.end));
                 };
                 getCurrentPermalink = function (timeseriesId) {

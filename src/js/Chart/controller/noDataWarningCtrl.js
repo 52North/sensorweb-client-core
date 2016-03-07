@@ -7,7 +7,7 @@ angular.module('n52.core.noDataWarning', [])
                 if (Object.keys(timeseries).length > 0) {
                     var noDataVisible = false;
                     angular.forEach(timeseries, function (item) {
-                        if (item.hasDataInCurrentExtent)
+                        if (item.hasNoDataInCurrentExtent)
                             noDataVisible = true;
                     });
                     return noDataVisible;
