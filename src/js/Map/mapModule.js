@@ -282,19 +282,24 @@ angular.module('n52.core.map', [])
                     map: map
                 };
             }])
-        .service('stationService', ['interfaceService',
-            function (interfaceService) {
+        .service('stationService', ['interfaceService', 'settingsService',
+            function (interfaceService, settingsService) {
+                var preselectFirstTimeseries = angular.isUndefined(settingsService.preselectedFirstTimeseriesInStationView)
+                        ? false : settingsService.preselectedFirstTimeseriesInStationView === true;
+                var selectFirst
                 var station = {
                     entry: {}
                 };
                 determineTimeseries = function (stationId, url) {
+                    selectFirst = preselectFirstTimeseries;
                     station.entry = {};
                     interfaceService.getStations(stationId, url).then(function (result) {
                         station.entry = result;
                         angular.forEach(result.properties.timeseries, function (timeseries, id) {
+                            timeseries.selected = selectFirst || !preselectFirstTimeseries;
+                            selectFirst = false;
                             interfaceService.getTimeseries(id, url).then(function (ts) {
                                 angular.extend(timeseries, ts);
-                                timeseries.selected = true;
                             });
                         });
                     });
@@ -302,6 +307,7 @@ angular.module('n52.core.map', [])
 
                 return {
                     determineTimeseries: determineTimeseries,
+                    preselectFirstTimeseries: preselectFirstTimeseries,
                     station: station
                 };
             }]);
