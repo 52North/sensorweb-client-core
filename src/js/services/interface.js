@@ -21,7 +21,7 @@ angular.module('n52.core.interface', [])
                 };
 
                 _createIdString = function (id) {
-                    return (id === null ? "" : id);
+                    return (id === null || angular.isUndefined(id) ? "" : id);
                 };
 
                 _pimpTs = function (ts, url) {
@@ -33,9 +33,9 @@ angular.module('n52.core.interface', [])
                     return ts;
                 };
 
-                this.getServices = function (apiUrl) {
+                this.getServices = function (apiUrl, id) {
                     return $q(function (resolve, reject) {
-                        $http.get(apiUrl + 'services', _createRequestConfigs({expanded: true})).then(function (response) {
+                        $http.get(apiUrl + 'services/' + _createIdString(id), _createRequestConfigs({expanded: true})).then(function (response) {
                             resolve(response.data);
                         }, function (error) {
                             _errorCallback(error, reject);
