@@ -48,8 +48,6 @@ angular.module('n52.core.settings', [])
                     // date/time format which is used on several places
                     dateformat: 'DD.MM.YY HH:mm [h]',
                     shortDateformat: 'DD.MM.YY',
-                    // duration after which latest values shall be ignored when rendering marker in the map
-                    ignoreAfterDuration: moment.duration(1, 'y'),
                     // default color for circled marker, when last value is older than 'ignoreAfterDuration' or the timeseries has no last value
                     defaultMarkerColor: '#123456',
                     // duration buffer for time series request
@@ -63,7 +61,7 @@ angular.module('n52.core.settings', [])
                     defaultZeroScale: false,
                     // default grouping timeseries with same uom
                     defaultGroupedAxis: true,
-                    // additional parameters which are append to the request urls
+                    // additional parameters which are append to the request
                     additionalParameters: {
                         locale: 'de'
                     },
