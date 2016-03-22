@@ -1,6 +1,6 @@
 angular.module('n52.core.provider', [])
-        .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService',
-            function ($rootScope, settingsService, interfaceService, statusService) {
+        .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService', 'utils',
+            function ($rootScope, settingsService, interfaceService, statusService, utils) {
                 var providerList = [];
                 var selectedProvider = {
                     label: ""
@@ -10,13 +10,7 @@ angular.module('n52.core.provider', [])
                     angular.forEach(settingsService.restApiUrls, function (elem, url) {
                         interfaceService.getServices(url).then(function (providers) {
                             angular.forEach(providers, function (provider) {
-                                var isBlacklisted = false;
-                                angular.forEach(settingsService.providerBlackList, function (entry) {
-                                    if (entry.serviceID === provider.id && entry.apiUrl === url) {
-                                        isBlacklisted = true;
-                                    }
-                                });
-                                if (!isBlacklisted) {
+                                if (!utils.isServiceBlacklisted(provider.id, url)) {
                                     if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
                                         provider.selected = true;
                                         selectedProvider.label = provider.label;

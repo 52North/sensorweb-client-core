@@ -26,8 +26,8 @@ angular.module('n52.core.utils', [])
                     });
                     return combination;
                 }
-                
-                function createBufferedCurrentTimespan (time, buffer) {
+
+                function createBufferedCurrentTimespan(time, buffer) {
                     if (angular.isObject(buffer)) {
                         return {
                             start: moment(time.start).subtract(buffer),
@@ -41,11 +41,22 @@ angular.module('n52.core.utils', [])
                     }
                 }
 
+                function isServiceBlacklisted(serviceID, url) {
+                    var isBlacklisted = false;
+                    angular.forEach(settingsService.providerBlackList, function (entry) {
+                        if (entry.serviceID === serviceID && entry.apiUrl === url) {
+                            isBlacklisted = true;
+                        }
+                    });
+                    return isBlacklisted;
+                }
+
                 return {
                     createRequestTimespan: createRequestTimespan,
                     getTimeseriesCombinationByInternalId: getTimeseriesCombinationByInternalId,
                     createInternalId: createInternalId,
                     isFileAPISupported: isFileAPISupported,
-                    createBufferedCurrentTimespan: createBufferedCurrentTimespan
+                    createBufferedCurrentTimespan: createBufferedCurrentTimespan,
+                    isServiceBlacklisted: isServiceBlacklisted
                 };
             }]);

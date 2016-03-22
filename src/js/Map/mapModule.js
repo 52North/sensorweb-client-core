@@ -1,6 +1,6 @@
 angular.module('n52.core.map', [])
-        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService',
-            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService) {
+        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'utils',
+            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, utils) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
                 var baselayer = settingsService.baselayer ? settingsService.baselayer : {
                     osm: {
@@ -45,15 +45,15 @@ angular.module('n52.core.map', [])
                     };
 
                     $rootScope.$on('allPhenomenaSelected', function (evt) {
-                        map.selectedPhenomenonId = null;
+                        map.selectedPhenomenon = null;
                         requestStations();
                     });
                     $rootScope.$on('phenomenonSelected', function (evt, phenomenon) {
-                        map.selectedPhenomenonId = phenomenon.id;
-                        requestStations(phenomenon.id);
+                        map.selectedPhenomenon = phenomenon;
+                        requestStations(phenomenon);
                     });
                     $rootScope.$on('redrawStations', function (evt, phenomenon) {
-                        requestStations(map.selectedPhenomenonId);
+                        requestStations(map.selectedPhenomenon);
                     });
                     $rootScope.$on('newProviderSelected', function (evt) {
                         requestStations();
@@ -66,31 +66,44 @@ angular.module('n52.core.map', [])
                     angular.copy({}, map.markers);
                     map.loading = true;
                     var params;
-                    if (settingsService.aggregateServicesInMap && angular.isUndefined(statusService.status.apiProvider.url)) {
+                    if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
                         requestAggregatedStations(phenomenon);
                     } else {
-                        var provider = statusService.status.apiProvider;
                         if (statusService.status.concentrationMarker && phenomenon) {
-                            params = {
-                                service: provider.serviceID,
-                                phenomenon: phenomenon,
-                                expanded: true,
-                                force_latest_values: true,
-                                status_intervals: true
-                            };
-                            interfaceService.getTimeseries(null, provider.url, params).then(function (data) {
-                                createMarkers(data, provider.url, provider.serviceID);
+                            angular.forEach(phenomenon.provider, function (provider) {
+                                params = {
+                                    service: provider.serviceID,
+                                    phenomenon: provider.phenomenonID,
+                                    expanded: true,
+                                    force_latest_values: true,
+                                    status_intervals: true
+                                };
+                                interfaceService.getTimeseries(null, provider.url, params).then(function (data) {
+                                    createMarkers(data, provider.url, provider.serviceID);
+                                });
                             });
                         } else {
-                            params = {
-                                service: provider.serviceID,
-                                phenomenon: phenomenon
-                            };
-                            interfaceService.getStations(null, provider.url, params).then(function (data) {
-                                createMarkers(data, provider.url, provider.serviceID);
-                            });
+                            var provider;
+                            if (phenomenon) {
+                                angular.forEach(phenomenon.provider, function (entry) {
+                                    requestStationsOfService(entry.serviceID, entry.url, createMarkers, entry.phenomenonID);
+                                });
+                            } else {
+                                provider = statusService.status.apiProvider;
+                                requestStationsOfService(provider.serviceID, provider.url, createMarkers);
+                            }
                         }
                     }
+                };
+
+                var requestStationsOfService = function (serviceID, url, callback, phenomenonID) {
+                    var params = {
+                        service: serviceID,
+                        phenomenon: phenomenonID
+                    };
+                    interfaceService.getStations(null, url, params).then(function (data) {
+                        callback(data, url, serviceID);
+                    });
                 };
 
                 var requestAggregatedStations = function (phenomenon) {
@@ -98,19 +111,28 @@ angular.module('n52.core.map', [])
                     aggregateBounds = null;
                     angular.copy({}, map.paths);
                     angular.copy({}, map.bounds);
-                    angular.forEach(settingsService.restApiUrls, function (id, url) {
-                        interfaceService.getServices(url).then(function (providers) {
-                            angular.forEach(providers, function (provider) {
-                                aggregateCounter++;
-                                interfaceService.getStations(null, url, {
-                                    service: provider.id,
-                                    phenomenon: phenomenon
-                                }).then(function (data) {
-                                    createAggregatedStations(data, url, provider.id + id);
+                    if (phenomenon) {
+                        angular.forEach(phenomenon.provider, function (entry) {
+                            aggregateCounter++;
+                            requestStationsOfService(entry.serviceID, entry.url, createAggregatedStations, entry.phenomenonID);
+                        });
+                    } else {
+                        angular.forEach(settingsService.restApiUrls, function (id, url) {
+                            interfaceService.getServices(url).then(function (providers) {
+                                angular.forEach(providers, function (provider) {
+                                    if (!utils.isServiceBlacklisted(provider.id, url)) {
+                                        aggregateCounter++;
+                                        interfaceService.getStations(null, url, {
+                                            service: provider.id,
+                                            phenomenon: phenomenon
+                                        }).then(function (data) {
+                                            createAggregatedStations(data, url, provider.id + id);
+                                        });
+                                    }
                                 });
                             });
                         });
-                    });
+                    }
                 };
 
                 var createAggregatedStations = function (data, serviceUrl, serviceId) {
@@ -147,9 +169,11 @@ angular.module('n52.core.map', [])
                                 }
                             }
                         });
-                        setBounds(aggregateBounds.bottommost, aggregateBounds.leftmost, aggregateBounds.topmost, aggregateBounds.rightmost);
+                        if (aggregateCounter === 0)
+                            setBounds(aggregateBounds.bottommost, aggregateBounds.leftmost, aggregateBounds.topmost, aggregateBounds.rightmost);
                     }
-                    map.loading = false;
+                    if (aggregateCounter === 0)
+                        map.loading = false;
                 };
 
                 var createMarkers = function (data, serviceUrl, serviceId) {
@@ -284,12 +308,11 @@ angular.module('n52.core.map', [])
             }])
         .service('stationService', ['interfaceService', 'settingsService',
             function (interfaceService, settingsService) {
-                var preselectFirstTimeseries = angular.isUndefined(settingsService.preselectedFirstTimeseriesInStationView)
-                        ? false : settingsService.preselectedFirstTimeseriesInStationView === true;
-                var selectFirst
-                var station = {
-                    entry: {}
-                };
+                var preselectFirstTimeseries = angular.isUndefined(settingsService.preselectedFirstTimeseriesInStationView) ? false : settingsService.preselectedFirstTimeseriesInStationView === true;
+                var selectFirst,
+                        station = {
+                            entry: {}
+                        };
                 determineTimeseries = function (stationId, url) {
                     selectFirst = preselectFirstTimeseries;
                     station.entry = {};

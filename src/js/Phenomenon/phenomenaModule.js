@@ -1,38 +1,64 @@
 angular.module('n52.core.phenomena', [])
-        .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService',
-            function ($rootScope, interfaceService, statusService, settingsService) {
+        .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService', 'utils',
+            function ($rootScope, interfaceService, statusService, settingsService, utils) {
                 var phenomena = {};
                 phenomena.selection = null;
                 phenomena.items = [];
 
                 loadPhenomena = function () {
-                    if (settingsService.aggregateServicesInMap && angular.isUndefined(statusService.status.apiProvider.url)) {
-                        loadAggregatedPhenomenons();
+                    phenomena.items = [];
+                    if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
+                        loadPhenomenaForAllProvider();
                     } else {
-                        var params = {
-                            service: statusService.status.apiProvider.serviceID
-                        };
-                        interfaceService.getPhenomena(null, statusService.status.apiProvider.url, params).then(function (data) {
-                            phenomena.items = data;
-                        });
+                        loadPhenomenaForProvider(statusService.status.apiProvider.serviceID, statusService.status.apiProvider.url);
                     }
                 };
 
-                loadAggregatedPhenomenons = function () {
+                loadPhenomenaForProvider = function (serviceID, providerUrl) {
+                    var params = {
+                        service: serviceID
+                    };
+                    interfaceService.getPhenomena(null, providerUrl, params).then(function (data) {
+                        addResultsToList(data, serviceID, providerUrl);
+                    });
+                };
+
+                loadPhenomenaForAllProvider = function () {
                     phenomena.items = [];
                     angular.forEach(settingsService.restApiUrls, function (id, url) {
                         interfaceService.getServices(url).then(function (providers) {
                             angular.forEach(providers, function (provider) {
-                                var params = {
-                                    service: provider.id
-                                };
-                                interfaceService.getPhenomena(null, url, params).then(function (data) {
-                                    angular.forEach(data, function(entry){
-                                        phenomena.items.push(entry);
-                                    });
-                                });
+                                if (!utils.isServiceBlacklisted(provider.id, url)) {
+                                    loadPhenomenaForProvider(provider.id, url);
+                                }
                             });
                         });
+                    });
+                };
+
+                addResultsToList = function (results, serviceID, providerUrl) {
+                    angular.forEach(results, function (entry) {
+                        var phenomenon = {
+                            serviceID: serviceID,
+                            url: providerUrl,
+                            phenomenonID: entry.id
+                        };
+                        var idx;
+                        for (var i = 0; i < phenomena.items.length; i++) {
+                            if (phenomena.items[i].label.toUpperCase() === entry.label.toUpperCase()) {
+                                idx = i;
+                                break;
+                            }
+                        }
+                        if (angular.isNumber(idx)) {
+                            phenomena.items[idx].provider.push(phenomenon);
+                        } else {
+                            var newEntry = {
+                                label: entry.label,
+                                provider: [phenomenon]
+                            };
+                            phenomena.items.push(newEntry);
+                        }
                     });
                 };
 

@@ -24,9 +24,16 @@ angular.module('n52.core.map')
                                                 stationsId = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : "";
                                                 url = args.leafletObject.options.url ? args.leafletObject.options.url : "";
                                             }
+                                            var phenomenonId;
+                                            if (mapService.map.selectedPhenomenon) {
+                                                angular.forEach(mapService.map.selectedPhenomenon.provider, function (provider) {
+                                                    if (url === provider.url)
+                                                        phenomenonId = provider.phenomenonID;
+                                                });
+                                            }
                                             return {
                                                 stationId: stationsId,
-                                                phenomenonId: mapService.map.selectedPhenomenonId,
+                                                phenomenonId: phenomenonId,
                                                 url: url
                                             };
                                         }
