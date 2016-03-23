@@ -4,8 +4,8 @@ angular.module('n52.core.listSelection')
                 var ctrl = $controller('SwcListSelectionCtrl', {$scope: $scope});
                 var oldAddToDiagram = $scope.addToDiagram;
                 angular.extend(this, ctrl);
-                $scope.addToDiagram = function(params) {
-                    oldAddToDiagram(params);
+                $scope.addToDiagram = function(params, url) {
+                    oldAddToDiagram(params, url);
                     $location.url('/diagram');
                     $scope.$parent.close();
                 };
