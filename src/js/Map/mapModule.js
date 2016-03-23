@@ -1,6 +1,6 @@
 angular.module('n52.core.map', [])
-        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'utils',
-            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, utils) {
+        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'servicesHelper',
+            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, servicesHelper) {
                 var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
                 var baselayer = settingsService.baselayer ? settingsService.baselayer : {
                     osm: {
@@ -117,19 +117,13 @@ angular.module('n52.core.map', [])
                             requestStationsOfService(entry.serviceID, entry.url, createAggregatedStations, entry.phenomenonID);
                         });
                     } else {
-                        angular.forEach(settingsService.restApiUrls, function (id, url) {
-                            interfaceService.getServices(url).then(function (providers) {
-                                angular.forEach(providers, function (provider) {
-                                    if (!utils.isServiceBlacklisted(provider.id, url)) {
-                                        aggregateCounter++;
-                                        interfaceService.getStations(null, url, {
-                                            service: provider.id,
-                                            phenomenon: phenomenon
-                                        }).then(function (data) {
-                                            createAggregatedStations(data, url, provider.id + id);
-                                        });
-                                    }
-                                });
+                        servicesHelper.doForAllServices(function (provider, url, internalId) {
+                            aggregateCounter++;
+                            interfaceService.getStations(null, url, {
+                                service: provider.id,
+                                phenomenon: phenomenon
+                            }).then(function (data) {
+                                createAggregatedStations(data, url, provider.id + internalId);
                             });
                         });
                     }

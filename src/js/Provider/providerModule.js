@@ -1,29 +1,21 @@
 angular.module('n52.core.provider', [])
-        .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService', 'utils',
-            function ($rootScope, settingsService, interfaceService, statusService, utils) {
+        .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService', 'utils', 'servicesHelper',
+            function ($rootScope, settingsService, interfaceService, statusService, utils, servicesHelper) {
                 var providerList = [];
                 var selectedProvider = {
                     label: ""
                 };
 
                 getAllProviders = function () {
-                    angular.forEach(settingsService.restApiUrls, function (elem, url) {
-                        interfaceService.getServices(url).then(function (providers) {
-                            angular.forEach(providers, function (provider) {
-                                if (!utils.isServiceBlacklisted(provider.id, url)) {
-                                    if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
-                                        provider.selected = true;
-                                        selectedProvider.label = provider.label;
-                                    } else {
-                                        provider.selected = false;
-                                    }
-                                    provider.url = url;
-                                    providerList.push(provider);
-                                } else {
-                                    console.info(url + "services/" + provider.id + " is blacklisted!");
-                                }
-                            });
-                        });
+                    servicesHelper.doForAllServices(function (provider, url) {
+                        if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
+                            provider.selected = true;
+                            selectedProvider.label = provider.label;
+                        } else {
+                            provider.selected = false;
+                        }
+                        provider.url = url;
+                        providerList.push(provider);
                     });
                 };
 
