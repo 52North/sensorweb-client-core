@@ -1,12 +1,13 @@
 angular.module('n52.core.rawDataOutput', [])
-        .directive('swcTimeseriesRawDataOutput', [function () {
+        .directive('swcTimeseriesRawDataOutput', [
+            function () {
                 return {
                     restrict: "E",
                     replace: true,
                     scope: {
                         timeseries: "="
                     },
-                    templateUrl: "templates/output/timeseries-rawdata-output.html",
+                    templateUrl: "templates/metadata/timeseries-rawdata.html",
                     controller: 'SwcTimeseriesRawDataOutputCtrl'
                 };
             }])
@@ -28,7 +29,8 @@ angular.module('n52.core.rawDataOutput', [])
 
                 timeseriesRawDataOutputSrv.getSupportedRawFormats($scope.timeseries, $scope.formatsList);
             }])
-        .factory('timeseriesRawDataOutputSrv', ['interfaceService', function (interfaceService) {
+        .factory('timeseriesRawDataOutputSrv', ['interfaceService',
+            function (interfaceService) {
                 function getSupportedRawFormats(timeseries, list) {
                     angular.forEach(timeseries.rawFormats, function (format) {
                         list.push(format);
