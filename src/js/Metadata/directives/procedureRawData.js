@@ -1,4 +1,4 @@
-angular.module('n52.core.metadata', [])
+angular.module('n52.core.metadata')
         .directive('swcProcedureRawdata', [
             function () {
                 return {
