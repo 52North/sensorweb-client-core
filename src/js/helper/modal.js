@@ -7,7 +7,7 @@ angular.module('n52.core.modal', [])
                         controller: 'ModalWindowCtrl'
                     };
                     angular.extend(defaults, configs);
-                    $uibModal.open(defaults);
+                    return $uibModal.open(defaults);
                 };
             }])
         .controller('ModalWindowCtrl', ['$scope', '$uibModalInstance',

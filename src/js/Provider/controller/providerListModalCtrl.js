@@ -1,7 +1,7 @@
 angular.module('n52.core.provider')
         .controller('SwcProviderListModalCtrl', ['$scope', '$uibModalInstance', 'providerService',
             function ($scope, $uibModalInstance, providerService) {
-                $scope.providerList = providerService.providerList;
+                $scope.providerList = providerService.getAllProviders();
 
                 $scope.close = function () {
                     $uibModalInstance.close();

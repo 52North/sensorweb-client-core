@@ -1,12 +1,13 @@
 angular.module('n52.core.provider', [])
-        .factory('providerService', ['$rootScope', 'settingsService', 'interfaceService', 'statusService', 'utils', 'servicesHelper',
-            function ($rootScope, settingsService, interfaceService, statusService, utils, servicesHelper) {
+        .factory('providerService', ['$rootScope', 'statusService', 'servicesHelper',
+            function ($rootScope, statusService, servicesHelper) {
                 var providerList = [];
                 var selectedProvider = {
                     label: ""
                 };
 
                 getAllProviders = function () {
+                    providerList = [];
                     servicesHelper.doForAllServices(function (provider, url) {
                         if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
                             provider.selected = true;
@@ -17,6 +18,7 @@ angular.module('n52.core.provider', [])
                         provider.url = url;
                         providerList.push(provider);
                     });
+                    return providerList;
                 };
 
                 selectProvider = function (selection) {
@@ -41,9 +43,8 @@ angular.module('n52.core.provider', [])
                     }
                 };
 
-                getAllProviders();
-
                 return {
+                    getAllProviders: getAllProviders,
                     providerList: providerList,
                     selectedProvider: selectedProvider,
                     selectProvider: selectProvider
