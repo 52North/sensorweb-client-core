@@ -129,6 +129,16 @@ angular.module('n52.core.interface', [])
                     });
                 };
 
+                this.getExtras = function (tsId, apiUrl, params) {
+                    return $q(function (resolve, reject) {
+                        $http.get(apiUrl + 'timeseries/' + _createIdString(tsId) + '/extras', _createRequestConfigs(params)).then(function (response) {
+                            resolve(response.data);
+                        }, function (error) {
+                            _errorCallback(error, reject);
+                        });
+                    });
+                };
+
                 this.getTsData = function (id, apiUrl, timespan, extendedData) {
                     var params = {
                         timespan: utils.createRequestTimespan(timespan.start, timespan.end),
