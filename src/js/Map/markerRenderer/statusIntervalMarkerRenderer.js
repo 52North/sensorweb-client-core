@@ -66,8 +66,13 @@ angular.module('n52.core.map')
                 var isTimeseries = function (elem) {
                     return angular.isDefined(elem.station);
                 };
+                
+                var needsTimeseriesRequested = function() {
+                    return true;
+                };
 
                 return {
+                    needsTimeseriesRequested: needsTimeseriesRequested,
                     addMarker: addMarker
                 };
             }]);

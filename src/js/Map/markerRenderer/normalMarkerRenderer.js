@@ -18,8 +18,13 @@ angular.module('n52.core.map')
                     params.map.markers[markerRendererHelper.getStationId()] = marker;
                     return true;
                 };
+                
+                var needsTimeseriesRequested = function() {
+                    return statusService.status.concentrationMarker;
+                };
 
                 return {
+                    needsTimeseriesRequested: needsTimeseriesRequested,
                     addMarker: addMarker
                 };
             }]);

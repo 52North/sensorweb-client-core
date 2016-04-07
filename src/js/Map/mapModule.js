@@ -2,6 +2,8 @@ angular.module('n52.core.map', [])
         .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'servicesHelper', '$injector',
             function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, servicesHelper, $injector) {
                 var markerRenderer = ['statusIntervalMarkerRenderer', 'normalMarkerRenderer'];
+                if (settingsService.markerRenderer)
+                    markerRenderer = settingsService.markerRenderer;
                 var baselayer = settingsService.baselayer ? settingsService.baselayer : {
                     osm: {
                         name: 'Open Street Map',
@@ -29,8 +31,8 @@ angular.module('n52.core.map', [])
                         scale: true
                     };
                 }
-                var aggregateCounter;
-                var aggregateBounds;
+                var requestCounter;
+                var bounds;
 
                 var init = function () {
                     map.loading = false;
@@ -62,27 +64,39 @@ angular.module('n52.core.map', [])
                     requestStations();
                 };
 
+                var shouldRequestTimeseries = function () {
+                    var needsTimeseriesRequest = false;
+                    angular.forEach(markerRenderer, function (renderer) {
+                        needsTimeseriesRequest = needsTimeseriesRequest || $injector.get(renderer).needsTimeseriesRequested();
+                    });
+                    return needsTimeseriesRequest;
+                };
+
                 var requestStations = function (phenomenon) {
+                    requestCounter = 0;
+                    bounds = null;
                     angular.copy({}, map.markers);
+                    angular.copy({}, map.paths);
                     map.loading = true;
-                    if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
-                        requestAggregatedStations(phenomenon);
+                    if (shouldRequestTimeseries() && phenomenon) {
+                        angular.forEach(phenomenon.provider, function (provider) {
+                            requestCounter++;
+                            requestTimeseriesOfService(provider.serviceID, provider.url, createStation, provider.phenomenonID);
+                        });
+                    } else if (phenomenon) {
+                        angular.forEach(phenomenon.provider, function (entry) {
+                            requestCounter++;
+                            requestStationsOfService(entry.serviceID, entry.url, createStation, entry.phenomenonID);
+                        });
+                    } else if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
+                        servicesHelper.doForAllServices(function (provider, url) {
+                            requestCounter++;
+                            requestStationsOfService(provider.id, url, createStation);
+                        });
                     } else {
-                        if (statusService.status.concentrationMarker && phenomenon) {
-                            angular.forEach(phenomenon.provider, function (provider) {
-                                requestTimeseriesOfService(provider.serviceID, provider.url, createMarkers, provider.phenomenonID);
-                            });
-                        } else {
-                            var provider;
-                            if (phenomenon) {
-                                angular.forEach(phenomenon.provider, function (entry) {
-                                    requestStationsOfService(entry.serviceID, entry.url, createMarkers, entry.phenomenonID);
-                                });
-                            } else {
-                                provider = statusService.status.apiProvider;
-                                requestStationsOfService(provider.serviceID, provider.url, createMarkers);
-                            }
-                        }
+                        var provider = statusService.status.apiProvider;
+                        requestCounter++;
+                        requestStationsOfService(provider.serviceID, provider.url, createStation);
                     }
                 };
 
@@ -109,37 +123,12 @@ angular.module('n52.core.map', [])
                     });
                 };
 
-                var requestAggregatedStations = function (phenomenon) {
-                    aggregateCounter = 0;
-                    aggregateBounds = null;
-                    angular.copy({}, map.paths);
-                    angular.copy({}, map.bounds);
-                    if (statusService.status.concentrationMarker && phenomenon) {
-                        angular.forEach(phenomenon.provider, function (entry) {
-                            aggregateCounter++;
-                            requestTimeseriesOfService(entry.serviceID, entry.url, createAggregatedStations, entry.phenomenonID);
-                        });
-                    } else {
-                        if (phenomenon) {
-                            angular.forEach(phenomenon.provider, function (entry) {
-                                aggregateCounter++;
-                                requestStationsOfService(entry.serviceID, entry.url, createAggregatedStations, entry.phenomenonID);
-                            });
-                        } else {
-                            servicesHelper.doForAllServices(function (provider, url) {
-                                aggregateCounter++;
-                                requestStationsOfService(provider.id, url, createAggregatedStations);
-                            });
-                        }
-                    }
-                };
-
-                var createAggregatedStations = function (data, serviceUrl) {
-                    aggregateCounter--;
+                var createStation = function (data, serviceUrl) {
+                    requestCounter--;
                     if (data.length > 0) {
                         var firstElemCoord = getCoordinates(data[0]);
-                        if (!angular.isObject(aggregateBounds)) {
-                            aggregateBounds = {
+                        if (!angular.isObject(bounds)) {
+                            bounds = {
                                 topmost: firstElemCoord[1],
                                 bottommost: firstElemCoord[1],
                                 leftmost: firstElemCoord[0],
@@ -149,17 +138,17 @@ angular.module('n52.core.map', [])
                         angular.forEach(data, function (elem) {
                             var geom = getCoordinates(elem);
                             if (!isNaN(geom[0]) || !isNaN(geom[1])) {
-                                if (geom[0] > aggregateBounds.rightmost) {
-                                    aggregateBounds.rightmost = geom[0];
+                                if (geom[0] > bounds.rightmost) {
+                                    bounds.rightmost = geom[0];
                                 }
-                                if (geom[0] < aggregateBounds.leftmost) {
-                                    aggregateBounds.leftmost = geom[0];
+                                if (geom[0] < bounds.leftmost) {
+                                    bounds.leftmost = geom[0];
                                 }
-                                if (geom[1] > aggregateBounds.topmost) {
-                                    aggregateBounds.topmost = geom[1];
+                                if (geom[1] > bounds.topmost) {
+                                    bounds.topmost = geom[1];
                                 }
-                                if (geom[1] < aggregateBounds.bottommost) {
-                                    aggregateBounds.bottommost = geom[1];
+                                if (geom[1] < bounds.bottommost) {
+                                    bounds.bottommost = geom[1];
                                 }
                                 var i = 0, addedMarker;
                                 do {
@@ -173,52 +162,11 @@ angular.module('n52.core.map', [])
                                 } while (!addedMarker);
                             }
                         });
-                        if (aggregateCounter === 0)
-                            setBounds(aggregateBounds.bottommost, aggregateBounds.leftmost, aggregateBounds.topmost, aggregateBounds.rightmost);
+                        if (requestCounter === 0)
+                            setBounds(bounds.bottommost, bounds.leftmost, bounds.topmost, bounds.rightmost);
                     }
-                    if (aggregateCounter === 0)
+                    if (requestCounter === 0)
                         map.loading = false;
-                };
-
-                var createMarkers = function (data, serviceUrl) {
-                    angular.copy({}, map.paths);
-                    angular.copy({}, map.bounds);
-                    if (data.length > 0) {
-                        var firstElemCoord = getCoordinates(data[0]);
-                        var topmost = firstElemCoord[1];
-                        var bottommost = firstElemCoord[1];
-                        var leftmost = firstElemCoord[0];
-                        var rightmost = firstElemCoord[0];
-                        angular.forEach(data, function (elem) {
-                            var geom = getCoordinates(elem);
-                            if (!isNaN(geom[0]) || !isNaN(geom[1])) {
-                                if (geom[0] > rightmost) {
-                                    rightmost = geom[0];
-                                }
-                                if (geom[0] < leftmost) {
-                                    leftmost = geom[0];
-                                }
-                                if (geom[1] > topmost) {
-                                    topmost = geom[1];
-                                }
-                                if (geom[1] < bottommost) {
-                                    bottommost = geom[1];
-                                }
-                                var i = 0, addedMarker;
-                                do {
-                                    addedMarker = $injector.get(markerRenderer[i]).addMarker({
-                                        map: map,
-                                        geometry: geom,
-                                        element: elem,
-                                        serviceUrl: serviceUrl
-                                    });
-                                    i++;
-                                } while (!addedMarker);
-                            }
-                        });
-                        setBounds(bottommost, leftmost, topmost, rightmost);
-                    }
-                    map.loading = false;
                 };
 
                 var setBounds = function (bottommost, leftmost, topmost, rightmost) {
