@@ -1,7 +1,7 @@
 angular.module('n52.core.map', [])
-        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'servicesHelper',
-            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, servicesHelper) {
-                var stationMarkerIcon = settingsService.stationIconOptions ? settingsService.stationIconOptions : {};
+        .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'servicesHelper', '$injector',
+            function ($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, servicesHelper, $injector) {
+                var markerRenderer = ['statusIntervalMarkerRenderer', 'normalMarkerRenderer'];
                 var baselayer = settingsService.baselayer ? settingsService.baselayer : {
                     osm: {
                         name: 'Open Street Map',
@@ -65,22 +65,12 @@ angular.module('n52.core.map', [])
                 var requestStations = function (phenomenon) {
                     angular.copy({}, map.markers);
                     map.loading = true;
-                    var params;
                     if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
                         requestAggregatedStations(phenomenon);
                     } else {
                         if (statusService.status.concentrationMarker && phenomenon) {
                             angular.forEach(phenomenon.provider, function (provider) {
-                                params = {
-                                    service: provider.serviceID,
-                                    phenomenon: provider.phenomenonID,
-                                    expanded: true,
-                                    force_latest_values: true,
-                                    status_intervals: true
-                                };
-                                interfaceService.getTimeseries(null, provider.url, params).then(function (data) {
-                                    createMarkers(data, provider.url, provider.serviceID);
-                                });
+                                requestTimeseriesOfService(provider.serviceID, provider.url, createMarkers, provider.phenomenonID);
                             });
                         } else {
                             var provider;
@@ -96,13 +86,26 @@ angular.module('n52.core.map', [])
                     }
                 };
 
+                var requestTimeseriesOfService = function (serviceID, url, callback, phenomenonID) {
+                    var params = {
+                        service: serviceID,
+                        phenomenon: phenomenonID,
+                        expanded: true,
+                        force_latest_values: true,
+                        status_intervals: true
+                    };
+                    interfaceService.getTimeseries(null, url, params).then(function (data) {
+                        callback(data, url);
+                    });
+                };
+
                 var requestStationsOfService = function (serviceID, url, callback, phenomenonID) {
                     var params = {
                         service: serviceID,
                         phenomenon: phenomenonID
                     };
                     interfaceService.getStations(null, url, params).then(function (data) {
-                        callback(data, url, serviceID);
+                        callback(data, url);
                     });
                 };
 
@@ -111,25 +114,27 @@ angular.module('n52.core.map', [])
                     aggregateBounds = null;
                     angular.copy({}, map.paths);
                     angular.copy({}, map.bounds);
-                    if (phenomenon) {
+                    if (statusService.status.concentrationMarker && phenomenon) {
                         angular.forEach(phenomenon.provider, function (entry) {
                             aggregateCounter++;
-                            requestStationsOfService(entry.serviceID, entry.url, createAggregatedStations, entry.phenomenonID);
+                            requestTimeseriesOfService(entry.serviceID, entry.url, createAggregatedStations, entry.phenomenonID);
                         });
                     } else {
-                        servicesHelper.doForAllServices(function (provider, url, internalId) {
-                            aggregateCounter++;
-                            interfaceService.getStations(null, url, {
-                                service: provider.id,
-                                phenomenon: phenomenon
-                            }).then(function (data) {
-                                createAggregatedStations(data, url, provider.id + internalId);
+                        if (phenomenon) {
+                            angular.forEach(phenomenon.provider, function (entry) {
+                                aggregateCounter++;
+                                requestStationsOfService(entry.serviceID, entry.url, createAggregatedStations, entry.phenomenonID);
                             });
-                        });
+                        } else {
+                            servicesHelper.doForAllServices(function (provider, url) {
+                                aggregateCounter++;
+                                requestStationsOfService(provider.id, url, createAggregatedStations);
+                            });
+                        }
                     }
                 };
 
-                var createAggregatedStations = function (data, serviceUrl, serviceId) {
+                var createAggregatedStations = function (data, serviceUrl) {
                     aggregateCounter--;
                     if (data.length > 0) {
                         var firstElemCoord = getCoordinates(data[0]);
@@ -156,11 +161,16 @@ angular.module('n52.core.map', [])
                                 if (geom[1] < aggregateBounds.bottommost) {
                                     aggregateBounds.bottommost = geom[1];
                                 }
-                                if (statusService.status.concentrationMarker && isTimeseries(elem)) {
-                                    addColoredCircle(geom, elem);
-                                } else {
-                                    addNormalMarker(geom, elem, serviceUrl, serviceId);
-                                }
+                                var i = 0, addedMarker;
+                                do {
+                                    addedMarker = $injector.get(markerRenderer[i]).addMarker({
+                                        map: map,
+                                        geometry: geom,
+                                        element: elem,
+                                        serviceUrl: serviceUrl
+                                    });
+                                    i++;
+                                } while (!addedMarker);
                             }
                         });
                         if (aggregateCounter === 0)
@@ -170,7 +180,7 @@ angular.module('n52.core.map', [])
                         map.loading = false;
                 };
 
-                var createMarkers = function (data, serviceUrl, serviceId) {
+                var createMarkers = function (data, serviceUrl) {
                     angular.copy({}, map.paths);
                     angular.copy({}, map.bounds);
                     if (data.length > 0) {
@@ -194,11 +204,16 @@ angular.module('n52.core.map', [])
                                 if (geom[1] < bottommost) {
                                     bottommost = geom[1];
                                 }
-                                if (statusService.status.concentrationMarker && isTimeseries(elem)) {
-                                    addColoredCircle(geom, elem, serviceUrl, serviceId);
-                                } else {
-                                    addNormalMarker(geom, elem, serviceUrl, serviceId);
-                                }
+                                var i = 0, addedMarker;
+                                do {
+                                    addedMarker = $injector.get(markerRenderer[i]).addMarker({
+                                        map: map,
+                                        geometry: geom,
+                                        element: elem,
+                                        serviceUrl: serviceUrl
+                                    });
+                                    i++;
+                                } while (!addedMarker);
                             }
                         });
                         setBounds(bottommost, leftmost, topmost, rightmost);
@@ -224,75 +239,12 @@ angular.module('n52.core.map', [])
                     }
                 };
 
-                var isTimeseries = function (elem) {
-                    return angular.isDefined(elem.station);
-                };
-
                 var getCoordinates = function (elem) {
                     if (elem.geometry && elem.geometry.coordinates) {
                         return elem.geometry.coordinates;
                     } else {
                         return elem.station.geometry.coordinates;
                     }
-                };
-
-                var addNormalMarker = function (geom, elem, serviceUrl, serviceId) {
-                    var marker = {
-                        lat: geom[1],
-                        lng: geom[0],
-                        icon: stationMarkerIcon,
-                        stationsId: elem.properties.id,
-                        url: serviceUrl
-                    };
-                    if (statusService.status.clusterStations) {
-                        marker.layer = 'cluster';
-                    }
-                    map.markers[tidyUpStationId(elem.properties.id + serviceId)] = marker;
-                };
-
-                var addColoredCircle = function (geom, elem, serviceUrl, serviceId) {
-                    var interval = getMatchingInterval(elem);
-                    var fillcolor = interval && interval.color ? interval.color : settingsService.defaultMarkerColor;
-                    map.paths[tidyUpStationId(elem.station.properties.id + serviceId)] = {
-                        type: "circleMarker",
-                        latlngs: {
-                            lat: geom[1],
-                            lng: geom[0]
-                        },
-                        color: '#000',
-                        fillColor: fillcolor,
-                        fill: true,
-                        radius: 10,
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.8,
-                        stationsId: elem.station.properties.id,
-                        url: serviceUrl
-                    };
-                };
-
-                var tidyUpStationId = function (id) {
-                    return id.replace('-', '');
-                };
-
-                var getMatchingInterval = function (elem) {
-                    var matchedInterval = null;
-                    if (elem.lastValue && elem.statusIntervals) {
-                        var lastValue = elem.lastValue.value;
-                        angular.forEach(elem.statusIntervals, function (interval) {
-                            if (interval.upper === null) {
-                                interval.upper = Number.MAX_VALUE;
-                            }
-                            if (interval.lower === null) {
-                                interval.lower = Number.MIN_VALUE;
-                            }
-                            if (!isNaN(interval.upper) && !isNaN(interval.lower) && parseFloat(interval.lower) < lastValue && lastValue < parseFloat(interval.upper)) {
-                                matchedInterval = interval;
-                                return false;
-                            }
-                        });
-                    }
-                    return matchedInterval;
                 };
 
                 init();
