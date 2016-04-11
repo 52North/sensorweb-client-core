@@ -7,39 +7,20 @@ angular.module('n52.core.map')
                         mapid: '=',
                         controller: '='
                     },
-                    controller: ['$scope', '$uibModal', '$rootScope', 'mapService',
-                        function ($scope, $uibModal, $rootScope, mapService) {
+                    controller: ['$scope', '$rootScope', 'modalStationOpenSrvc',
+                        function ($scope, $rootScope, modalStationOpenSrvc) {
                             clickmarker = function (event, args) {
-                                $uibModal.open({
-                                    animation: true,
-                                    templateUrl: 'templates/map/station.html',
-                                    resolve: {
-                                        selection: function () {
-                                            var stationsId;
-                                            var url;
-                                            if (args.model) {
-                                                stationsId = args.model.stationsId ? args.model.stationsId : "";
-                                                url = args.model.url ? args.model.url : "";
-                                            } else if (args.leafletObject && args.leafletObject.options) {
-                                                stationsId = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : "";
-                                                url = args.leafletObject.options.url ? args.leafletObject.options.url : "";
-                                            }
-                                            var phenomenonId;
-                                            if (mapService.map.selectedPhenomenon) {
-                                                angular.forEach(mapService.map.selectedPhenomenon.provider, function (provider) {
-                                                    if (url === provider.url)
-                                                        phenomenonId = provider.phenomenonID;
-                                                });
-                                            }
-                                            return {
-                                                stationId: stationsId,
-                                                phenomenonId: phenomenonId,
-                                                url: url
-                                            };
-                                        }
-                                    },
-                                    controller: $scope.controller
-                                });
+                                var station = {
+                                    ctrl : $scope.controller
+                                };
+                                if (args.model) {
+                                    station.id = args.model.stationsId ? args.model.stationsId : "";
+                                    station.url = args.model.url ? args.model.url : "";
+                                } else if (args.leafletObject && args.leafletObject.options) {
+                                    station.id = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : "";
+                                    station.url = args.leafletObject.options.url ? args.leafletObject.options.url : "";
+                                }
+                                modalStationOpenSrvc.openStation(station);
                             };
                             var mapId = $scope.mapid;
                             var pathClickListener = $rootScope.$on('leafletDirectivePath.' + mapId + '.click', clickmarker);
@@ -49,5 +30,35 @@ angular.module('n52.core.map')
                                 markerClickListener();
                             });
                         }]
+                };
+            }])
+        .factory('modalStationOpenSrvc', ['$uibModal','mapService',
+            function ($uibModal, mapService) {
+                function openStation(station) {
+                    $uibModal.open({
+                        animation: true,
+                        templateUrl: 'templates/map/station.html',
+                        resolve: {
+                            selection: function () {
+                                var url = station.url;
+                                var phenomenonId;
+                                if (mapService.map.selectedPhenomenon) {
+                                    angular.forEach(mapService.map.selectedPhenomenon.provider, function (provider) {
+                                        if (url === provider.url)
+                                            phenomenonId = provider.phenomenonID;
+                                    });
+                                }
+                                return {
+                                    stationId: station.id,
+                                    phenomenonId: phenomenonId,
+                                    url: url
+                                };
+                            }
+                        },
+                        controller: station.ctrl || 'SwcModalStationCtrl'
+                    });
+                }
+                return {
+                    openStation: openStation
                 };
             }]);

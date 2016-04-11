@@ -68,7 +68,7 @@ angular.module('n52.core.map')
                 };
                 
                 var needsTimeseriesRequested = function() {
-                    return statusService.status.concentrationMarker;;
+                    return statusService.status.concentrationMarker;
                 };
 
                 return {
