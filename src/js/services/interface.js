@@ -1,8 +1,7 @@
 angular.module('n52.core.interface', [])
         .service('interfaceService', ['$http', '$q', 'statusService', 'interfaceServiceUtils', 'utils',
             function ($http, $q, statusService, interfaceServiceUtils, utils) {
-                debugger;
-
+                
                 this.getServices = function (apiUrl, id) {
                     return $q(function (resolve, reject) {
                         $http.get(apiUrl + 'services/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs({expanded: true}))
