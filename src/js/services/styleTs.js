@@ -1,6 +1,6 @@
 angular.module('n52.core.styleTs', [])
-        .factory('styleService', ['$rootScope', 'settingsService', 'colorService',
-            function ($rootScope, settingsService, colorService) {
+        .factory('styleService', ['$rootScope', 'settingsService', 'colorService', '$injector',
+            function ($rootScope, settingsService, colorService, $injector) {
                 var defaultIntervalList = [
                     {label: 'styleChange.barChartInterval.hour', caption: 'byHour', value: 1},
                     {label: 'styleChange.barChartInterval.day', caption: 'byDay', value: 24},
@@ -53,6 +53,12 @@ angular.module('n52.core.styleTs', [])
 
                 function updateZeroScaled(ts) {
                     ts.styles.zeroScaled = !ts.styles.zeroScaled;
+                    var tsSrv = $injector.get('timeseriesService');
+                    angular.forEach(tsSrv.getAllTimeseries(), function(timeseries){
+                        if(timeseries.uom === ts.uom && ts.styles.groupedAxis) {
+                            timeseries.styles.zeroScaled = ts.styles.zeroScaled;
+                        }
+                    });
                     $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
