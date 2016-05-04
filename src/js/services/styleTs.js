@@ -1,6 +1,6 @@
 angular.module('n52.core.styleTs', [])
-        .factory('styleService', ['$rootScope', 'settingsService', 'colorService',
-            function ($rootScope, settingsService, colorService) {
+        .factory('styleService', ['$rootScope', 'settingsService', 'colorService', '$injector',
+            function ($rootScope, settingsService, colorService, $injector) {
                 var defaultIntervalList = [
                     {label: 'styleChange.barChartInterval.hour', caption: 'byHour', value: 1},
                     {label: 'styleChange.barChartInterval.day', caption: 'byDay', value: 24},
@@ -11,17 +11,21 @@ angular.module('n52.core.styleTs', [])
                 var intervalList = settingsService.intervalList || defaultIntervalList;
 
                 function createStylesInTs(ts) {
-                    ts.styles = {};
-                    ts.styles.color = ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
+                    if (!ts.styles) {
+                        ts.styles = {};
+                    }
+                    ts.styles.color = ts.styles.color || ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
                     ts.styles.visible = true;
                     ts.styles.selected = false;
-                    ts.styles.zeroScaled = false;
-                    ts.styles.groupedAxis = true;
+                    if (angular.isUndefined(ts.styles.zeroScaled))
+                        ts.styles.zeroScaled = false;
+                    if (angular.isUndefined(ts.styles.groupedAxis))
+                        ts.styles.groupedAxis = true;
                     angular.forEach(ts.referenceValues, function (refValue) {
                         refValue.color = colorService.getRefColor(refValue.referenceValueId);
                     });
                 }
-                
+
                 function deleteStyle(ts) {
                     colorService.removeColor(ts.styles.color);
                     angular.forEach(ts.referenceValues, function (refValue) {
@@ -53,6 +57,14 @@ angular.module('n52.core.styleTs', [])
 
                 function updateZeroScaled(ts) {
                     ts.styles.zeroScaled = !ts.styles.zeroScaled;
+                    if (ts.styles.groupedAxis) {
+                        var tsSrv = $injector.get('timeseriesService');
+                        angular.forEach(tsSrv.getAllTimeseries(), function (timeseries) {
+                            if (timeseries.uom === ts.uom && timeseries.styles.groupedAxis) {
+                                timeseries.styles.zeroScaled = ts.styles.zeroScaled;
+                            }
+                        });
+                    }
                     $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 

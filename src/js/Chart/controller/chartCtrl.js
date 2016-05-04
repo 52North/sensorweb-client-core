@@ -136,13 +136,13 @@ angular.module('n52.core.diagram', [])
                                 elem.styles.yaxis = axesList[uom].id;
                             }
                         } else {
-                            axesList[elem.id] = {
+                            axesList[elem.internalId] = {
                                 id: ++Object.keys(axesList).length,
                                 uom: uom + " @ " + elem.station.properties.label,
                                 tsColors: [elem.styles.color],
                                 zeroScaled: elem.styles.zeroScaled
                             };
-                            elem.yaxis = axesList[elem.id].id;
+                            elem.styles.yaxis = axesList[elem.internalId].id;
                         }
                     });
                     var axes = [];
@@ -206,7 +206,8 @@ angular.module('n52.core.diagram', [])
                                             dataset.push({
                                                 id: id + '_refVal_' + refValue.referenceValueId,
                                                 color: refValue.color,
-                                                data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId]
+                                                data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId],
+                                                type: 'refVal'
                                             });
                                         }
                                     }
@@ -262,7 +263,7 @@ angular.module('n52.core.diagram', [])
 
                 function removeData(dataset, id) {
                     for (var i = dataset.length - 1; i >= 0; i--) {
-                        if (dataset[i].id.indexOf(id) === 0)
+                        if (dataset[i].id === id || dataset[i].id.indexOf(id) >= 0 && dataset[i].type === 'refVal')
                             dataset.splice(i, 1);
                     }
                 }
