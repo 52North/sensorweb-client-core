@@ -136,13 +136,13 @@ angular.module('n52.core.diagram', [])
                                 elem.styles.yaxis = axesList[uom].id;
                             }
                         } else {
-                            axesList[elem.id] = {
+                            axesList[elem.internalId] = {
                                 id: ++Object.keys(axesList).length,
                                 uom: uom + " @ " + elem.station.properties.label,
                                 tsColors: [elem.styles.color],
                                 zeroScaled: elem.styles.zeroScaled
                             };
-                            elem.yaxis = axesList[elem.id].id;
+                            elem.styles.yaxis = axesList[elem.internalId].id;
                         }
                     });
                     var axes = [];

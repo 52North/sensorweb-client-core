@@ -21,7 +21,7 @@ angular.module('n52.core.styleTs', [])
                         refValue.color = colorService.getRefColor(refValue.referenceValueId);
                     });
                 }
-                
+
                 function deleteStyle(ts) {
                     colorService.removeColor(ts.styles.color);
                     angular.forEach(ts.referenceValues, function (refValue) {
@@ -53,12 +53,14 @@ angular.module('n52.core.styleTs', [])
 
                 function updateZeroScaled(ts) {
                     ts.styles.zeroScaled = !ts.styles.zeroScaled;
-                    var tsSrv = $injector.get('timeseriesService');
-                    angular.forEach(tsSrv.getAllTimeseries(), function(timeseries){
-                        if(timeseries.uom === ts.uom && ts.styles.groupedAxis) {
-                            timeseries.styles.zeroScaled = ts.styles.zeroScaled;
-                        }
-                    });
+                    if (ts.styles.groupedAxis) {
+                        var tsSrv = $injector.get('timeseriesService');
+                        angular.forEach(tsSrv.getAllTimeseries(), function (timeseries) {
+                            if (timeseries.uom === ts.uom && timeseries.styles.groupedAxis) {
+                                timeseries.styles.zeroScaled = ts.styles.zeroScaled;
+                            }
+                        });
+                    }
                     $rootScope.$emit('timeseriesChanged', ts.internalId);
                 }
 
