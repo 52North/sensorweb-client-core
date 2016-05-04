@@ -11,12 +11,16 @@ angular.module('n52.core.styleTs', [])
                 var intervalList = settingsService.intervalList || defaultIntervalList;
 
                 function createStylesInTs(ts) {
-                    ts.styles = {};
-                    ts.styles.color = ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
+                    if (!ts.styles) {
+                        ts.styles = {};
+                    }
+                    ts.styles.color = ts.styles.color || ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
                     ts.styles.visible = true;
                     ts.styles.selected = false;
-                    ts.styles.zeroScaled = false;
-                    ts.styles.groupedAxis = true;
+                    if (angular.isUndefined(ts.styles.zeroScaled))
+                        ts.styles.zeroScaled = false;
+                    if (angular.isUndefined(ts.styles.groupedAxis))
+                        ts.styles.groupedAxis = true;
                     angular.forEach(ts.referenceValues, function (refValue) {
                         refValue.color = colorService.getRefColor(refValue.referenceValueId);
                     });
