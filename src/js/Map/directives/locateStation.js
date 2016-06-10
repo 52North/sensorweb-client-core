@@ -1,7 +1,7 @@
 angular.module('n52.core.map')
         .service('locateStationService', ['$injector', '$rootScope', 'settingsService',
             function ($injector, $rootScope, settingsService) {
-                this.showStation = function (mapId, mapService, timeseries) {
+                this.showStation = function (mapService, timeseries) {
                     var service = $injector.get(mapService);
                     var map = service.map;
                     if (timeseries && timeseries.station) {
@@ -19,12 +19,12 @@ angular.module('n52.core.map')
                             lng: timeseries.station.geometry.coordinates[0],
                             zoom: 12
                         };
-                        var popupClosed = $rootScope.$on('leafletDirectiveMap.' + mapId + '.popupclose', function () {
+                        var popupClosed = $rootScope.$on('leafletDirectiveMap.' + map.id + '.popupclose', function () {
                             popupClosed();
                             mapClosed();
                             delete map.markers.selectedStation;
                         });
-                        var mapClosed = $rootScope.$on('leafletDirectiveMap.' + mapId + '.unload', function () {
+                        var mapClosed = $rootScope.$on('leafletDirectiveMap.' + map.id + '.unload', function () {
                             popupClosed();
                             mapClosed();
                             delete map.markers.selectedStation;
