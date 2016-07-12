@@ -2,13 +2,13 @@
 angular.module('n52.core.interface')
         .config(['$provide',
           function ($provide) {
-            $provide.decorator('interfaceService', ['$delegate', '$q', 'statusService', '$http', 'interfaceServiceUtils', 'utils',
-              function ($delegate, $q, statusService, $http, interfaceServiceUtils, utils) {
+            $provide.decorator('interfaceService', ['$delegate', '$q', '$http', 'interfaceServiceUtils', 'utils',
+              function ($delegate, $q, $http, interfaceServiceUtils, utils) {
                 var maxTimeExtent = moment.duration(365, 'day'), promises;
 
-                $delegate.getTsData = function (id, apiUrl, timespan, extendedData) {
+                $delegate.getTsData = function (id, apiUrl, timespan, extendedData, generalizeData) {
                   var params = {
-                    generalize: statusService.status.generalizeData || false,
+                    generalize: generalizeData || false,
                     expanded: true,
                     format: 'flot'
                   };
@@ -21,7 +21,7 @@ angular.module('n52.core.interface')
                     var start = moment(timespan.start);
                     while (start.isBefore(moment(timespan.end))) {
                       var step = moment(start).add(maxTimeExtent);
-                      var promise = $delegate.getTsData(id, apiUrl, {start: start, end: step}, extendedData);
+                      var promise = $delegate.getTsData(id, apiUrl, {start: start, end: step}, extendedData, generalizeData);
                       promises.push(promise);
                       start = step;
                     }

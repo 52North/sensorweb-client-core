@@ -1,6 +1,6 @@
 angular.module('n52.core.interface', [])
-        .service('interfaceService', ['$http', '$q', 'statusService', 'interfaceServiceUtils', 'utils',
-          function ($http, $q, statusService, interfaceServiceUtils, utils) {
+        .service('interfaceService', ['$http', '$q', 'interfaceServiceUtils', 'utils',
+          function ($http, $q, interfaceServiceUtils, utils) {
 
             this.getServices = function (apiUrl, id) {
               return $q(function (resolve, reject) {
@@ -115,10 +115,10 @@ angular.module('n52.core.interface', [])
               });
             };
 
-            this.getTsData = function (id, apiUrl, timespan, extendedData) {
+            this.getTsData = function (id, apiUrl, timespan, extendedData, generalizeData) {
               var params = {
                 timespan: utils.createRequestTimespan(timespan.start, timespan.end),
-                generalize: statusService.status.generalizeData || false,
+                generalize: generalizeData || false,
                 expanded: true,
                 format: 'flot'
               };
