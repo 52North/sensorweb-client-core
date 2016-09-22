@@ -1,15 +1,40 @@
 angular.module('n52.core.interface', [])
-    .service('interfaceService', ['$http', '$q', 'interfaceServiceUtils', 'utils', 'interfaceV2Service',
-        function($http, $q, interfaceServiceUtils, utils, interfaceV2Service) {
+    .service('interfaceService', ['$http', '$q', 'interfaceServiceUtils', 'utils',
+        function($http, $q, interfaceServiceUtils, utils) {
+
+            getPlatforms = function(id, apiUrl, params) {
+                return $q((resolve, reject) => {
+                    $http.get(apiUrl + 'platforms/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                        .then(response => {
+                            resolve(response.data);
+                        }, error => {
+                            interfaceServiceUtils.errorCallback(error, reject);
+                        });
+                });
+            };
+
+            this.getMobilePlatforms = function(id, apiUrl, params) {
+                interfaceServiceUtils.extendParams(params, {
+                    platformTypes: 'mobile'
+                });
+                return getPlatforms(id, apiUrl, params);
+            };
+
+            this.getStationaryPlatforms = function(id, apiUrl, params) {
+                interfaceServiceUtils.extendParams(params, {
+                    platformTypes: 'stationary'
+                });
+                return getPlatforms(id, apiUrl, params);
+            };
 
             this.getServices = function(apiUrl, id) {
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'services/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs({
                             expanded: true
                         }))
-                        .then(function(response) {
+                        .then(response => {
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
@@ -20,16 +45,16 @@ angular.module('n52.core.interface', [])
                     this.getServices(apiUrl).then(response => {
                         if (isNaN(response[0].quantities.platforms)) {
                             $http.get(apiUrl + 'stations/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                                .then(function(response) {
+                                .then(response => {
                                     resolve(response.data);
-                                }, function(error) {
+                                }, error => {
                                     interfaceServiceUtils.errorCallback(error, reject);
                                 });
                         } else {
                             interfaceServiceUtils.extendParams(params, {
                                 expanded: true
                             });
-                            interfaceV2Service.getStationaryPlatforms(id, apiUrl, params)
+                            this.getStationaryPlatforms(id, apiUrl, params)
                                 .then(response => {
                                     if (isNaN(response.length)) {
                                         response.properties = {
@@ -50,57 +75,57 @@ angular.module('n52.core.interface', [])
             };
 
             this.getPhenomena = function(id, apiUrl, params) {
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'phenomena/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                        .then(function(response) {
+                        .then(response => {
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
             };
 
             this.getCategories = function(id, apiUrl, params) {
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'categories/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                        .then(function(response) {
+                        .then(response => {
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
             };
 
             this.getFeatures = function(id, apiUrl, params) {
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'features/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                        .then(function(response) {
+                        .then(response => {
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
             };
 
             this.getProcedures = function(id, apiUrl, params) {
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'procedures/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                        .then(function(response) {
+                        .then(response => {
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
             };
 
             this.search = function(apiUrl, arrayParams) {
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'search', interfaceServiceUtils.createRequestConfigs({
                             q: arrayParams.join(',')
                         }))
-                        .then(function(response) {
+                        .then(response => {
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
@@ -113,30 +138,30 @@ angular.module('n52.core.interface', [])
                 params.force_latest_values = true;
                 params.status_intervals = true;
                 params.rendering_hints = true;
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                        .then(function(response) {
+                        .then(response => {
                             if (angular.isArray(response.data)) {
                                 var array = [];
-                                angular.forEach(response.data, function(ts) {
+                                angular.forEach(response.data, ts => {
                                     array.push(interfaceServiceUtils.pimpTs(ts, apiUrl));
                                 });
                                 resolve(array);
                             } else {
                                 resolve(interfaceServiceUtils.pimpTs(response.data, apiUrl));
                             }
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
             };
 
             this.getExtras = function(tsId, apiUrl, params) {
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(tsId) + '/extras', interfaceServiceUtils.createRequestConfigs(params))
-                        .then(function(response) {
+                        .then(response => {
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
@@ -152,12 +177,40 @@ angular.module('n52.core.interface', [])
                 if (extendedData) {
                     angular.extend(params, extendedData);
                 }
-                return $q(function(resolve, reject) {
+                return $q((resolve, reject) => {
                     $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id) + "/getData", interfaceServiceUtils.createRequestConfigs(params))
-                        .then(function(response) {
+                        .then(response => {
                             interfaceServiceUtils.revampTimeseriesData(response.data, id);
                             resolve(response.data);
-                        }, function(error) {
+                        }, error => {
+                            interfaceServiceUtils.errorCallback(error, reject);
+                        });
+                });
+            };
+
+            this.getDatasets = function(id, apiUrl, params) {
+                return $q((resolve, reject) => {
+                    $http.get(apiUrl + 'datasets/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                        .then(response => {
+                            resolve(response.data);
+                        }, error => {
+                            interfaceServiceUtils.errorCallback(error, reject);
+                        });
+                });
+            };
+
+            this.getDatasetData = function(id, apiUrl, timespan, extendedParams) {
+                var params = {
+                    timespan: utils.createRequestTimespan(timespan.start, timespan.end)
+                };
+                if (extendedParams) {
+                    angular.extend(params, extendedParams);
+                }
+                return $q((resolve, reject) => {
+                    $http.get(apiUrl + 'datasets/' + interfaceServiceUtils.createIdString(id) + '/data', interfaceServiceUtils.createRequestConfigs(params))
+                        .then(response => {
+                            resolve(response.data);
+                        }, error => {
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
@@ -209,7 +262,7 @@ angular.module('n52.core.interface', [])
             this.revampTimeseriesData = function(data, id) {
                 if (data[id].values.length > 0 && data[id].values[0].timestamp) {
                     var temp = [];
-                    angular.forEach(data[id].values, function(entry) {
+                    angular.forEach(data[id].values, entry => {
                         temp.push([entry.timestamp, entry.value]);
                     });
                     data[id].values = temp;
