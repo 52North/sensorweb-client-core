@@ -2,7 +2,7 @@ angular.module('n52.core.interface')
     .service('interfaceV2Service', ['$http', '$q', 'interfaceServiceUtils', 'utils',
         function($http, $q, interfaceServiceUtils, utils) {
 
-            this.getMobilePlatforms = function(id, apiUrl, params) {
+            getPlatforms = function(id, apiUrl, params) {
                 return $q(function(resolve, reject) {
                     $http.get(apiUrl + 'platforms/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(function(response) {
@@ -11,6 +11,20 @@ angular.module('n52.core.interface')
                             interfaceServiceUtils.errorCallback(error, reject);
                         });
                 });
+            };
+
+            this.getMobilePlatforms = function(id, apiUrl, params) {
+                interfaceServiceUtils.extendParams(params, {
+                    platformTypes: 'mobile'
+                });
+                return getPlatforms(id, apiUrl, params);
+            };
+
+            this.getStationaryPlatforms = function(id, apiUrl, params) {
+                interfaceServiceUtils.extendParams(params, {
+                    platformTypes: 'stationary'
+                });
+                return getPlatforms(id, apiUrl, params);
             };
 
             this.getFeatures = function(id, apiUrl, params) {
