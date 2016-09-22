@@ -2,6 +2,21 @@ angular.module('n52.core.interface', [])
     .service('interfaceService', ['$http', '$q', 'interfaceServiceUtils', 'utils',
         function($http, $q, interfaceServiceUtils, utils) {
 
+            isNewApi = function(apiUrl) {
+                return $q((resolve, reject) => {
+                    $http.get(apiUrl).then(response => {
+                        if (response && response.data && !isNaN(response.data.length)) {
+                            response.data.forEach(entry => {
+                                if (entry.id === 'platforms') {
+                                    resolve(true);
+                                }
+                            });
+                        }
+                        resolve(false);
+                    });
+                });
+            };
+
             getPlatforms = function(id, apiUrl, params) {
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'platforms/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
@@ -42,15 +57,8 @@ angular.module('n52.core.interface', [])
 
             this.getStations = function(id, apiUrl, params) {
                 return $q((resolve, reject) => {
-                    this.getServices(apiUrl).then(response => {
-                        if (isNaN(response[0].quantities.platforms)) {
-                            $http.get(apiUrl + 'stations/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                                .then(response => {
-                                    resolve(response.data);
-                                }, error => {
-                                    interfaceServiceUtils.errorCallback(error, reject);
-                                });
-                        } else {
+                    isNewApi(apiUrl).then(isNew => {
+                        if (isNew) {
                             interfaceServiceUtils.extendParams(params, {
                                 expanded: true
                             });
@@ -68,6 +76,13 @@ angular.module('n52.core.interface', [])
                                         });
                                     }
                                     resolve(response);
+                                });
+                        } else {
+                            $http.get(apiUrl + 'stations/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                                .then(response => {
+                                    resolve(response.data);
+                                }, error => {
+                                    interfaceServiceUtils.errorCallback(error, reject);
                                 });
                         }
                     });
