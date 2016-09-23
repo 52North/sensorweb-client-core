@@ -65,17 +65,22 @@ angular.module('n52.core.listSelection')
 
             $scope.requestItems = function(currParam, itemsTypeFunc) {
                 var paramConstellation;
+                currParam.loading = 0;
                 if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
                     servicesHelper.doForAllServices(function(provider, url) {
                         paramConstellation = $scope.createParams(url, provider.id);
-                        if (paramConstellation)
+                        if (paramConstellation) {
+                            currParam.loading++;
                             itemsTypeFunc(url, provider.id, currParam, paramConstellation);
+                        }
                     });
                 } else {
                     var provider = statusService.status.apiProvider;
                     paramConstellation = $scope.createParams(provider.url, provider.serviceID);
-                    if (paramConstellation)
+                    if (paramConstellation) {
+                        currParam.loading++;
                         itemsTypeFunc(provider.url, provider.serviceID, currParam, paramConstellation);
+                    }
                 }
             };
 
@@ -104,6 +109,7 @@ angular.module('n52.core.listSelection')
             };
 
             addEntries = function(data, serviceID, url, currParam) {
+                currParam.loading--;
                 angular.forEach(data, function(entry) {
                     var categorie = {
                         serviceID: serviceID,
