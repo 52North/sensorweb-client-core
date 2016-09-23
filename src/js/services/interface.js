@@ -17,6 +17,12 @@ angular.module('n52.core.interface', [])
                 });
             };
 
+            addAllPlatformTypes = function(params) {
+                if (params && !params.platformTypes)
+                    params.platformTypes = 'all';
+                return params;
+            };
+
             getPlatforms = function(id, apiUrl, params) {
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'platforms/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
@@ -90,6 +96,7 @@ angular.module('n52.core.interface', [])
             };
 
             this.getPhenomena = function(id, apiUrl, params) {
+                addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'phenomena/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(response => {
@@ -101,6 +108,7 @@ angular.module('n52.core.interface', [])
             };
 
             this.getCategories = function(id, apiUrl, params) {
+                addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'categories/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(response => {
@@ -112,6 +120,7 @@ angular.module('n52.core.interface', [])
             };
 
             this.getFeatures = function(id, apiUrl, params) {
+                addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'features/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(response => {
@@ -123,6 +132,7 @@ angular.module('n52.core.interface', [])
             };
 
             this.getProcedures = function(id, apiUrl, params) {
+                addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'procedures/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(response => {
@@ -154,20 +164,40 @@ angular.module('n52.core.interface', [])
                 params.status_intervals = true;
                 params.rendering_hints = true;
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
-                        .then(response => {
-                            if (angular.isArray(response.data)) {
-                                var array = [];
-                                angular.forEach(response.data, ts => {
-                                    array.push(interfaceServiceUtils.pimpTs(ts, apiUrl));
+                    isNewApi(apiUrl).then(isNew => {
+                        if (isNew) {
+                            this.getDatasets(id, apiUrl, params)
+                                .then(response => {
+                                    if (isNaN(response.length)) {
+                                        response.properties = {
+                                            id: response.id
+                                        };
+                                    } else {
+                                        response.forEach(entry => {
+                                            entry.properties = {
+                                                id: entry.id
+                                            };
+                                        });
+                                    }
+                                    resolve(response);
                                 });
-                                resolve(array);
-                            } else {
-                                resolve(interfaceServiceUtils.pimpTs(response.data, apiUrl));
-                            }
-                        }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
-                        });
+                        } else {
+                            $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                                .then(response => {
+                                    if (angular.isArray(response.data)) {
+                                        var array = [];
+                                        angular.forEach(response.data, ts => {
+                                            array.push(interfaceServiceUtils.pimpTs(ts, apiUrl));
+                                        });
+                                        resolve(array);
+                                    } else {
+                                        resolve(interfaceServiceUtils.pimpTs(response.data, apiUrl));
+                                    }
+                                }, error => {
+                                    interfaceServiceUtils.errorCallback(error, reject);
+                                });
+                        }
+                    });
                 });
             };
 

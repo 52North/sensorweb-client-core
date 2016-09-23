@@ -1,6 +1,6 @@
 angular.module('n52.core.listSelection')
-    .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'servicesHelper',
-        function($scope, interfaceService, statusService, timeseriesService, $rootScope, listSelectionSrvc, settingsService, servicesHelper) {
+    .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'servicesHelper', 'serviceFinder', '$location',
+        function($scope, interfaceService, statusService, timeseriesService, $rootScope, listSelectionSrvc, settingsService, servicesHelper, serviceFinder, $location) {
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
@@ -164,7 +164,7 @@ angular.module('n52.core.listSelection')
                     $scope.openNext($scope.selectedParameterIndex + 1);
                 } else {
                     if (item.provider.length === 1) {
-                        $scope.addToDiagram($scope.createParams(item.provider[0].url, item.provider[0].serviceID), item.provider[0].url);
+                        $scope.processSelection($scope.createParams(item.provider[0].url, item.provider[0].serviceID), item.provider[0].url);
                     }
                 }
             };
@@ -186,8 +186,17 @@ angular.module('n52.core.listSelection')
                 });
             };
 
-            $scope.addToDiagram = function(params, url) {
-                timeseriesService.addTimeseriesById(null, url, params);
+            $scope.processSelection = function(params, url) {
+                interfaceService.getTimeseries(null, url, params).then(result => {
+                    // TODO iterate over results
+                    var dataset = result[0];
+                    if (dataset.datasetType) {
+                        serviceFinder.getPresentDataset(dataset.datasetType, url).presentDataset(dataset, url);
+                    } else {
+                        timeseriesService.addTimeseries(dataset);
+                        $location.url('/diagram');
+                    }
+                });
             };
 
             if ($scope.listselectionid) {
