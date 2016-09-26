@@ -1,4 +1,4 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     // Project configuration.
     grunt.initConfig({
@@ -7,6 +7,8 @@ module.exports = function (grunt) {
         jshint: {
             files: ['gruntfile.js', 'src/js/**/*.js', 'test/**/*.js'],
             options: {
+                reporterOutput: "",
+                esnext: true,
                 // more options here if you want to override JSHint defaults
                 globals: {
                     jQuery: true,
