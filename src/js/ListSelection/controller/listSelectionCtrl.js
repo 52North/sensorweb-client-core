@@ -197,7 +197,7 @@ angular.module('n52.core.listSelection')
                     // TODO iterate over results
                     var dataset = result[0];
                     if (dataset.datasetType) {
-                        serviceFinder.getPresentDataset(dataset.datasetType, url).presentDataset(dataset, url);
+                        serviceFinder.getPresentDataset(dataset.datasetType, dataset.seriesParameters.platform.platformType, url).presentDataset(dataset, url);
                     } else {
                         timeseriesService.addTimeseries(dataset);
                         $location.url('/diagram');

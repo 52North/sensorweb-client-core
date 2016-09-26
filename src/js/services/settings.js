@@ -200,12 +200,15 @@ angular.module('n52.core.settings', [])
     .service('serviceFinder', ['settingsService', '$injector',
         function(settingsService, $injector) {
 
-            this.getPresentDataset = function(datasetType, providerUrl) {
+            this.getPresentDataset = function(datasetType, platformType, providerUrl) {
                 var presentDataset = settingsService.presentDataset;
                 if (datasetType in presentDataset && presentDataset[datasetType].length) {
                     var serviceString;
                     presentDataset[datasetType].some(entry => {
-                        if (entry && !entry.url || entry.url === providerUrl) {
+                        if (entry &&
+                            !entry.url || entry.url === providerUrl &&
+                            !entry.platformType || entry.platformType === platformType
+                        ) {
                             serviceString = entry.service;
                             return true;
                         }
