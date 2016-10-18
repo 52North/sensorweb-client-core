@@ -200,24 +200,53 @@ angular.module('n52.core.settings', [])
     .service('serviceFinder', ['settingsService', '$injector',
         function(settingsService, $injector) {
 
-            this.getPresentDataset = function(datasetType, platformType, providerUrl) {
-                var presentDataset = settingsService.presentDataset;
-                if (datasetType in presentDataset && presentDataset[datasetType].length) {
-                    var serviceString;
-                    presentDataset[datasetType].some(entry => {
-                        if (entry &&
-                            !entry.url || entry.url === providerUrl &&
-                            !entry.platformType || entry.platformType === platformType
-                        ) {
-                            serviceString = entry.service;
-                            return true;
-                        }
-                    });
-                    return $injector.get(serviceString);
+            this.getDatasetPresenter = function(datasetType, platformType, providerUrl) {
+                var datasetPresenterConfig = settingsService.datasetPresenter;
+                if (datasetPresenterConfig) {
+                    if (datasetType in datasetPresenterConfig && datasetPresenterConfig[datasetType].length) {
+                        var serviceString;
+                        datasetPresenterConfig[datasetType].some(entry => {
+                            if (entry &&
+                                !entry.url || entry.url === providerUrl &&
+                                !entry.platformType || entry.platformType === platformType
+                            ) {
+                                serviceString = entry.service;
+                                return true;
+                            }
+                        });
+                        return $injector.get(serviceString);
+                    }
                 }
-                // TODO integrate a default service
-                console.error('Doesn\'t find a service for the datasetType ' + datasetType + '. Please check the settings of the client.');
-                return null;
+                switch (datasetType) {
+                    case 'measurement':
+                        return $injector.get('measurementPresentDataset');
+                    default:
+                        console.error('Doesn\'t find a service for the datasetType \'' + datasetType + '\' with platformType \'' + platformType + '\'. Please check the settings of the client.');
+                        return null;
+                }
+            };
+
+            this.getPlatformPresenter = function(platformType, providerUrl) {
+                var platformPresenterConfig = settingsService.platformPresenter;
+                if (platformPresenterConfig) {
+                    if (platformType in platformPresenterConfig && platformPresenterConfig[platformType].length) {
+                        var serviceString;
+                        platformPresenterConfig[platformType].some(entry => {
+                            if (entry && !entry.url || entry.url === providerUrl) {
+                                serviceString = entry.service;
+                                return true;
+                            }
+                        });
+                        return $injector.get(serviceString);
+                    }
+                }
+                switch (platformType) {
+                    case 'stationary_insitu':
+                        return $injector.get('modalStationaryInsituOpenSrvc');
+                    default:
+                        console.warn('Doesn\'t find a service for the platformType \'' + platformType + '\'. Please check the settings of the client.');
+                        return null;
+                }
             };
 
         }

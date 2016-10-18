@@ -4,7 +4,7 @@ angular.module('n52.core.interface', [])
 
             isNewApi = function(apiUrl) {
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl).then(response => {
+                    $http.get(apiUrl, interfaceServiceUtils.createRequestConfigs()).then(response => {
                         if (response && response.data && !isNaN(response.data.length)) {
                             response.data.forEach(entry => {
                                 if (entry.id === 'platforms') {
@@ -23,7 +23,7 @@ angular.module('n52.core.interface', [])
                 return params;
             };
 
-            getPlatforms = function(id, apiUrl, params) {
+            this.getPlatforms = function(id, apiUrl, params) {
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'platforms/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(response => {
@@ -38,14 +38,14 @@ angular.module('n52.core.interface', [])
                 interfaceServiceUtils.extendParams(params, {
                     platformTypes: 'mobile'
                 });
-                return getPlatforms(id, apiUrl, params);
+                return this.getPlatforms(id, apiUrl, params);
             };
 
             this.getStationaryPlatforms = function(id, apiUrl, params) {
                 interfaceServiceUtils.extendParams(params, {
                     platformTypes: 'stationary'
                 });
-                return getPlatforms(id, apiUrl, params);
+                return this.getPlatforms(id, apiUrl, params);
             };
 
             this.getServices = function(apiUrl, id) {
@@ -72,12 +72,14 @@ angular.module('n52.core.interface', [])
                                 .then(response => {
                                     if (isNaN(response.length)) {
                                         response.properties = {
-                                            id: response.id
+                                            id: response.id,
+                                            timeseries: response.datasets
                                         };
                                     } else {
                                         response.forEach(entry => {
                                             entry.properties = {
-                                                id: entry.id
+                                                id: entry.id,
+                                                timeseries: entry.datasets
                                             };
                                         });
                                     }
@@ -169,14 +171,10 @@ angular.module('n52.core.interface', [])
                             this.getDatasets(id, apiUrl, params)
                                 .then(response => {
                                     if (isNaN(response.length)) {
-                                        response.properties = {
-                                            id: response.id
-                                        };
+                                        interfaceServiceUtils.adjustTs(response, apiUrl);
                                     } else {
                                         response.forEach(entry => {
-                                            entry.properties = {
-                                                id: entry.id
-                                            };
+                                            interfaceServiceUtils.adjustTs(entry, apiUrl);
                                         });
                                     }
                                     resolve(response);
@@ -223,13 +221,22 @@ angular.module('n52.core.interface', [])
                     angular.extend(params, extendedData);
                 }
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id) + "/getData", interfaceServiceUtils.createRequestConfigs(params))
-                        .then(response => {
-                            interfaceServiceUtils.revampTimeseriesData(response.data, id);
-                            resolve(response.data);
-                        }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
-                        });
+                    isNewApi(apiUrl).then(isNew => {
+                        if (isNew) {
+                            this.getDatasetData(id, apiUrl, timespan, params)
+                                .then(response => {
+                                    resolve(response);
+                                });
+                        } else {
+                            $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id) + "/getData", interfaceServiceUtils.createRequestConfigs(params))
+                                .then(response => {
+                                    interfaceServiceUtils.revampTimeseriesData(response.data, id);
+                                    resolve(response.data);
+                                }, error => {
+                                    interfaceServiceUtils.errorCallback(error, reject);
+                                });
+                        }
+                    });
                 });
             };
 
@@ -302,6 +309,14 @@ angular.module('n52.core.interface', [])
                     delete ts.uom;
                 }
                 return ts;
+            };
+
+            this.adjustTs = function(ts, url) {
+                ts.properties = {
+                    id: ts.id
+                };
+                ts.parameters = ts.seriesParameters;
+                ts = this.pimpTs(ts, url);
             };
 
             this.revampTimeseriesData = function(data, id) {

@@ -8,26 +8,22 @@ angular.module('n52.core.map')
                     controller: '=',
                     stationaryremotectrl: '='
                 },
-                controller: ['$scope', '$rootScope', 'modalStationOpenSrvc',
-                    function($scope, $rootScope, modalStationOpenSrvc) {
+                controller: ['$scope', '$rootScope', 'modalStationOpenSrvc', 'serviceFinder',
+                    function($scope, $rootScope, modalStationOpenSrvc, serviceFinder) {
                         clickmarker = function(event, args) {
-                            var station = {};
+                            var platform = {};
                             if (args.model) {
-                                station.id = args.model.stationsId ? args.model.stationsId : "";
-                                station.url = args.model.url ? args.model.url : "";
+                                platform.id = args.model.stationsId ? args.model.stationsId : "";
+                                platform.url = args.model.url ? args.model.url : "";
                             } else if (args.leafletObject && args.leafletObject.options) {
-                                station.id = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : "";
-                                station.url = args.leafletObject.options.url ? args.leafletObject.options.url : "";
+                                platform.id = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : "";
+                                platform.url = args.leafletObject.options.url ? args.leafletObject.options.url : "";
                             }
-                            switch (args.model.platformType) {
-                                case 'stationary_remote':
-                                    station.ctrl = $scope.stationaryremotectrl;
-                                    modalStationOpenSrvc.openStationRemotePlatform(station);
-                                    break;
-                                    //case 'stationary_insitu':
-                                default:
-                                    station.ctrl = $scope.controller;
-                                    modalStationOpenSrvc.openStation(station);
+                            var platformPresenter = serviceFinder.getPlatformPresenter(args.model.platformType);
+                            if (platformPresenter) {
+                                platformPresenter.presentPlatform(platform);
+                            } else {
+                                modalStationOpenSrvc.presentPlatform(platform);
                             }
                         };
                         var mapId = $scope.mapid;
@@ -44,7 +40,7 @@ angular.module('n52.core.map')
     ])
     .service('modalStationOpenSrvc', ['$uibModal', 'mapService',
         function($uibModal, mapService) {
-            this.openStation = function(station) {
+            this.presentPlatform = function(station) {
                 $uibModal.open({
                     animation: true,
                     templateUrl: 'templates/map/station.html',
@@ -65,32 +61,7 @@ angular.module('n52.core.map')
                             };
                         }
                     },
-                    controller: station.ctrl || 'SwcModalStationCtrl'
-                });
-            };
-
-            this.openStationRemotePlatform = function(platform) {
-                $uibModal.open({
-                    animation: true,
-                    templateUrl: 'templates/map/stationary-remote-platform.html',
-                    resolve: {
-                        selection: function() {
-                            var url = platform.url;
-                            var phenomenonId;
-                            if (mapService.map.selectedPhenomenon) {
-                                angular.forEach(mapService.map.selectedPhenomenon.provider, function(provider) {
-                                    if (url === provider.url)
-                                        phenomenonId = provider.phenomenonID;
-                                });
-                            }
-                            return {
-                                id: platform.id,
-                                phenomenonId: phenomenonId,
-                                url: url
-                            };
-                        }
-                    },
-                    controller: platform.ctrl
+                    controller: 'SwcModalStationCtrl'
                 });
             };
         }
