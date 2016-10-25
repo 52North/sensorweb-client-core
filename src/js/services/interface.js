@@ -35,17 +35,18 @@ angular.module('n52.core.interface', [])
             };
 
             this.getStationaryPlatforms = function(id, apiUrl, params) {
-                interfaceServiceUtils.extendParams(params, {
+                params = interfaceServiceUtils.extendParams(params, {
                     platformTypes: 'stationary'
                 });
                 return this.getPlatforms(id, apiUrl, params);
             };
 
-            this.getServices = function(apiUrl, id) {
+            this.getServices = function(apiUrl, id, params) {
+                params = interfaceServiceUtils.extendParams(params, {
+                    expanded: true
+                });
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'services/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs({
-                            expanded: true
-                        }))
+                    $http.get(apiUrl + 'services/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
@@ -58,7 +59,7 @@ angular.module('n52.core.interface', [])
                 return $q((resolve, reject) => {
                     isNewApi(apiUrl).then(isNew => {
                         if (isNew) {
-                            interfaceServiceUtils.extendParams(params, {
+                            params = interfaceServiceUtils.extendParams(params, {
                                 expanded: true
                             });
                             this.getStationaryPlatforms(id, apiUrl, params)
