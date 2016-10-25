@@ -34,13 +34,6 @@ angular.module('n52.core.interface', [])
                 });
             };
 
-            this.getMobilePlatforms = function(id, apiUrl, params) {
-                interfaceServiceUtils.extendParams(params, {
-                    platformTypes: 'mobile'
-                });
-                return this.getPlatforms(id, apiUrl, params);
-            };
-
             this.getStationaryPlatforms = function(id, apiUrl, params) {
                 interfaceServiceUtils.extendParams(params, {
                     platformTypes: 'stationary'
@@ -137,6 +130,18 @@ angular.module('n52.core.interface', [])
                 addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
                     $http.get(apiUrl + 'procedures/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                        .then(response => {
+                            resolve(response.data);
+                        }, error => {
+                            interfaceServiceUtils.errorCallback(error, reject);
+                        });
+                });
+            };
+
+            this.getOfferings = function(id, apiUrl, params) {
+                addAllPlatformTypes(params);
+                return $q((resolve, reject) => {
+                    $http.get(apiUrl + 'offerings/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
