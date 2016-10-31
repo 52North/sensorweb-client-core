@@ -1,31 +1,31 @@
 angular.module('n52.core.provider', [])
-    .factory('providerService', ['$rootScope', 'statusService', 'servicesHelper',
+    .service('providerService', ['$rootScope', 'statusService', 'servicesHelper',
         function($rootScope, statusService, servicesHelper) {
-            var providerList = [];
-            var selectedProvider = {
+            this.providerList = [];
+            this.selectedProvider = {
                 label: ""
             };
 
-            getAllProviders = function(platformType) {
-                providerList = [];
-                servicesHelper.doForAllServices(function(provider, url) {
+            this.getAllProviders = function(platformType) {
+                this.providerList = [];
+                servicesHelper.doForAllServices((provider, url) => {
                     if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
                         provider.selected = true;
-                        selectedProvider.label = provider.label;
+                        this.selectedProvider.label = provider.label;
                     } else {
                         provider.selected = false;
                     }
                     provider.url = url;
-                    providerList.push(provider);
+                    this.providerList.push(provider);
                 }, platformType);
-                return providerList;
+                return this.providerList;
             };
 
-            selectProvider = function(selection) {
-                angular.forEach(providerList, function(provider) {
+            this.selectProvider = function(selection) {
+                angular.forEach(this.providerList, (provider) => {
                     if (selection && selection.id === provider.id && selection.url === provider.url) {
                         provider.selected = true;
-                        selectedProvider.label = provider.label;
+                        this.selectedProvider.label = provider.label;
                         statusService.status.apiProvider = {
                             url: provider.url,
                             serviceID: provider.id
@@ -41,13 +41,6 @@ angular.module('n52.core.provider', [])
                     $rootScope.$emit('newProviderSelected');
                     return;
                 }
-            };
-
-            return {
-                getAllProviders: getAllProviders,
-                providerList: providerList,
-                selectedProvider: selectedProvider,
-                selectProvider: selectProvider
             };
         }
     ]);
