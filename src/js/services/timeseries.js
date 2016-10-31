@@ -28,7 +28,7 @@ angular.module('n52.core.timeseries', [])
             _loadTsData = function(ts) {
                 var generalizeData = statusService.status.generalizeData || false;
                 ts.loadingData = true;
-                interfaceService.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer, generalizeData))
+                interfaceService.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer), null, generalizeData)
                     .then(data => {
                         _addTsData(data, ts);
                     });
