@@ -104,7 +104,7 @@ angular.module('n52.core.timeseries', [])
 
             this.removeAllTimeseries = function() {
                 angular.forEach(this.timeseries, elem => {
-                    removeTimeseries(elem.internalId);
+                    this.removeTimeseries(elem.internalId);
                 });
             };
 
