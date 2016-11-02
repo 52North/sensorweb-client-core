@@ -1,6 +1,6 @@
 angular.module('n52.core.listSelection')
-    .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'servicesHelper', 'serviceFinder', '$location',
-        function($scope, interfaceService, statusService, timeseriesService, $rootScope, listSelectionSrvc, settingsService, servicesHelper, serviceFinder, $location) {
+    .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'providerService', 'serviceFinder', '$location',
+        function($scope, interfaceService, statusService, timeseriesService, $rootScope, listSelectionSrvc, settingsService, providerService, serviceFinder, $location) {
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
@@ -67,7 +67,7 @@ angular.module('n52.core.listSelection')
                 var paramConstellation;
                 currParam.loading = 0;
                 if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
-                    servicesHelper.doForAllServices(function(provider, url) {
+                    providerService.doForAllServices(function(provider, url) {
                         paramConstellation = $scope.createParams(url, provider.id);
                         if (paramConstellation) {
                             currParam.loading++;

@@ -1,6 +1,6 @@
 angular.module('n52.core.provider', [])
-    .service('providerService', ['$rootScope', 'statusService', 'servicesHelper', '$q', 'interfaceService',
-        function($rootScope, statusService, servicesHelper, $q, interfaceService) {
+    .service('providerService', ['$rootScope', 'statusService', '$q', 'interfaceService', 'settingsService',
+        function($rootScope, statusService, $q, interfaceService, settingsService) {
 
             addProviderToUserList = function(provider, providerList) {
                 initStatusProviderList();
@@ -56,22 +56,22 @@ angular.module('n52.core.provider', [])
 
             this.getAllProviders = function(platformType) {
                 this.providerList = [];
-                servicesHelper.doForAllServices((provider, url) => {
+                this.doForAllServices((provider, url) => {
                     provider.selected = isProviderSelected(provider, url);
                     if (provider.selected) this.selectedProvider.label = provider.label;
                     addToProviderList(provider, url, this.providerList);
                 }, platformType);
-                initStatusProviderList();
-                statusService.status.addedProvider.forEach(entry => {
-                    interfaceService.getServices(entry.url, entry.id, {
-                        platformTypes: platformType
-                    }).then(provider => {
-                        provider.selected = isProviderSelected(provider, entry.url);
-                        provider.isUserAdded = true;
-                        if (provider.selected) this.selectedProvider.label = provider.label;
-                        addToProviderList(provider, entry.url, this.providerList);
-                    });
-                });
+                // initStatusProviderList();
+                // statusService.status.addedProvider.forEach(entry => {
+                //     interfaceService.getServices(entry.url, entry.id, {
+                //         platformTypes: platformType
+                //     }).then(provider => {
+                //         provider.selected = isProviderSelected(provider, entry.url);
+                //         provider.isUserAdded = true;
+                //         if (provider.selected) this.selectedProvider.label = provider.label;
+                //         addToProviderList(provider, entry.url, this.providerList);
+                //     });
+                // });
                 return this.providerList;
             };
 
@@ -110,6 +110,40 @@ angular.module('n52.core.provider', [])
                             reject();
                         });
                 });
+            };
+
+            this.doForAllServices = function(doFunc, platformType) {
+                var temp = Object.keys(settingsService.restApiUrls);
+                temp.forEach(url => {
+                    interfaceService.getServices(url, null, {
+                        platformTypes: platformType
+                    }).then(providers => {
+                        providers.forEach(provider => {
+                            if (!this.isServiceBlacklisted(provider.id, url)) {
+                                doFunc(provider, url, settingsService.restApiUrls[url]);
+                            }
+                        });
+                    });
+                });
+                initStatusProviderList();
+                statusService.status.addedProvider.forEach(entry => {
+                    interfaceService.getServices(entry.url, entry.id, {
+                        platformTypes: platformType
+                    }).then(provider => {
+                        provider.isUserAdded = true;
+                        doFunc(provider, entry.url);
+                    });
+                });
+            };
+
+            this.isServiceBlacklisted = function(serviceID, url) {
+                var isBlacklisted = false;
+                angular.forEach(settingsService.providerBlackList, function(entry) {
+                    if (entry.serviceID === serviceID && entry.apiUrl === url) {
+                        isBlacklisted = true;
+                    }
+                });
+                return isBlacklisted;
             };
         }
     ]);

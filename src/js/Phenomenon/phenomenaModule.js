@@ -1,6 +1,6 @@
 angular.module('n52.core.phenomena', [])
-    .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService', 'servicesHelper',
-        function($rootScope, interfaceService, statusService, settingsService, servicesHelper) {
+    .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService', 'providerService',
+        function($rootScope, interfaceService, statusService, settingsService, providerService) {
             var phenomena = {};
             phenomena.selection = null;
             phenomena.items = [];
@@ -26,7 +26,7 @@ angular.module('n52.core.phenomena', [])
 
             loadPhenomenaForAllProvider = function() {
                 phenomena.items = [];
-                servicesHelper.doForAllServices(function(provider, url) {
+                providerService.doForAllServices(function(provider, url) {
                     loadPhenomenaForProvider(provider.id, url);
                 });
             };
