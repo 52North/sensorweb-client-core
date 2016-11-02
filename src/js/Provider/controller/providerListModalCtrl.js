@@ -11,5 +11,9 @@ angular.module('n52.core.provider')
                 providerService.selectProvider(provider);
                 $uibModalInstance.close();
             };
+
+            $scope.deleteProvider = function(provider) {
+                providerService.deleteProvider(provider);
+            };
         }
     ]);
