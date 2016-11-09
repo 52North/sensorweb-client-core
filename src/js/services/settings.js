@@ -207,14 +207,15 @@ angular.module('n52.core.settings', [])
                         var serviceString;
                         datasetPresenterConfig[datasetType].some(entry => {
                             if (entry &&
-                                !entry.url || entry.url === providerUrl &&
-                                !entry.platformType || entry.platformType === platformType
+                                (!entry.url || entry.url === providerUrl) &&
+                                (!entry.platformType || entry.platformType === platformType)
                             ) {
                                 serviceString = entry.service;
                                 return true;
                             }
                         });
-                        return $injector.get(serviceString);
+                        if (serviceString)
+                            return $injector.get(serviceString);
                     }
                 }
                 switch (datasetType) {
@@ -237,7 +238,8 @@ angular.module('n52.core.settings', [])
                                 return true;
                             }
                         });
-                        return $injector.get(serviceString);
+                        if (serviceString)
+                            return $injector.get(serviceString);
                     }
                 }
                 switch (platformType) {
