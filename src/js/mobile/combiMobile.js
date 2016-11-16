@@ -548,6 +548,9 @@ angular.module('n52.client.mobile', [])
                                 this.processData(data[id].values);
                                 this.series.loading = false;
                             });
+                    }, e => {
+                        this.series.label = 'Error while loading dataset';
+                        this.series.loading = false;
                     });
             };
 
