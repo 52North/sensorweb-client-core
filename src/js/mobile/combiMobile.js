@@ -647,7 +647,6 @@ angular.module('n52.client.mobile', [])
                         datasetId: ctrl.datasetid,
                         providerUrl: ctrl.providerurl
                     });
-                    debugger;
                     $window.prompt($translate.instant('settings.permalink.clipboardInfo'), link);
                 };
             }
@@ -660,4 +659,4 @@ angular.module('n52.client.mobile', [])
                 $location.url('/mobileDiagram');
             };
         }
-    ])
+    ]);

@@ -30,7 +30,6 @@ angular.module('n52.core.permalinkGen', [])
                         parameterArray.push(property + '=' + encodeURIComponent(params[property]));
                     }
                 }
-                debugger;
                 return createBaseUrl(path) + parameterArray.join("&");
             };
             this.getCurrentPermalink = function(timeseriesId) {
