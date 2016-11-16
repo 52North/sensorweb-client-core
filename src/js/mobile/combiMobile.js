@@ -528,7 +528,7 @@ angular.module('n52.client.mobile', [])
             this.series = {};
 
             this.loadSeries = function(id, url) {
-                this.providerUrl = url;
+                this.series.providerUrl = url;
                 statusService.status.mobile = {
                     id: id,
                     url: url
