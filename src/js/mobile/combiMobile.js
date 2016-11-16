@@ -15,6 +15,7 @@ angular.module('n52.client.mobile', [])
                         };
                         $scope.geometry = combinedSrvc.geometry;
                         $scope.series = combinedSrvc.series;
+                        $scope.providerUrl = combinedSrvc.providerUrl;
                         $scope.highlight = combinedSrvc.highlight;
                         $scope.selectedSection = combinedSrvc.selectedSection;
                         $scope.paths = {
@@ -497,8 +498,8 @@ angular.module('n52.client.mobile', [])
             };
         }
     ])
-    .service('combinedSrvc', ['interfaceService', 'statusService',
-        function(interfaceService, statusService) {
+    .service('combinedSrvc', ['interfaceService', 'statusService', '$route',
+        function(interfaceService, statusService, $route) {
             this.highlight = {};
             this.selectedSection = {
                 values: []
@@ -527,6 +528,7 @@ angular.module('n52.client.mobile', [])
             this.series = {};
 
             this.loadSeries = function(id, url) {
+                this.providerUrl = url;
                 statusService.status.mobile = {
                     id: id,
                     url: url
@@ -621,7 +623,9 @@ angular.module('n52.client.mobile', [])
                 this.selectedSection.values = [];
             };
 
-            if (statusService.status.mobile) {
+            if ($route.current.params.datasetId && $route.current.params.providerUrl) {
+                this.loadSeries($route.current.params.datasetId, $route.current.params.providerUrl);
+            } else if (statusService.status.mobile) {
                 let lastEntry = statusService.status.mobile;
                 if (lastEntry.id && lastEntry.url) {
                     this.loadSeries(lastEntry.id, lastEntry.url);
@@ -629,6 +633,26 @@ angular.module('n52.client.mobile', [])
             }
         }
     ])
+    .component('swcMobilePermalink', {
+        templateUrl: 'templates/mobile/permalink.html',
+        bindings: {
+            datasetid: '<',
+            providerurl: '<'
+        },
+        controller: ['permalinkGenerationService', '$window', '$translate',
+            function(permalinkGenerationService, $window, $translate) {
+                var ctrl = this;
+                ctrl.createPermalink = function() {
+                    var link = permalinkGenerationService.createPermalink('/mobileDiagram', {
+                        datasetId: ctrl.datasetid,
+                        providerUrl: ctrl.providerurl
+                    });
+                    debugger;
+                    $window.prompt($translate.instant('settings.permalink.clipboardInfo'), link);
+                };
+            }
+        ]
+    })
     .service('mobilePresentDataset', ['$location', 'combinedSrvc',
         function($location, combinedSrvc) {
             this.presentDataset = function(dataset, providerUrl) {
@@ -636,4 +660,4 @@ angular.module('n52.client.mobile', [])
                 $location.url('/mobileDiagram');
             };
         }
-    ]);
+    ])
