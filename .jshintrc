@@ -1,5 +1,6 @@
 {
-  "globalstrict": true,
+  "globalstrict": false,
+  "esnext": true,
   "globals": {
     "angular": false,
     "describe": false,
@@ -8,6 +9,8 @@
     "beforeEach": false,
     "afterEach": false,
     "module": false,
-    "inject": false
+    "inject": false,
+    "moment": false,
+    "document": false
   }
 }

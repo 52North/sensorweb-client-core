@@ -1,4 +1,3 @@
-'use strict';
 angular.module('n52.core.sosMetadata', [])
     .component('swcSosUrl', {
         bindings: {

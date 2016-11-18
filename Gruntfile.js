@@ -8,12 +8,7 @@ module.exports = function(grunt) {
             files: ['gruntfile.js', 'src/js/**/*.js', 'test/**/*.js'],
             options: {
                 reporterOutput: "",
-                esnext: true,
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    module: true
-                },
+                jshintrc: true,
                 ignores: ['src/js/Chart/flotlib/jquery.flot.navigate.js']
             }
         },
