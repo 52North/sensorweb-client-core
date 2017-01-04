@@ -23,7 +23,7 @@ angular.module('n52.core.map')
                             if (platformPresenter) {
                                 platformPresenter.presentPlatform(platform);
                             } else {
-                                modalStationOpenSrvc.presentPlatform(platform);
+                                modalStationOpenSrvc.presentPlatform(platform, $scope.controller);
                             }
                         };
                         var mapId = $scope.mapid;
@@ -40,7 +40,7 @@ angular.module('n52.core.map')
     ])
     .service('modalStationOpenSrvc', ['$uibModal', 'mapService',
         function($uibModal, mapService) {
-            this.presentPlatform = function(station) {
+            this.presentPlatform = function(station, ctrl) {
                 $uibModal.open({
                     animation: true,
                     templateUrl: 'templates/map/station.html',
@@ -61,7 +61,7 @@ angular.module('n52.core.map')
                             };
                         }
                     },
-                    controller: 'SwcModalStationCtrl'
+                    controller: ctrl || 'SwcModalStationCtrl'
                 });
             };
         }
