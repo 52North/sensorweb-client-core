@@ -165,8 +165,7 @@ angular.module('n52.core.interface', [])
             };
 
             this.getTimeseries = function(id, apiUrl, params) {
-                if (angular.isUndefined(params))
-                    params = {};
+                if (!params) params = {};
                 params.expanded = true;
                 params.force_latest_values = true;
                 params.status_intervals = true;
