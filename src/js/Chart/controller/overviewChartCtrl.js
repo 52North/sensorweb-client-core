@@ -1,8 +1,12 @@
 angular.module('n52.core.overviewDiagram', [])
-        .controller('SwcOverviewChartCtrl', ['$scope', 'flotOverviewChartServ',
-            function ($scope, flotOverviewChartServ) {
+        .controller('SwcOverviewChartCtrl', ['$scope', 'flotOverviewChartServ', 'timeService',
+            function ($scope, flotOverviewChartServ, timeService) {
                 $scope.options = flotOverviewChartServ.options;
                 $scope.dataset = flotOverviewChartServ.dataset;
+
+                $scope.timeChanged = function(time) {
+                    timeService.setFlexibleTimeExtent(time.from, time.till);
+                };
             }])
         .factory('flotOverviewChartServ', ['timeseriesService', 'statusService', 'timeService', '$rootScope', 'interfaceService', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
             function (timeseriesService, statusService, timeService, $rootScope, interfaceService, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
@@ -105,7 +109,7 @@ angular.module('n52.core.overviewDiagram', [])
                 }
 
                 function loadOverViewData(tsId) {
-                    
+
                     var generalizeData = statusService.status.generalizeData || false;
                     options.loading = true;
                     var ts = timeseriesService.getTimeseries(tsId);
@@ -197,7 +201,7 @@ angular.module('n52.core.overviewDiagram', [])
                     return false;
                 };
             }
-            
+
             var mouseX = getPositionInPlot(e.pageX || e.originalEvent.touches[0].pageX);
 
             determineDragging(selection.slider, mouseX);

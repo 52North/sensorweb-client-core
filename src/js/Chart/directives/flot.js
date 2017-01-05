@@ -1,10 +1,11 @@
 angular.module('n52.core.flot', [])
-    .directive('flot', ['timeService', '$window', '$translate', 'timeseriesService', 'styleService', '$rootScope',
-        function(timeService, $window, $translate, timeseriesService, styleService, $rootScope) {
+    .directive('flot', ['$window', '$translate', 'timeseriesService', 'styleService',
+        function($window, $translate, timeseriesService, styleService) {
             return {
                 restrict: 'EA',
                 template: '<div></div>',
                 scope: {
+                    timeChanged: '&onTimeChange',
                     dataset: '=',
                     options: '='
                 },
@@ -100,7 +101,7 @@ angular.module('n52.core.flot', [])
                                             }
                                             scope.$apply();
                                             styleService.notifyAllTimeseriesChanged();
-                                            $rootScope.$emit('redrawChart');
+                                            scope.$emit('redrawChart');
                                         }, this));
                                     var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
                                         .appendTo(plot.getPlaceholder())
@@ -151,7 +152,7 @@ angular.module('n52.core.flot', [])
                         plotChart(plotArea, scope.dataset, scope.options);
                     }, true);
 
-                    scope.$watch('dataset', function(bla, blub) {
+                    scope.$watch('dataset', function() {
                         plotChart(plotArea, scope.dataset, scope.options);
                     }, true);
 
@@ -160,7 +161,7 @@ angular.module('n52.core.flot', [])
                         plotChart(plotArea, scope.dataset, scope.options);
                     });
 
-                    var redrawChartListener = $rootScope.$on('redrawChart', function() {
+                    var redrawChartListener = scope.$on('redrawChart', function() {
                         plotChart(plotArea, scope.dataset, scope.options);
                     });
 
@@ -168,30 +169,35 @@ angular.module('n52.core.flot', [])
                         var xaxis = plot.getXAxes()[0];
                         var from = moment(xaxis.min);
                         var till = moment(xaxis.max);
-                        timeService.setFlexibleTimeExtent(from, till);
+                        scoppe.changeTime(from, till);
                     });
 
                     // plot pan ended event
                     $(plotArea).bind('plotpanEnd', function(evt, plot) {
                         var xaxis = plot.getXAxes()[0];
-                        var from = moment(xaxis.min);
-                        var till = moment(xaxis.max);
-                        timeService.setFlexibleTimeExtent(from, till);
+                        scope.changeTime(moment(xaxis.min), moment(xaxis.max));
                     });
 
                     $(plotArea).bind('touchended', function(evt, plot) {
                         var xaxis = plot.xaxis;
                         var from = moment(xaxis.from);
                         var till = moment(xaxis.to);
-                        timeService.setFlexibleTimeExtent(from, till);
+                        scope.changeTime(from, till);
                     });
 
                     // plot selected event
                     $(plotArea).bind('plotselected', function(evt, ranges) {
-                        var from = moment(ranges.xaxis.from);
-                        var to = moment(ranges.xaxis.to);
-                        timeService.setFlexibleTimeExtent(from, to);
+                        scope.changeTime(moment(ranges.xaxis.from), moment(ranges.xaxis.to));
                     });
+
+                    scope.changeTime = function(from, till) {
+                        scope.timeChanged({
+                            time: {
+                                from: from,
+                                till: till
+                            }
+                        });
+                    };
 
                     scope.$on('$destroy', function() {
                         redrawChartListener();
