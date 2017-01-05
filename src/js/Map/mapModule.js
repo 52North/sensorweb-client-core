@@ -1,6 +1,6 @@
 angular.module('n52.core.map', [])
-    .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'servicesHelper', '$injector',
-        function($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, servicesHelper, $injector) {
+    .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'providerService', '$injector',
+        function($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, providerService, $injector) {
             var markerRenderer = ['statusIntervalMarkerRenderer', 'normalMarkerRenderer'];
             if (settingsService.markerRenderer)
                 markerRenderer = settingsService.markerRenderer;
@@ -90,7 +90,7 @@ angular.module('n52.core.map', [])
                         requestStationsOfService(entry.serviceID, entry.url, createStation, entry.phenomenonID);
                     });
                 } else if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
-                    servicesHelper.doForAllServices(function(provider, url) {
+                    providerService.doForAllServices(function(provider, url) {
                         requestCounter++;
                         requestStationsOfService(provider.id, url, createStation);
                     });

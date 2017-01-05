@@ -1,134 +1,120 @@
 angular.module('n52.core.timeseries', [])
-        .factory('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'styleService', 'settingsService', 'utils',
-            function ($rootScope, interfaceService, statusService, styleService, settingsService, utils) {
-                var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');
+    .service('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'styleService', 'settingsService', 'utils',
+        function($rootScope, interfaceService, statusService, styleService, settingsService, utils) {
+            var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');
 
-                var timeseries = {};
-                var tsData = {};
+            this.timeseries = {};
+            var tsData = {};
 
-                $rootScope.$on('timeExtentChanged', function (evt) {
-                    _loadAllData();
-                });
+            $rootScope.$on('timeExtentChanged', evt => {
+                _loadAllData(this.timeseries);
+            });
 
-                function _loadAllData() {
-                    // TODO evtl. erst wenn alle Daten da sind soll die Daten auch gesetzt werden???
-                    angular.forEach(timeseries, function (ts) {
-                        _loadTsData(ts);
-                    });
-                }
-
-                function _addTs(ts) {
-                    ts.timebuffer = defaultDuration;
-                    styleService.createStylesInTs(ts);
-                    timeseries[ts.internalId] = ts;
-                    statusService.addTimeseries(ts);
+            _loadAllData = function(timeseries) {
+                // TODO evtl. erst wenn alle Daten da sind soll die Daten auch gesetzt werden???
+                angular.forEach(timeseries, ts => {
                     _loadTsData(ts);
-                }
+                });
+            };
 
-                function _loadTsData(ts) {
-                    var generalizeData = statusService.status.generalizeData || false;
-                    ts.loadingData = true;
-                    interfaceService.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer, generalizeData))
-                            .then(function (data) {
-                                _addTsData(data, ts);
-                            });
-                }
+            _addTs = function(ts, timeseries) {
+                ts.timebuffer = defaultDuration;
+                styleService.createStylesInTs(ts);
+                timeseries[ts.internalId] = ts;
+                statusService.addTimeseries(ts);
+                _loadTsData(ts);
+            };
 
-                function _createNewTimebuffer(data) {
-                    if (data.length >= 2) {
-                        var newDuration = moment.duration(data[1][0] - data[0][0]);
-                        if (newDuration > defaultDuration) {
-                            return newDuration;
-                        } else {
-                            return defaultDuration;
-                        }
-                    }
-                    return defaultDuration;
-                }
+            _loadTsData = function(ts) {
+                var generalizeData = statusService.status.generalizeData || false;
+                ts.loadingData = true;
+                interfaceService.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer), null, generalizeData)
+                    .then(data => {
+                        _addTsData(data, ts);
+                    });
+            };
 
-                function _addTsData(data, ts) {
-                    ts.timebuffer = _createNewTimebuffer(data[ts.id].values);
-                    tsData[ts.internalId] = data[ts.id];
-                    if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
-                        ts.hasNoDataInCurrentExtent = false;
+            _createNewTimebuffer = function(data) {
+                if (data.length >= 2) {
+                    var newDuration = moment.duration(data[1][0] - data[0][0]);
+                    if (newDuration > defaultDuration) {
+                        return newDuration;
                     } else {
-                        ts.hasNoDataInCurrentExtent = true;
+                        return defaultDuration;
                     }
-                    $rootScope.$emit('timeseriesDataChanged', ts.internalId);
-                    ts.loadingData = false;
                 }
+                return defaultDuration;
+            };
 
-                function getData(internalId) {
-                    return tsData[internalId];
+            _addTsData = function(data, ts) {
+                ts.timebuffer = _createNewTimebuffer(data[ts.id].values);
+                tsData[ts.internalId] = data[ts.id];
+                if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
+                    ts.hasNoDataInCurrentExtent = false;
+                } else {
+                    ts.hasNoDataInCurrentExtent = true;
                 }
+                $rootScope.$emit('timeseriesDataChanged', ts.internalId);
+                ts.loadingData = false;
+            };
 
-                function getTimeseries(internalId) {
-                    return timeseries[internalId];
-                }
+            this.getData = function(internalId) {
+                return tsData[internalId];
+            };
 
-                function getAllTimeseries() {
-                    return timeseries;
-                }
+            this.getTimeseries = function(internalId) {
+                return this.timeseries[internalId];
+            };
 
-                function hasTimeseries(internalId) {
-                    return angular.isObject(timeseries[internalId]);
-                }
+            this.getAllTimeseries = function() {
+                return this.timeseries;
+            };
 
-                function getTimeseriesCount() {
-                    return Object.keys(timeseries).length;
-                }
+            this.hasTimeseries = function(internalId) {
+                return angular.isObject(this.timeseries[internalId]);
+            };
 
-                function addTimeseriesById(id, apiUrl, params) {
-                    interfaceService.getTimeseries(id, apiUrl, params).then(function (data) {
-                        if (angular.isArray(data)) {
-                            angular.forEach(data, function (ts) {
-                                _addTs(ts, apiUrl);
-                            });
-                        } else {
-                            _addTs(data, apiUrl);
-                        }
-                    });
-                }
+            this.getTimeseriesCount = function() {
+                return Object.keys(this.timeseries).length;
+            };
 
-                function addTimeseries(ts) {
-                    _addTs(angular.copy(ts));
-                }
+            this.addTimeseriesById = function(id, apiUrl, params) {
+                interfaceService.getTimeseries(id, apiUrl, params).then((data) => {
+                    if (angular.isArray(data)) {
+                        angular.forEach(data, ts => {
+                            _addTs(ts, this.timeseries);
+                        });
+                    } else {
+                        _addTs(data, this.timeseries);
+                    }
+                });
+            };
 
-                function removeTimeseries(internalId) {
-                    styleService.deleteStyle(timeseries[internalId]);
-                    delete timeseries[internalId];
-                    delete tsData[internalId];
-                    statusService.removeTimeseries(internalId);
-                    $rootScope.$emit('timeseriesDataChanged', internalId);
-                }
+            this.addTimeseries = function(ts) {
+                _addTs(angular.copy(ts), this.timeseries);
+            };
 
-                function removeAllTimeseries() {
-                    angular.forEach(timeseries, function (elem) {
-                        removeTimeseries(elem.internalId);
-                    });
-                }
+            this.removeTimeseries = function(internalId) {
+                styleService.deleteStyle(this.timeseries[internalId]);
+                delete this.timeseries[internalId];
+                delete tsData[internalId];
+                statusService.removeTimeseries(internalId);
+                $rootScope.$emit('timeseriesDataChanged', internalId);
+            };
 
-                function toggleReferenceValue(refValue, internalId) {
-                    refValue.visible = !refValue.visible;
-                    $rootScope.$emit('timeseriesDataChanged', internalId);
-                }
+            this.removeAllTimeseries = function() {
+                angular.forEach(this.timeseries, elem => {
+                    this.removeTimeseries(elem.internalId);
+                });
+            };
 
-                function isTimeseriesVisible(internalId) {
-                    return hasTimeseries(internalId) && timeseries[internalId].styles.visible;
-                }
+            this.toggleReferenceValue = function(refValue, internalId) {
+                refValue.visible = !refValue.visible;
+                $rootScope.$emit('timeseriesDataChanged', internalId);
+            };
 
-                return {
-                    addTimeseriesById: addTimeseriesById,
-                    addTimeseries: addTimeseries,
-                    removeTimeseries: removeTimeseries,
-                    removeAllTimeseries: removeAllTimeseries,
-                    toggleReferenceValue: toggleReferenceValue,
-                    isTimeseriesVisible: isTimeseriesVisible,
-                    getData: getData,
-                    getTimeseries: getTimeseries,
-                    getAllTimeseries: getAllTimeseries,
-                    hasTimeseries: hasTimeseries,
-                    getTimeseriesCount: getTimeseriesCount,
-                    timeseries: timeseries
-                };
-            }]);
+            this.isTimeseriesVisible = function(internalId) {
+                return this.hasTimeseries(internalId) && this.timeseries[internalId].styles.visible;
+            };
+        }
+    ]);

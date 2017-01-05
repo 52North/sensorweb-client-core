@@ -1,52 +1,149 @@
 angular.module('n52.core.provider', [])
-        .factory('providerService', ['$rootScope', 'statusService', 'servicesHelper',
-            function ($rootScope, statusService, servicesHelper) {
-                var providerList = [];
-                var selectedProvider = {
-                    label: ""
-                };
+    .service('providerService', ['$rootScope', 'statusService', '$q', 'interfaceService', 'settingsService',
+        function($rootScope, statusService, $q, interfaceService, settingsService) {
 
-                getAllProviders = function () {
-                    providerList = [];
-                    servicesHelper.doForAllServices(function (provider, url) {
-                        if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
-                            provider.selected = true;
-                            selectedProvider.label = provider.label;
-                        } else {
-                            provider.selected = false;
-                        }
-                        provider.url = url;
-                        providerList.push(provider);
+            addProviderToUserList = function(provider, providerList) {
+                initStatusProviderList();
+                var result = providerList.find(entry => {
+                    return entry.url === provider.url &&
+                        entry.id === provider.id;
+                });
+                if (result === undefined) {
+                    provider.isUserAdded = true;
+                    providerList.push(provider);
+                    statusService.status.addedProvider.push({
+                        id: provider.id,
+                        url: provider.url
                     });
-                    return providerList;
-                };
+                }
+            };
 
-                selectProvider = function (selection) {
-                    angular.forEach(providerList, function (provider) {
-                        if (selection && selection.id === provider.id && selection.url === provider.url) {
-                            provider.selected = true;
-                            selectedProvider.label = provider.label;
-                            statusService.status.apiProvider = {
-                                url: provider.url,
-                                serviceID: provider.id
-                            };
-                            $rootScope.$emit('newProviderSelected');
-                            return;
-                        } else {
-                            provider.selected = false;
-                        }
-                    });
-                    if (!selection) {
-                        statusService.status.apiProvider = {};
+            removeProviderFromUserList = function(provider, providerList) {
+                providerList.splice(providerList.findIndex(entry => {
+                    return entry.id === provider.id && entry.url === provider.url;
+                }), 1);
+                statusService.status.addedProvider.splice(statusService.status.addedProvider.findIndex(entry => {
+                    return entry.id === provider.id && entry.url === provider.url;
+                }), 1);
+            };
+
+            initStatusProviderList = function() {
+                if (!statusService.status.addedProvider) {
+                    statusService.status.addedProvider = [];
+                }
+            };
+
+            isProviderSelected = function(provider, url) {
+                if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
+                    return true;
+                }
+                return false;
+            };
+
+            addToProviderList = function(provider, url, providerList) {
+                provider.url = url;
+                providerList.push(provider);
+            };
+
+            this.providerList = [];
+            this.selectedProvider = {
+                label: ""
+            };
+
+            this.deleteProvider = function(provider) {
+                removeProviderFromUserList(provider, this.providerList);
+            };
+
+            this.getAllProviders = function(platformType) {
+                this.providerList = [];
+                this.doForAllServices((provider, url) => {
+                    provider.selected = isProviderSelected(provider, url);
+                    if (provider.selected) this.selectedProvider.label = provider.label;
+                    addToProviderList(provider, url, this.providerList);
+                }, platformType);
+                // initStatusProviderList();
+                // statusService.status.addedProvider.forEach(entry => {
+                //     interfaceService.getServices(entry.url, entry.id, {
+                //         platformTypes: platformType
+                //     }).then(provider => {
+                //         provider.selected = isProviderSelected(provider, entry.url);
+                //         provider.isUserAdded = true;
+                //         if (provider.selected) this.selectedProvider.label = provider.label;
+                //         addToProviderList(provider, entry.url, this.providerList);
+                //     });
+                // });
+                return this.providerList;
+            };
+
+            this.selectProvider = function(selection) {
+                angular.forEach(this.providerList, (provider) => {
+                    if (selection && selection.id === provider.id && selection.url === provider.url) {
+                        provider.selected = true;
+                        this.selectedProvider.label = provider.label;
+                        statusService.status.apiProvider = {
+                            url: provider.url,
+                            serviceID: provider.id
+                        };
                         $rootScope.$emit('newProviderSelected');
                         return;
+                    } else {
+                        provider.selected = false;
                     }
-                };
+                });
+                if (!selection) {
+                    statusService.status.apiProvider = {};
+                    $rootScope.$emit('newProviderSelected');
+                    return;
+                }
+            };
 
-                return {
-                    getAllProviders: getAllProviders,
-                    providerList: providerList,
-                    selectedProvider: selectedProvider,
-                    selectProvider: selectProvider
-                };
-            }]);
+            this.addProvider = function(url) {
+                return $q((resolve, reject) => {
+                    interfaceService.getServices(url)
+                        .then(res => {
+                            res.forEach(entry => {
+                                entry.url = url;
+                                addProviderToUserList(entry, this.providerList);
+                            });
+                            resolve();
+                        }, error => {
+                            reject();
+                        });
+                });
+            };
+
+            this.doForAllServices = function(doFunc, platformType) {
+                var temp = Object.keys(settingsService.restApiUrls);
+                temp.forEach(url => {
+                    interfaceService.getServices(url, null, {
+                        platformTypes: platformType
+                    }).then(providers => {
+                        providers.forEach(provider => {
+                            if (!this.isServiceBlacklisted(provider.id, url)) {
+                                doFunc(provider, url, settingsService.restApiUrls[url]);
+                            }
+                        });
+                    });
+                });
+                initStatusProviderList();
+                statusService.status.addedProvider.forEach(entry => {
+                    interfaceService.getServices(entry.url, entry.id, {
+                        platformTypes: platformType
+                    }).then(provider => {
+                        provider.isUserAdded = true;
+                        doFunc(provider, entry.url);
+                    });
+                });
+            };
+
+            this.isServiceBlacklisted = function(serviceID, url) {
+                var isBlacklisted = false;
+                angular.forEach(settingsService.providerBlackList, function(entry) {
+                    if (entry.serviceID === serviceID && entry.apiUrl === url) {
+                        isBlacklisted = true;
+                    }
+                });
+                return isBlacklisted;
+            };
+        }
+    ]);
