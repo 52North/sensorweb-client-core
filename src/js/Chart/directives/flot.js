@@ -1,13 +1,15 @@
 angular.module('n52.core.flot', [])
-    .directive('flot', ['$window', '$translate', 'timeseriesService', 'styleService',
-        function($window, $translate, timeseriesService, styleService) {
+    .directive('flot', ['$window', '$translate',
+        function($window, $translate) {
             return {
                 restrict: 'EA',
                 template: '<div></div>',
                 scope: {
+                    seriesSelectionChanged: '&onSeriesSelectionChange',
                     timeChanged: '&onTimeChange',
                     dataset: '=',
-                    options: '='
+                    options: '=',
+                    identifier: '='
                 },
                 link: function(scope, element, attributes) {
                     var height, plot, plotArea, width, _ref, _ref1;
@@ -32,7 +34,7 @@ angular.module('n52.core.flot', [])
                         height: height
                     });
 
-                    plotChart = function(plotArea, dataset, options) {
+                    var plotChart = function(plotArea, dataset, options) {
                         if (dataset && dataset.length !== 0) {
                             var plotObj = $.plot(plotArea, dataset, options);
                             createPlotAnnotation(plotArea, options);
@@ -44,7 +46,7 @@ angular.module('n52.core.flot', [])
                         }
                     };
 
-                    setSelection = function(plot, options) {
+                    var setSelection = function(plot, options) {
                         if (plot && options.selection.range) {
                             plot.setSelection({
                                 xaxis: {
@@ -55,13 +57,13 @@ angular.module('n52.core.flot', [])
                         }
                     };
 
-                    createPlotAnnotation = function(plotArea, options) {
+                    var createPlotAnnotation = function(plotArea, options) {
                         if (!options.annotation || !options.annotation.hide) {
                             plotArea.append("<div class='chart-annotation'>" + $translate.instant('chart.annotation') + "</div>");
                         }
                     };
 
-                    createYAxis = function(plot) {
+                    var createYAxis = function(plot) {
                         if (plot.getOptions().yaxis.show) {
                             // remove old labels
                             $(plot.getPlaceholder()).find('.yaxisLabel').remove();
@@ -79,6 +81,7 @@ angular.module('n52.core.flot', [])
                                         .data("axis.n", axis.n)
                                         .appendTo(plot.getPlaceholder())
                                         .click($.proxy(function(event) {
+                                            var selection = {};
                                             var target = $(event.currentTarget);
                                             var selected = false;
                                             $.each($('.axisTarget'), function(index, elem) {
@@ -89,18 +92,17 @@ angular.module('n52.core.flot', [])
                                                 }
                                             });
                                             $.each(plot.getData(), function(index, elem) {
-                                                var ts = timeseriesService.getTimeseries(elem.id);
                                                 if (target.data('axis.n') === elem.yaxis.n) {
-                                                    styleService.setSelection(ts, !selected, true);
+                                                    selection[elem.id] = !selected;
                                                 } else {
-                                                    styleService.setSelection(ts, false, true);
+                                                    selection[elem.id] = false;
                                                 }
                                             });
                                             if (!selected) {
                                                 target.addClass("selected");
                                             }
                                             scope.$apply();
-                                            styleService.notifyAllTimeseriesChanged();
+                                            scope.seriesSelectionChanged({selection:selection});
                                             scope.$emit('redrawChart');
                                         }, this));
                                     var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
@@ -169,28 +171,28 @@ angular.module('n52.core.flot', [])
                         var xaxis = plot.getXAxes()[0];
                         var from = moment(xaxis.min);
                         var till = moment(xaxis.max);
-                        scoppe.changeTime(from, till);
+                        changeTime(from, till);
                     });
 
                     // plot pan ended event
                     $(plotArea).bind('plotpanEnd', function(evt, plot) {
                         var xaxis = plot.getXAxes()[0];
-                        scope.changeTime(moment(xaxis.min), moment(xaxis.max));
+                        changeTime(moment(xaxis.min), moment(xaxis.max));
                     });
 
                     $(plotArea).bind('touchended', function(evt, plot) {
                         var xaxis = plot.xaxis;
                         var from = moment(xaxis.from);
                         var till = moment(xaxis.to);
-                        scope.changeTime(from, till);
+                        changeTime(from, till);
                     });
 
                     // plot selected event
                     $(plotArea).bind('plotselected', function(evt, ranges) {
-                        scope.changeTime(moment(ranges.xaxis.from), moment(ranges.xaxis.to));
+                        changeTime(moment(ranges.xaxis.from), moment(ranges.xaxis.to));
                     });
 
-                    scope.changeTime = function(from, till) {
+                    var changeTime = function(from, till) {
                         scope.timeChanged({
                             time: {
                                 from: from,
