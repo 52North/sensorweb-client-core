@@ -15,13 +15,29 @@ module.exports = function(grunt) {
         watch: {
             files: ['<%= jshint.files %>'],
             tasks: ['jshint']
-        }
+        },
+        concat: {
+            options: {
+                separator: "\n"
+            },
+            n52swcChart: {
+                src: [
+                    "src/js/Chart/**Module.js",
+                    "src/js/Chart/**Ctrl.js",
+                    "src/js/Chart/**Service.js",
+                    "src/js/Chart/**Drtv.js",
+                    "src/js/Chart/controller/tooltip.js",
+                    "src/js/Chart/flotlib/*.js"
+                ],
+                dest: 'src/js/Chart/n52swcChart.js'
+            }
+        }});
     });
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.registerTask('test', ['jshint', 'watch']);
-
     grunt.registerTask('default', ['jshint']);
+    grunt.registerTask('concatModules', ['concat:n52swcChart']);
 };
