@@ -2,13 +2,13 @@ angular.module('n52.core.barChart', [])
     .factory('barChartHelperService', function() {
         function intervalToHour(interval) {
             switch (interval) {
-                case "byHour":
+                case 'byHour':
                     return 1;
-                case "byDay":
+                case 'byDay':
                     return 24;
-                case "byWeek":
+                case 'byWeek':
                     return 7 * 24;
-                case "byMonth":
+                case 'byMonth':
                     return 30 * 24;
                 default:
                     return 1;

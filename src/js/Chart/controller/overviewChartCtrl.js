@@ -22,9 +22,9 @@ angular.module('n52.core.overviewDiagram', [])
                         shadowSize: 1
                     },
                     selection: {
-                        mode: "overview",
-                        color: "#718296",
-                        shape: "butt",
+                        mode: 'overview',
+                        color: '#718296',
+                        shape: 'butt',
                         minSize: 30
                     },
                     grid: {
@@ -32,8 +32,8 @@ angular.module('n52.core.overviewDiagram', [])
                         autoHighlight: false
                     },
                     xaxis: {
-                        mode: "time",
-                        timezone: "browser",
+                        mode: 'time',
+                        timezone: 'browser',
                         monthNames: monthNamesTranslaterServ.getMonthNames()
                     },
                     yaxis: {
@@ -161,16 +161,16 @@ angular.module('n52.core.overviewDiagram', [])
 
         function determineDragging(slider, posX) {
             if (isInner(slider, posX)) {
-                selection.dragging = "inner";
-                selection.offsetLeft = getOffset(slider, posX, "inner");
+                selection.dragging = 'inner';
+                selection.offsetLeft = getOffset(slider, posX, 'inner');
             }
             if (isLeft(slider, posX)) {
-                selection.dragging = "left";
-                selection.offsetLeft = getOffset(slider, posX, "left");
+                selection.dragging = 'left';
+                selection.offsetLeft = getOffset(slider, posX, 'left');
             }
             if (isRight(slider, posX)) {
-                selection.dragging = "right";
-                selection.offsetLeft = getOffset(slider, posX, "right");
+                selection.dragging = 'right';
+                selection.offsetLeft = getOffset(slider, posX, 'right');
             }
         }
 
@@ -210,7 +210,7 @@ angular.module('n52.core.overviewDiagram', [])
                 onMouseUp(e);
             };
 
-            $(document).one("mouseup touchend", mouseUpHandler);
+            $(document).one('mouseup touchend', mouseUpHandler);
         }
 
         function onMouseUp(e) {
@@ -231,8 +231,8 @@ angular.module('n52.core.overviewDiagram', [])
                 triggerSelectedEvent();
             else {
                 // this counts as a clear
-                plot.getPlaceholder().trigger("plotunselected", []);
-                plot.getPlaceholder().trigger("plotselecting", [null]);
+                plot.getPlaceholder().trigger('plotunselected', []);
+                plot.getPlaceholder().trigger('plotselecting', [null]);
             }
 
             return false;
@@ -257,7 +257,7 @@ angular.module('n52.core.overviewDiagram', [])
 
         function triggerSelectedEvent() {
             var r = getSelection();
-            plot.getPlaceholder().trigger("plotselected", [r]);
+            plot.getPlaceholder().trigger('plotselected', [r]);
         }
 
         function clamp(min, value, max) {
@@ -274,19 +274,19 @@ angular.module('n52.core.overviewDiagram', [])
             if (pageX === null)
                 return;
 
-            if (selection.dragging === "left") {
+            if (selection.dragging === 'left') {
                 selection.start = getPositionInPlot(pageX - selection.offsetLeft);
                 if (!isSelectionValid())
                     selection.start = selection.end - plot.getOptions().selection.minSize;
             }
 
-            if (selection.dragging === "right") {
+            if (selection.dragging === 'right') {
                 selection.end = getPositionInPlot(pageX - selection.offsetLeft);
                 if (!isSelectionValid())
                     selection.end = selection.start + plot.getOptions().selection.minSize;
             }
 
-            if (selection.dragging === "inner") {
+            if (selection.dragging === 'inner') {
                 var width = selection.end - selection.start;
                 selection.start = getPositionInPlot(pageX - selection.offsetLeft);
                 selection.end = getPositionInPlot(pageX - selection.offsetLeft + width);
@@ -310,7 +310,7 @@ angular.module('n52.core.overviewDiagram', [])
                 selection.show = false;
                 plot.triggerRedrawOverlay();
                 if (!preventEvent)
-                    plot.getPlaceholder().trigger("plotunselected", []);
+                    plot.getPlaceholder().trigger('plotunselected', []);
             }
         }
 
@@ -321,9 +321,9 @@ angular.module('n52.core.overviewDiagram', [])
             for (var k in axes) {
                 axis = axes[k];
                 if (axis.direction == coord) {
-                    key = coord + axis.n + "axis";
+                    key = coord + axis.n + 'axis';
                     if (!ranges[key] && axis.n == 1)
-                        key = coord + "axis"; // support x1axis as xaxis
+                        key = coord + 'axis'; // support x1axis as xaxis
                     if (ranges[key]) {
                         from = ranges[key].from;
                         to = ranges[key].to;
@@ -334,9 +334,9 @@ angular.module('n52.core.overviewDiagram', [])
 
             // backwards-compat stuff - to be removed in future
             if (!ranges[key]) {
-                axis = coord == "x" ? plot.getXAxes()[0] : plot.getYAxes()[0];
-                from = ranges[coord + "1"];
-                to = ranges[coord + "2"];
+                axis = coord == 'x' ? plot.getXAxes()[0] : plot.getYAxes()[0];
+                from = ranges[coord + '1'];
+                to = ranges[coord + '2'];
             }
 
             // auto-reverse as an added bonus
@@ -352,8 +352,8 @@ angular.module('n52.core.overviewDiagram', [])
         function setSelection(ranges, preventEvent) {
             var range, o = plot.getOptions();
 
-            if (o.selection.mode == "overview") {
-                range = extractRange(ranges, "x");
+            if (o.selection.mode == 'overview') {
+                range = extractRange(ranges, 'x');
                 selection.start = range.axis.p2c(range.from);
                 selection.end = range.axis.p2c(range.to);
             }
@@ -414,10 +414,10 @@ angular.module('n52.core.overviewDiagram', [])
         });
 
         plot.hooks.shutdown.push(function (plot, eventHolder) {
-            eventHolder.unbind("mousemove", onMouseMove);
-            eventHolder.unbind("mousedown", onMouseDown);
+            eventHolder.unbind('mousemove', onMouseMove);
+            eventHolder.unbind('mousedown', onMouseDown);
             if (mouseUpHandler)
-                $(document).unbind("mouseup", mouseUpHandler);
+                $(document).unbind('mouseup', mouseUpHandler);
         });
 
     }
@@ -426,9 +426,9 @@ angular.module('n52.core.overviewDiagram', [])
         init: init,
         options: {
             selection: {
-                mode: null, // one of null, "x", "y" or "xy"
-                color: "#e8cfac",
-                shape: "round", // one of "round", "miter", or "bevel"
+                mode: null, // one of null, 'x', 'y' or 'xy'
+                color: '#e8cfac',
+                shape: 'round', // one of 'round', 'miter', or 'bevel'
                 minSize: 5 // minimum number of pixels
             }
         },

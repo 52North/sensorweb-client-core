@@ -9,7 +9,7 @@ angular.module('n52.core.locate', [])
                             scope.isToggled = !scope.isToggled;
                             locateService.locateUser(mapId, scope.isToggled);
                         };
-                        scope.$on("$destroy", function(){
+                        scope.$on('$destroy', function(){
                             locateService.locateUser(mapId, false);
                         });
                     }

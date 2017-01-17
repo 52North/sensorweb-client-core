@@ -47,7 +47,7 @@ angular.module('n52.core.ie9.favoriteIE9ImExport', [])
                         var data = {
                             header: $translate.instant('favorite.import.header'),
                             text: $translate.instant('favorite.import.text'),
-                            content: "",
+                            content: '',
                             submit: function (json) {
                                 favoriteService.setFavorites(angular.fromJson(json));
                             }

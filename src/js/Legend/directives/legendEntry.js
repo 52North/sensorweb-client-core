@@ -5,7 +5,7 @@ angular.module('n52.core.legend')
                     restrict: 'E',
                     templateUrl: 'n52.core.legend.legend-entry',
                     scope: {
-                        timeseries: "="
+                        timeseries: '='
                     }
                 };
             }]);

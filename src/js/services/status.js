@@ -2,8 +2,8 @@ angular.module('n52.core.status', [])
     .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService',
         function($rootScope, localStorageService, settingsService) {
             var lastBuild = 1;
-            if (document.head.querySelector("[property=lastBuild]")) {
-                lastBuild = document.head.querySelector("[property=lastBuild]").content;
+            if (document.head.querySelector('[property=lastBuild]')) {
+                lastBuild = document.head.querySelector('[property=lastBuild]').content;
             }
 
             var storageKey = 'status';

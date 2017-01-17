@@ -39,7 +39,7 @@ angular.module('n52.core.table')
                 angular.forEach(timeseriesService.getAllTimeseries(), function(ts) {
                     var phenomenonLabel = ts.parameters.phenomenon.label;
                     if (ts.uom) {
-                        phenomenonLabel += " (" + ts.uom + ")";
+                        phenomenonLabel += ' (' + ts.uom + ')';
                     }
                     columns.push({
                         station: ts.parameters.feature.label,

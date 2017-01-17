@@ -3,6 +3,6 @@ angular.module('n52.core.userSettings')
             function ($scope, permalinkGenerationService, $window) {
                 $scope.openInMail = function (timeseriesId) {
                     var link = permalinkGenerationService.getCurrentPermalink(timeseriesId);
-                    $window.location = "mailto:?body=" + encodeURIComponent(link);
+                    $window.location = 'mailto:?body=' + encodeURIComponent(link);
                 };
             }]);

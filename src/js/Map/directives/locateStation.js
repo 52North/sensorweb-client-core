@@ -11,7 +11,7 @@ angular.module('n52.core.map')
                             focus: true,
                             clickable: false,
                             icon: settingsService.stationIconOptions,
-                            message: "<swc-locate-station timeseriesid='" + timeseries.internalId + "'></swc-locate-station>"
+                            message: '<swc-locate-station timeseriesid="' + timeseries.internalId + '"></swc-locate-station>'
                         };
                         map.markers.selectedStation = selectedStation;
                         map.center = {

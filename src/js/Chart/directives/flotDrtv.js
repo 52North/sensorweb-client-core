@@ -17,7 +17,7 @@ angular.module('n52.core.flot', [])
                     width = attributes.width || '100%';
                     height = attributes.height || '100%';
                     if (((_ref = scope.options) !== null ? (_ref1 = _ref.legend) !== null ? _ref1.container : void 0 : void 0) instanceof jQuery) {
-                        throw 'Please use a jQuery expression string with the "legend.container" option.';
+                        throw 'Please use a jQuery expression string with the legend.container option.';
                     }
 
                     if (!scope.options) {
@@ -59,7 +59,7 @@ angular.module('n52.core.flot', [])
 
                     var createPlotAnnotation = function(plotArea, options) {
                         if (!options.annotation || !options.annotation.hide) {
-                            plotArea.append("<div class='chart-annotation'>" + $translate.instant('chart.annotation') + "</div>");
+                            plotArea.append('<div class="chart-annotation">' + $translate.instant('chart.annotation') + '</div>');
                         }
                     };
 
@@ -73,12 +73,12 @@ angular.module('n52.core.flot', [])
                                 if (!axis.show)
                                     return;
                                 var box = axis.box;
-                                if (axis.direction === "y") {
-                                    $("<div class='axisTargetStyle' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
-                                        .data("axis.n", axis.n)
+                                if (axis.direction === 'y') {
+                                    $('<div class="axisTargetStyle" style="position:absolute; left:' + box.left + 'px; top:' + box.top + 'px; width:' + box.width + 'px; height:' + box.height + 'px"></div>')
+                                        .data('axis.n', axis.n)
                                         .appendTo(plot.getPlaceholder());
-                                    $("<div class='axisTarget' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
-                                        .data("axis.n", axis.n)
+                                    $('<div class="axisTarget" style="position:absolute; left:' + box.left + 'px; top:' + box.top + 'px; width:' + box.width + 'px; height:' + box.height + 'px"></div>')
+                                        .data('axis.n', axis.n)
                                         .appendTo(plot.getPlaceholder())
                                         .click($.proxy(function(event) {
                                             var selection = {};
@@ -87,7 +87,7 @@ angular.module('n52.core.flot', [])
                                             $.each($('.axisTarget'), function(index, elem) {
                                                 elem = $(elem);
                                                 if (target.data('axis.n') === elem.data('axis.n')) {
-                                                    selected = elem.hasClass("selected");
+                                                    selected = elem.hasClass('selected');
                                                     return false; // break loop
                                                 }
                                             });
@@ -99,7 +99,7 @@ angular.module('n52.core.flot', [])
                                                 }
                                             });
                                             if (!selected) {
-                                                target.addClass("selected");
+                                                target.addClass('selected');
                                             }
                                             scope.$apply();
                                             scope.seriesSelectionChanged({
@@ -107,15 +107,15 @@ angular.module('n52.core.flot', [])
                                             });
                                             scope.$emit('redrawChart');
                                         }, this));
-                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
+                                    var yaxisLabel = $('<div class="axisLabel yaxisLabel" style=left:' + box.left + 'px;></div>').text(axis.options.uom)
                                         .appendTo(plot.getPlaceholder())
-                                        .data("axis.n", axis.n);
+                                        .data('axis.n', axis.n);
                                     if (axis.options.tsColors) {
                                         $.each(axis.options.tsColors, function(idx, color) {
                                             $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
                                         });
                                     }
-                                    yaxisLabel.css("margin-left", -8 - (yaxisLabel.height() - yaxisLabel.width()) / 2);
+                                    yaxisLabel.css('margin-left', -8 - (yaxisLabel.height() - yaxisLabel.width()) / 2);
                                 }
                             }, this));
 

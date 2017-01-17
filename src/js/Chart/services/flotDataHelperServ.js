@@ -69,7 +69,7 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
                 yaxis: ts.styles.yaxis
             };
             // bar chart
-            if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === "bar") {
+            if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === 'bar') {
                 var interval = ts.renderingHints.properties.interval;
                 dataEntry.bars = {
                     lineWidth: lineWidth,

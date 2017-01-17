@@ -18,7 +18,7 @@ angular.module('n52.core.startup')
                                 constellations.push(constellation);
                             }
                         } else {
-                            $log.warn("The Permalink consists of a wrong combination.");
+                            $log.warn('The Permalink consists of a wrong combination.');
                         }
                     }
                     return constellations;
@@ -35,7 +35,7 @@ angular.module('n52.core.startup')
                                     if (result.length > 0) {
                                         var timeseries = [];
                                         angular.forEach(result, function (entry) {
-                                            if (entry.type === "timeseries")
+                                            if (entry.type === 'timeseries')
                                                 timeseries.push(entry);
                                         });
 
@@ -47,7 +47,7 @@ angular.module('n52.core.startup')
                                     requestLength--;
                                     if (requestLength === 0) {
                                         if ($.isEmptyObject(foundTimeseriesId)) {
-                                            $log.warn("No timeseries for this combinations are found.");
+                                            $log.warn('No timeseries for this combinations are found.');
                                         }
                                     }
                                 });

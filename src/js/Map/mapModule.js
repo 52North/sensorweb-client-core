@@ -25,7 +25,7 @@ angular.module('n52.core.map', [])
                 }
             });
             var map = {
-                id: settingsService.stationMap ? settingsService.stationMap : "stationMap"
+                id: settingsService.stationMap ? settingsService.stationMap : 'stationMap'
             };
             if (settingsService.showScale) {
                 map.controls = {

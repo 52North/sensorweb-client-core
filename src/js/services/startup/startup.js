@@ -13,7 +13,7 @@ angular.module('n52.core.startup', [])
                         if (angular.isFunction(service.setsParameters)) {
                             service.setsParameters();
                         } else {
-                            $log.error(serviceString + " has no setsParameters method!");
+                            $log.error(serviceString + ' has no setsParameters method!');
                         }
                     });
                 };

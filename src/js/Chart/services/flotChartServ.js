@@ -31,13 +31,13 @@ angular.module('n52.core.diagram').factory('flotChartServ', [
                 mode: 'x'
             },
             xaxis: {
-                mode: "time",
-                timezone: "browser",
+                mode: 'time',
+                timezone: 'browser',
                 monthNames: monthNamesTranslaterServ.getMonthNames()
-                    //            timeformat: "%Y/%m/%d",
+                    //            timeformat: '%Y/%m/%d',
                     //use these the following two lines to have small ticks at the bottom ob the diagram
                     //            tickLength: 5,
-                    //            tickColor: "#000"
+                    //            tickColor: '#000'
             },
             yaxis: {
                 show: true,
@@ -47,8 +47,8 @@ angular.module('n52.core.diagram').factory('flotChartServ', [
                 labelWidth: 50
                     //			tickFormatter : function(val, axis) {
                     //				var factor = axis.tickDecimals ? Math.pow(10, axis.tickDecimals) : 1;
-                    //				var formatted = "" + Math.round(val * factor) / factor;
-                    //				return formatted + "<br>" + this.uom;
+                    //				var formatted = '' + Math.round(val * factor) / factor;
+                    //				return formatted + '<br>' + this.uom;
                     //			}
             },
             legend: {
@@ -116,7 +116,7 @@ angular.module('n52.core.diagram').factory('flotChartServ', [
                 } else {
                     axesList[elem.internalId] = {
                         id: ++Object.keys(axesList).length,
-                        uom: uom + " @ " + elem.station.properties.label,
+                        uom: uom + ' @ ' + elem.station.properties.label,
                         tsColors: [elem.styles.color],
                         zeroScaled: elem.styles.zeroScaled
                     };

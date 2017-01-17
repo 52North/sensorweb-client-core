@@ -4,7 +4,7 @@ angular.module('n52.core.favoriteUi')
                 restrict: 'E',
                 templateUrl: 'n52.core.favoriteUi.favorite-star',
                 scope: {
-                    timeseries: "="
+                    timeseries: '='
                 },
                 controller: 'SwcAddFavoriteCtrl'
             };

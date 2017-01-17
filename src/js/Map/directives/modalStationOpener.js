@@ -13,11 +13,11 @@ angular.module('n52.core.map')
                         clickmarker = function(event, args) {
                             var platform = {};
                             if (args.model) {
-                                platform.id = args.model.stationsId ? args.model.stationsId : "";
-                                platform.url = args.model.url ? args.model.url : "";
+                                platform.id = args.model.stationsId ? args.model.stationsId : '';
+                                platform.url = args.model.url ? args.model.url : '';
                             } else if (args.leafletObject && args.leafletObject.options) {
-                                platform.id = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : "";
-                                platform.url = args.leafletObject.options.url ? args.leafletObject.options.url : "";
+                                platform.id = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : '';
+                                platform.url = args.leafletObject.options.url ? args.leafletObject.options.url : '';
                             }
                             var platformPresenter = serviceFinder.getPlatformPresenter(args.model.platformType);
                             if (platformPresenter) {
