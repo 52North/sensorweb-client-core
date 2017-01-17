@@ -22,10 +22,10 @@ module.exports = function(grunt) {
             },
             n52swcChart: {
                 src: [
-                    "src/js/Chart/*/**Mdul.js",
-                    "src/js/Chart/*/**Ctrl.js",
-                    "src/js/Chart/*/**Serv.js",
-                    "src/js/Chart/*/**Drtv.js",
+                    "src/js/Chart/*/*Mdul.js",
+                    "src/js/Chart/*/*Ctrl.js",
+                    "src/js/Chart/*/*Serv.js",
+                    "src/js/Chart/*/*Drtv.js",
                     "src/js/Chart/flotlib/*.js"
                 ],
                 dest: 'dist/n52swcChart.js'

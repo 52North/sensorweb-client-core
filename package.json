@@ -15,6 +15,12 @@
     "grunt-contrib-watch": "^0.6.1",
     "http-server": "^0.6.1"
   },
+  "peerDependencies": {
+    "angular": "~1.6",
+    "ui-leaflet": "janschulte/ui-leaflet#master",
+    "moment": "2.10.3",
+    "flot": "0.8.2"
+  },
   "scripts": {
     "postinstall": "grunt concatModules",
     "prestart": "npm install"
