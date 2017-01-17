@@ -3,7 +3,7 @@ angular.module('n52.core.listSelection')
             function () {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/listSelection/list-selection.html',
+                    templateUrl: 'n52.core.listSelection.list-selection',
                     scope: {
                         parameters: '=',
                         listselectionid: '='

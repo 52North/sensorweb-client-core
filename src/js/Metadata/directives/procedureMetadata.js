@@ -1,12 +1,12 @@
 angular.module('n52.core.metadata')
         .directive('swcProcedureMetadata', [function () {
                 return {
-                    restrict: "E",
+                    restrict: 'E',
                     replace: true,
                     scope: {
-                        timeseries: "="
+                        timeseries: '='
                     },
-                    templateUrl: "templates/metadata/procedure/button.html",
+                    templateUrl: 'n52.core.metadata.procedure-button',
                     controller: ['$scope', 'modalOpener', 'procedureMetadataSrv',
                         function ($scope, modalOpener, procedureMetadataSrv) {
                             $scope.formatsList = [];
@@ -14,7 +14,7 @@ angular.module('n52.core.metadata')
 
                             $scope.open = function () {
                                 modalOpener.open({
-                                    templateUrl: 'templates/metadata/procedure/modal.html',
+                                    templateUrl: 'n52.core.metadata.procedure-modal',
                                     resolve: {
                                         timeseries: function () {
                                             return $scope.timeseries;
@@ -23,7 +23,7 @@ angular.module('n52.core.metadata')
                                     controller: ['$scope', '$uibModalInstance', 'timeseries', '$http',
                                         function ($scope, $uibModalInstance, timeseries, $http) {
                                             $scope.timeseries = timeseries;
-                                            var procedureURL = timeseries.apiUrl + "procedures/" + timeseries.parameters.procedure.id + "?rawFormat=http://www.opengis.net/sensorml/2.0";
+                                            var procedureURL = timeseries.apiUrl + 'procedures/' + timeseries.parameters.procedure.id + '?rawFormat=http://www.opengis.net/sensorml/2.0';
                                             $http.get(procedureURL).then(function (response) {
                                                 var xml = response.data;
                                                 $http.get('xslt/procedure.xsl').then(function (xsl) {

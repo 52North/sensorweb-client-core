@@ -1,13 +1,13 @@
-angular.module('n52.core.rawDataOutput', [])
+angular.module('n52.core.metadata')
         .directive('swcTimeseriesRawDataOutput', [
             function () {
                 return {
-                    restrict: "E",
+                    restrict: 'E',
                     replace: true,
                     scope: {
-                        timeseries: "="
+                        timeseries: '='
                     },
-                    templateUrl: "templates/metadata/timeseries-rawdata.html",
+                    templateUrl: 'n52.core.metadata.timeseries-rawdata',
                     controller: 'SwcTimeseriesRawDataOutputCtrl'
                 };
             }])
@@ -18,7 +18,7 @@ angular.module('n52.core.rawDataOutput', [])
                 $scope.select = function (choice) {
                     var timespan = timeService.time;
                     var timespanString = utils.createRequestTimespan(timespan.start, timespan.end);
-                    var url = $scope.timeseries.apiUrl + "timeseries/" + $scope.timeseries.id + "/getData?rawFormat=" + choice + "&timespan=" + encodeURIComponent(timespanString);
+                    var url = $scope.timeseries.apiUrl + 'timeseries/' + $scope.timeseries.id + '/getData?rawFormat=' + choice + '&timespan=' + encodeURIComponent(timespanString);
                     $window.open(url);
                 };
 

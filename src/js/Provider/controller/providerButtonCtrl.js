@@ -5,7 +5,7 @@ angular.module('n52.core.provider')
                     // open provider list in modal window
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'templates/map/provider-list-modal.html',
+                        templateUrl: 'n52.core.provider.provider-list-modal',
                         controller: 'SwcProviderListModalCtrl'
                     });
                 };

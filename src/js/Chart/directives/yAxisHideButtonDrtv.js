@@ -1,9 +1,9 @@
-angular.module('n52.core.yAxisHide', [])
+angular.module('n52.core.diagram')
     .directive('swcYaxisHideButton', ['diagramBehaviourService',
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/diagram/y-axis-hide-button.html',
+                templateUrl: 'n52.core.diagram.y-axis-hide-button',
                 controller: 'SwcYaxisHideCtrl'
             };
         }

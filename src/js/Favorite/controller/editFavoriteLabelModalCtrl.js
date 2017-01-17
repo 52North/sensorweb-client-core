@@ -9,13 +9,13 @@ angular.module('n52.core.favoriteUi')
                 return function (favorite) {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'templates/favorite/favorite-edit-label-modal.html',
+                        templateUrl: 'n52.core.favoriteUi.favorite-edit-label-modal',
                         resolve: {
                             favorite: function () {
                                 return favorite;
                             }
                         },
-                        controller: ['$scope', '$uibModalInstance', 'favorite', 'favoriteService', 
+                        controller: ['$scope', '$uibModalInstance', 'favorite', 'favoriteService',
                             function ($scope, $uibModalInstance, favorite, favoriteService) {
                                 $scope.label = favorite.label;
                                 $scope.close = function () {
@@ -28,5 +28,4 @@ angular.module('n52.core.favoriteUi')
                             }]
                     });
                 };
-            }]);       
-        
+            }]);

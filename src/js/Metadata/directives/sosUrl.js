@@ -1,9 +1,9 @@
-angular.module('n52.core.sosMetadata', [])
+angular.module('n52.core.metadata')
     .component('swcSosUrl', {
         bindings: {
-            timeseries: "<"
+            timeseries: '<'
         },
-        templateUrl: "templates/metadata/sos-url.html",
+        templateUrl: 'n52.core.metadata.sos-url',
         controller: 'SwcSosUrlCtrl'
     })
     .controller('SwcSosUrlCtrl', ['sosUrlSrv', '$window',

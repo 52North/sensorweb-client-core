@@ -3,7 +3,7 @@ angular.module('n52.core.userSettings')
             function (permalinkGenerationService) {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/settings/qr-code-button.html',
+                    templateUrl: 'n52.core.userSettings.qr-code-button',
                     scope: {},
                     link: function (scope, element, attrs) {
                         scope.timeseriesId = attrs.timeseriesid;

@@ -43,7 +43,7 @@ angular.module('n52.core.map')
             this.presentPlatform = function(station, ctrl) {
                 $uibModal.open({
                     animation: true,
-                    templateUrl: 'templates/map/station.html',
+                    templateUrl: 'n52.core.map.station',
                     resolve: {
                         selection: function() {
                             var url = station.url;

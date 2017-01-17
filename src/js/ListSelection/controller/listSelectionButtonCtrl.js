@@ -3,7 +3,7 @@ angular.module('n52.core.listSelection')
             function ($scope, modalOpener) {
                 $scope.openListSelection = function () {
                     modalOpener.open({
-                        templateUrl: 'templates/listSelection/modal-list-selection.html'
+                        templateUrl: 'n52.core.listSelection.modal-list-selection'
                     });
                 };
             }]);

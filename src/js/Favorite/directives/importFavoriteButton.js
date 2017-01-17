@@ -2,7 +2,7 @@ angular.module('n52.core.favoriteUi')
         .directive('swcImportFavoriteButton', ['utils', 'favoriteImExportService', function (utils, favoriteImExportService) {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/favorite/favorite-import-button.html',
+                    templateUrl: 'n52.core.favoriteUi.favorite-import-button',
                     link: function (scope, element, attrs) {
                         if (utils.isFileAPISupported()) {
                             element.find('input').change({}, function (event) {

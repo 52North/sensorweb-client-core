@@ -1,10 +1,10 @@
-mainApp.requires.push('n52.core.favoriteIE9ImExport');
-angular.module('n52.core.favoriteIE9ImExport', [])
+mainApp.requires.push('n52.core.ie9.favoriteIE9ImExport');
+angular.module('n52.core.ie9.favoriteIE9ImExport', [])
         .service('imExportFavoriteModalOpener', ['$uibModal', function ($uibModal) {
                 return function (data) {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'templates/ie9/import-export.html',
+                        templateUrl: 'n52.core.ie9.import-export',
                         resolve: {
                             data: function () {
                                 return data;

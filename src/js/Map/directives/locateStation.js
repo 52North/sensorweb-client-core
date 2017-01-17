@@ -36,7 +36,7 @@ angular.module('n52.core.map')
             function (timeseriesService) {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/map/locateStation.html',
+                    templateUrl: 'n52.core.map.locate-station',
                     scope: {},
                     link: function (scope, element, attrs) {
                         scope.timeseries = timeseriesService.getTimeseries(attrs.timeseriesid);

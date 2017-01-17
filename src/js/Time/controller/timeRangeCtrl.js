@@ -3,7 +3,7 @@ angular.module('n52.core.timeUi')
             function ($scope, modalOpener) {
                 $scope.open = function () {
                     modalOpener.open({
-                        templateUrl: 'templates/time/time-range-modal.html'
+                        templateUrl: 'n52.core.timeUi.time-range-modal'
                     });
                 };
             }]);

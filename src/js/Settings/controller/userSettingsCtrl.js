@@ -4,7 +4,7 @@ angular.module('n52.core.userSettings')
                 $scope.open = function () {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'templates/settings/user-settings-modal.html',
+                        templateUrl: 'n52.core.userSettings.user-settings-modal',
                         controller: 'SwcUserSettingsWindowCtrl'
                     });
                 };

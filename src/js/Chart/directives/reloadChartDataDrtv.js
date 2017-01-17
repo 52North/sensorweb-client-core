@@ -3,7 +3,7 @@ angular.module('n52.core.diagram')
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/diagram/reload-button.html',
+                templateUrl: 'n52.core.diagram.reload-button',
                 controller: 'SwcReloadButtonCtrl'
             };
         }
@@ -29,7 +29,7 @@ angular.module('n52.core.diagram')
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/diagram/refresh-time.html',
+                templateUrl: 'n52.core.diagram.refresh-time',
                 controller: 'SwcLastRefreshCtrl'
             };
         }

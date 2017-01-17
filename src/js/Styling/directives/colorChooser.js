@@ -2,7 +2,7 @@ angular.module('n52.core.style')
         .directive('swcColorChooser', function () {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/styling/color-chooser.html',
+                templateUrl: 'n52.core.style.color-chooser',
                 controller: ['$scope', 'colorService', 'styleService',
                     function ($scope, colorService, styleService) {
                         $scope.colorList = colorService.colorList;

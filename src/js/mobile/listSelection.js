@@ -4,7 +4,7 @@ angular.module('n52.client.mobile')
             $scope.openListSelectionMobile = function() {
                 $uibModal.open({
                     animation: true,
-                    templateUrl: 'templates/mobile/modal-list-selection-mobile.html',
+                    templateUrl: 'n52.client.mobile.modal-list-selection-mobile',
                     controller: 'ModalListSelectionMobileCtrl'
                 });
             };
@@ -67,7 +67,7 @@ angular.module('n52.client.mobile')
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/listSelection/list-selection.html',
+                templateUrl: 'n52.core.listSelection.list-selection',
                 scope: {
                     parameters: '=',
                     provider: '='

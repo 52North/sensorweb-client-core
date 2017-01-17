@@ -3,7 +3,7 @@ angular.module('n52.core.timeUi')
             function () {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/time/date-time-selection.html',
+                    templateUrl: 'n52.core.timeUi.date-time-selection',
                     scope: {
                         date: '=',
                         title: '=',

@@ -3,7 +3,7 @@ angular.module('n52.core.legend')
             function () {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/legend/legend-entry.html',
+                    templateUrl: 'n52.core.legend.legend-entry',
                     scope: {
                         timeseries: "="
                     }

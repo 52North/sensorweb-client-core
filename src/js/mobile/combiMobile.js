@@ -1,9 +1,9 @@
-angular.module('n52.client.mobile', [])
+angular.module('n52.core.mobile', [])
     .directive('swcCombiMobile', [
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/mobile/combi-mobile.html',
+                templateUrl: 'n52.core.mobile.combi-mobile',
                 replace: true,
                 controller: ['$scope', 'combinedSrvc', 'leafletData',
                     function($scope, combinedSrvc, leafletData) {
@@ -637,7 +637,7 @@ angular.module('n52.client.mobile', [])
         }
     ])
     .component('swcMobilePermalink', {
-        templateUrl: 'templates/mobile/permalink.html',
+        templateUrl: 'n52.core.mobile.permalink',
         bindings: {
             datasetid: '<',
             providerurl: '<'

@@ -1,9 +1,8 @@
-angular.module('n52.core.translateSelector', [])
+angular.module('n52.core.translate', [])
         .directive('swcLanguageSelector', function () {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/language/language-selector.html',
+                templateUrl: 'n52.core.translate.language-selector',
                 controller: 'SwcLanguageSelectorCtrl'
             };
         });
-

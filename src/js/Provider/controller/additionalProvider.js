@@ -1,6 +1,6 @@
 angular.module('n52.core.provider')
     .component('swcAddProvider', {
-        templateUrl: 'templates/provider/add-provider.html',
+        templateUrl: 'n52.core.provider.add-provider',
         controller: ['providerService', '$timeout',
             function(providerService, $timeout) {
                 var ctrl = this;

@@ -2,12 +2,12 @@ angular.module('n52.core.metadata')
         .directive('swcProcedureRawdata', [
             function () {
                 return {
-                    restrict: "E",
+                    restrict: 'E',
                     replace: true,
                     scope: {
-                        timeseries: "="
+                        timeseries: '='
                     },
-                    templateUrl: "templates/metadata/procedure/rawdata.html",
+                    templateUrl: 'n52.core.metadata.procedure-rawdata',
                     controller: 'SwcProcedureMetadataCtrl'
                 };
             }])
@@ -16,7 +16,7 @@ angular.module('n52.core.metadata')
                 $scope.formatsList = [];
 
                 $scope.select = function (choice) {
-                    var url = $scope.timeseries.apiUrl + "procedures/" + $scope.timeseries.parameters.procedure.id + "?rawFormat=" + choice;
+                    var url = $scope.timeseries.apiUrl + 'procedures/' + $scope.timeseries.parameters.procedure.id + '?rawFormat=' + choice;
                     $window.open(url);
                 };
 

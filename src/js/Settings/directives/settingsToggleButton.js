@@ -3,7 +3,7 @@ angular.module('n52.core.userSettings')
             function (statusService) {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/settings/settings-toggle-button.html',
+                    templateUrl: 'n52.core.userSettings.settings-toggle-button',
                     scope: {},
                     link: function (scope, element, attrs) {
                         scope.status = statusService.status;

@@ -52,7 +52,7 @@ angular.module('n52.core.map')
             this.presentPlatform = function(station) {
                 $uibModal.open({
                     animation: true,
-                    templateUrl: 'templates/map/stationary_insitu.html',
+                    templateUrl: 'n52.core.map.stationary-insitu',
                     resolve: {
                         selection: function() {
                             var url = station.url;

@@ -4,7 +4,7 @@ angular.module('n52.core.timeUi')
             function (settingsService, timeService, $translate) {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/time/custom-time-range-selection.html',
+                    templateUrl: 'n52.core.timeUi.custom-time-range-selection',
                     link: function ($scope, element, attrs) {
                         var evaluateDate = function (ev) {
                             var id = "#" + ev.currentTarget.id;

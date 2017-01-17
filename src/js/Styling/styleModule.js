@@ -3,7 +3,7 @@ angular.module('n52.core.style', [])
                 return function (timeseries) {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'templates/styling/modal-style-editor.html',
+                        templateUrl: 'n52.core.style.modal-style-editor',
                         resolve: {
                             timeseries: function () {
                                 return timeseries;

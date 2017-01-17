@@ -3,7 +3,7 @@ angular.module('n52.core.map')
             function () {
                 return {
                     restrict: 'E',
-                    templateUrl: 'templates/map/station-loading.html',
+                    templateUrl: 'n52.core.map.station-loading',
                     controller: 'SwcStationLoadingCtrl'
                 };
             }])
