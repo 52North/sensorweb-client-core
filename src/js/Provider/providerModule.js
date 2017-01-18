@@ -50,6 +50,13 @@ angular.module('n52.core.provider', [])
                 label: ""
             };
 
+            var provider = statusService.status.apiProvider;
+            if (provider && provider.url && provider.serviceID) {
+                interfaceService.getServices(provider.url, provider.serviceID).then(provider => {
+                    this.selectedProvider.label = provider.label;
+                });
+            }
+
             this.deleteProvider = function(provider) {
                 removeProviderFromUserList(provider, this.providerList);
             };
