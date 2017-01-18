@@ -38,6 +38,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
 
     grunt.registerTask('test', ['jshint', 'watch']);
-    grunt.registerTask('default', ['jshint']);
+    grunt.registerTask('default', ['jshint', 'concat']);
     grunt.registerTask('concatModules', ['concat']);
 };

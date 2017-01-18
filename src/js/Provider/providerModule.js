@@ -1,6 +1,6 @@
 angular.module('n52.core.provider', [])
-    .service('providerService', ['$rootScope', 'statusService', '$q', 'interfaceService', 'settingsService',
-        function($rootScope, statusService, $q, interfaceService, settingsService) {
+    .service('providerService', ['$rootScope', 'statusService', '$q', 'seriesApiInterface', 'settingsService',
+        function($rootScope, statusService, $q, seriesApiInterface, settingsService) {
 
             addProviderToUserList = function(provider, providerList) {
                 initStatusProviderList();
@@ -52,7 +52,7 @@ angular.module('n52.core.provider', [])
 
             var provider = statusService.status.apiProvider;
             if (provider && provider.url && provider.serviceID) {
-                interfaceService.getServices(provider.url, provider.serviceID).then(provider => {
+                seriesApiInterface.getServices(provider.url, provider.serviceID).then(provider => {
                     this.selectedProvider.label = provider.label;
                 });
             }
@@ -70,7 +70,7 @@ angular.module('n52.core.provider', [])
                 }, platformType);
                 // initStatusProviderList();
                 // statusService.status.addedProvider.forEach(entry => {
-                //     interfaceService.getServices(entry.url, entry.id, {
+                //     seriesApiInterface.getServices(entry.url, entry.id, {
                 //         platformTypes: platformType
                 //     }).then(provider => {
                 //         provider.selected = isProviderSelected(provider, entry.url);
@@ -106,7 +106,7 @@ angular.module('n52.core.provider', [])
 
             this.addProvider = function(url) {
                 return $q((resolve, reject) => {
-                    interfaceService.getServices(url)
+                    seriesApiInterface.getServices(url)
                         .then(res => {
                             res.forEach(entry => {
                                 entry.url = url;
@@ -122,7 +122,7 @@ angular.module('n52.core.provider', [])
             this.doForAllServices = function(doFunc, platformType) {
                 var temp = Object.keys(settingsService.restApiUrls);
                 temp.forEach(url => {
-                    interfaceService.getServices(url, null, {
+                    seriesApiInterface.getServices(url, null, {
                         platformTypes: platformType
                     }).then(providers => {
                         providers.forEach(provider => {
@@ -134,7 +134,7 @@ angular.module('n52.core.provider', [])
                 });
                 initStatusProviderList();
                 statusService.status.addedProvider.forEach(entry => {
-                    interfaceService.getServices(entry.url, entry.id, {
+                    seriesApiInterface.getServices(entry.url, entry.id, {
                         platformTypes: platformType
                     }).then(provider => {
                         provider.isUserAdded = true;

@@ -1,6 +1,6 @@
 angular.module('n52.core.listSelection')
-    .controller('SwcListSelectionCtrl', ['$scope', 'interfaceService', 'statusService', 'timeseriesService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'providerService', 'serviceFinder', '$location',
-        function($scope, interfaceService, statusService, timeseriesService, $rootScope, listSelectionSrvc, settingsService, providerService, serviceFinder, $location) {
+    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'statusService', 'timeseriesService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'providerService', 'serviceFinder', '$location',
+        function($scope, seriesApiInterface, statusService, timeseriesService, $rootScope, listSelectionSrvc, settingsService, providerService, serviceFinder, $location) {
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
@@ -85,25 +85,25 @@ angular.module('n52.core.listSelection')
             };
 
             $scope.getCategories = function(url, serviceID, currParam, params) {
-                interfaceService.getCategories(null, url, params).then(function(data) {
+                seriesApiInterface.getCategories(null, url, params).then(function(data) {
                     addEntries(data, serviceID, url, currParam);
                 });
             };
 
             $scope.getFeatures = function(url, serviceID, currParam, params) {
-                interfaceService.getFeatures(null, url, params).then(function(data) {
+                seriesApiInterface.getFeatures(null, url, params).then(function(data) {
                     addEntries(data, serviceID, url, currParam);
                 });
             };
 
             $scope.getPhenomena = function(url, serviceID, currParam, params) {
-                interfaceService.getPhenomena(null, url, params).then(function(data) {
+                seriesApiInterface.getPhenomena(null, url, params).then(function(data) {
                     addEntries(data, serviceID, url, currParam);
                 });
             };
 
             $scope.getProcedures = function(url, serviceID, currParam, params) {
-                interfaceService.getProcedures(null, url, params).then(function(data) {
+                seriesApiInterface.getProcedures(null, url, params).then(function(data) {
                     addEntries(data, serviceID, url, currParam);
                 });
             };
@@ -193,7 +193,7 @@ angular.module('n52.core.listSelection')
             };
 
             $scope.processSelection = function(params, url) {
-                interfaceService.getTimeseries(null, url, params).then(result => {
+                seriesApiInterface.getTimeseries(null, url, params).then(result => {
                     // TODO iterate over results
                     var dataset = result[0];
                     if (dataset.datasetType) {

@@ -60,8 +60,8 @@ angular.module('n52.core.overviewDiagram', [])
                     timeService.setFlexibleTimeExtent(time.from, time.till);
                 };
             }])
-        .factory('flotOverviewChartServ', ['timeseriesService', 'statusService', 'timeService', '$rootScope', 'interfaceService', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
-            function (timeseriesService, statusService, timeService, $rootScope, interfaceService, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
+        .factory('flotOverviewChartServ', ['timeseriesService', 'statusService', 'timeService', '$rootScope', 'seriesApiInterface', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
+            function (timeseriesService, statusService, timeService, $rootScope, seriesApiInterface, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
                 var options = {
                     series: {
                         downsample: {
@@ -74,9 +74,9 @@ angular.module('n52.core.overviewDiagram', [])
                         shadowSize: 1
                     },
                     selection: {
-                        mode: "overview",
-                        color: "#718296",
-                        shape: "butt",
+                        mode: 'overview',
+                        color: '#718296',
+                        shape: 'butt',
                         minSize: 30
                     },
                     grid: {
@@ -84,8 +84,8 @@ angular.module('n52.core.overviewDiagram', [])
                         autoHighlight: false
                     },
                     xaxis: {
-                        mode: "time",
-                        timezone: "browser",
+                        mode: 'time',
+                        timezone: 'browser',
                         monthNames: monthNamesTranslaterServ.getMonthNames()
                     },
                     yaxis: {
@@ -167,7 +167,7 @@ angular.module('n52.core.overviewDiagram', [])
                     var ts = timeseriesService.getTimeseries(tsId);
                     if (ts) {
                         var start = options.xaxis.min, end = options.xaxis.max;
-                        interfaceService.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, extendedDataRequest, generalizeData).then(function (data) {
+                        seriesApiInterface.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, extendedDataRequest, generalizeData).then(function (data) {
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
                             options.loading = false;
                         });
@@ -213,16 +213,16 @@ angular.module('n52.core.overviewDiagram', [])
 
         function determineDragging(slider, posX) {
             if (isInner(slider, posX)) {
-                selection.dragging = "inner";
-                selection.offsetLeft = getOffset(slider, posX, "inner");
+                selection.dragging = 'inner';
+                selection.offsetLeft = getOffset(slider, posX, 'inner');
             }
             if (isLeft(slider, posX)) {
-                selection.dragging = "left";
-                selection.offsetLeft = getOffset(slider, posX, "left");
+                selection.dragging = 'left';
+                selection.offsetLeft = getOffset(slider, posX, 'left');
             }
             if (isRight(slider, posX)) {
-                selection.dragging = "right";
-                selection.offsetLeft = getOffset(slider, posX, "right");
+                selection.dragging = 'right';
+                selection.offsetLeft = getOffset(slider, posX, 'right');
             }
         }
 
@@ -262,7 +262,7 @@ angular.module('n52.core.overviewDiagram', [])
                 onMouseUp(e);
             };
 
-            $(document).one("mouseup touchend", mouseUpHandler);
+            $(document).one('mouseup touchend', mouseUpHandler);
         }
 
         function onMouseUp(e) {
@@ -283,8 +283,8 @@ angular.module('n52.core.overviewDiagram', [])
                 triggerSelectedEvent();
             else {
                 // this counts as a clear
-                plot.getPlaceholder().trigger("plotunselected", []);
-                plot.getPlaceholder().trigger("plotselecting", [null]);
+                plot.getPlaceholder().trigger('plotunselected', []);
+                plot.getPlaceholder().trigger('plotselecting', [null]);
             }
 
             return false;
@@ -309,7 +309,7 @@ angular.module('n52.core.overviewDiagram', [])
 
         function triggerSelectedEvent() {
             var r = getSelection();
-            plot.getPlaceholder().trigger("plotselected", [r]);
+            plot.getPlaceholder().trigger('plotselected', [r]);
         }
 
         function clamp(min, value, max) {
@@ -326,19 +326,19 @@ angular.module('n52.core.overviewDiagram', [])
             if (pageX === null)
                 return;
 
-            if (selection.dragging === "left") {
+            if (selection.dragging === 'left') {
                 selection.start = getPositionInPlot(pageX - selection.offsetLeft);
                 if (!isSelectionValid())
                     selection.start = selection.end - plot.getOptions().selection.minSize;
             }
 
-            if (selection.dragging === "right") {
+            if (selection.dragging === 'right') {
                 selection.end = getPositionInPlot(pageX - selection.offsetLeft);
                 if (!isSelectionValid())
                     selection.end = selection.start + plot.getOptions().selection.minSize;
             }
 
-            if (selection.dragging === "inner") {
+            if (selection.dragging === 'inner') {
                 var width = selection.end - selection.start;
                 selection.start = getPositionInPlot(pageX - selection.offsetLeft);
                 selection.end = getPositionInPlot(pageX - selection.offsetLeft + width);
@@ -362,7 +362,7 @@ angular.module('n52.core.overviewDiagram', [])
                 selection.show = false;
                 plot.triggerRedrawOverlay();
                 if (!preventEvent)
-                    plot.getPlaceholder().trigger("plotunselected", []);
+                    plot.getPlaceholder().trigger('plotunselected', []);
             }
         }
 
@@ -373,9 +373,9 @@ angular.module('n52.core.overviewDiagram', [])
             for (var k in axes) {
                 axis = axes[k];
                 if (axis.direction == coord) {
-                    key = coord + axis.n + "axis";
+                    key = coord + axis.n + 'axis';
                     if (!ranges[key] && axis.n == 1)
-                        key = coord + "axis"; // support x1axis as xaxis
+                        key = coord + 'axis'; // support x1axis as xaxis
                     if (ranges[key]) {
                         from = ranges[key].from;
                         to = ranges[key].to;
@@ -386,9 +386,9 @@ angular.module('n52.core.overviewDiagram', [])
 
             // backwards-compat stuff - to be removed in future
             if (!ranges[key]) {
-                axis = coord == "x" ? plot.getXAxes()[0] : plot.getYAxes()[0];
-                from = ranges[coord + "1"];
-                to = ranges[coord + "2"];
+                axis = coord == 'x' ? plot.getXAxes()[0] : plot.getYAxes()[0];
+                from = ranges[coord + '1'];
+                to = ranges[coord + '2'];
             }
 
             // auto-reverse as an added bonus
@@ -404,8 +404,8 @@ angular.module('n52.core.overviewDiagram', [])
         function setSelection(ranges, preventEvent) {
             var range, o = plot.getOptions();
 
-            if (o.selection.mode == "overview") {
-                range = extractRange(ranges, "x");
+            if (o.selection.mode == 'overview') {
+                range = extractRange(ranges, 'x');
                 selection.start = range.axis.p2c(range.from);
                 selection.end = range.axis.p2c(range.to);
             }
@@ -466,10 +466,10 @@ angular.module('n52.core.overviewDiagram', [])
         });
 
         plot.hooks.shutdown.push(function (plot, eventHolder) {
-            eventHolder.unbind("mousemove", onMouseMove);
-            eventHolder.unbind("mousedown", onMouseDown);
+            eventHolder.unbind('mousemove', onMouseMove);
+            eventHolder.unbind('mousedown', onMouseDown);
             if (mouseUpHandler)
-                $(document).unbind("mouseup", mouseUpHandler);
+                $(document).unbind('mouseup', mouseUpHandler);
         });
 
     }
@@ -478,9 +478,9 @@ angular.module('n52.core.overviewDiagram', [])
         init: init,
         options: {
             selection: {
-                mode: null, // one of null, "x", "y" or "xy"
-                color: "#e8cfac",
-                shape: "round", // one of "round", "miter", or "bevel"
+                mode: null, // one of null, 'x', 'y' or 'xy'
+                color: '#e8cfac',
+                shape: 'round', // one of 'round', 'miter', or 'bevel'
                 minSize: 5 // minimum number of pixels
             }
         },
@@ -515,14 +515,14 @@ angular.module('n52.core.tooltip', ['n52.core.time', 'n52.core.barChart'])
 
 (function ($) {
     function init(plot) {
-        if ($("#tooltip").length === 0) {
-            $("<div id='tooltip'></div>").appendTo("body");
-            $("#tooltip").load("templates/diagram/tooltip.html");
+        if ($('#tooltip').length === 0) {
+            $('<div id="tooltip"></div>').appendTo('body');
+            $('#tooltip').load('templates/diagram/tooltip.html');
         }
 
         function plothover(event, pos, item) {
             if (item) {
-                $("#tooltip").each(function () {
+                $('#tooltip').each(function () {
                     var content = $(this);
                     angular.element(document).injector().invoke(['$compile', 'timeseriesService',
                         function ($compile, timeseriesService) {
@@ -534,23 +534,23 @@ angular.module('n52.core.tooltip', ['n52.core.time', 'n52.core.barChart'])
                         }]);
                 });
                 var halfwidth = event.target.clientWidth / 2;
-                var tooltip = $("#tooltip").show();
+                var tooltip = $('#tooltip').show();
                 if (halfwidth >= item.pageX) {
-                    tooltip.css({top: item.pageY + 5, left: item.pageX + 5, right: "auto"});
+                    tooltip.css({top: item.pageY + 5, left: item.pageX + 5, right: 'auto'});
                 } else {
-                    tooltip.css({top: item.pageY + 5, right: ($(window).width() - item.pageX), left: "auto"});
+                    tooltip.css({top: item.pageY + 5, right: ($(window).width() - item.pageX), left: 'auto'});
                 }
             } else {
-                $("#tooltip").hide();
+                $('#tooltip').hide();
             }
         }
-        
+
         function shutdown(plot) {
-            $(plot.getPlaceholder()).unbind("plothover", plothover);
+            $(plot.getPlaceholder()).unbind('plothover', plothover);
         }
 
         function bindEvents(plot) {
-            $(plot.getPlaceholder()).bind("plothover", plothover);
+            $(plot.getPlaceholder()).bind('plothover', plothover);
         }
         plot.hooks.bindEvents.push(bindEvents);
         plot.hooks.shutdown.push(shutdown);
@@ -561,17 +561,18 @@ angular.module('n52.core.tooltip', ['n52.core.time', 'n52.core.barChart'])
         version: '1.3'
     });
 })(jQuery);
+
 angular.module('n52.core.barChart', [])
     .factory('barChartHelperService', function() {
         function intervalToHour(interval) {
             switch (interval) {
-                case "byHour":
+                case 'byHour':
                     return 1;
-                case "byDay":
+                case 'byDay':
                     return 24;
-                case "byWeek":
+                case 'byWeek':
                     return 7 * 24;
-                case "byMonth":
+                case 'byMonth':
                     return 30 * 24;
                 default:
                     return 1;
@@ -650,13 +651,13 @@ angular.module('n52.core.diagram').factory('flotChartServ', [
                 mode: 'x'
             },
             xaxis: {
-                mode: "time",
-                timezone: "browser",
+                mode: 'time',
+                timezone: 'browser',
                 monthNames: monthNamesTranslaterServ.getMonthNames()
-                    //            timeformat: "%Y/%m/%d",
+                    //            timeformat: '%Y/%m/%d',
                     //use these the following two lines to have small ticks at the bottom ob the diagram
                     //            tickLength: 5,
-                    //            tickColor: "#000"
+                    //            tickColor: '#000'
             },
             yaxis: {
                 show: true,
@@ -666,8 +667,8 @@ angular.module('n52.core.diagram').factory('flotChartServ', [
                 labelWidth: 50
                     //			tickFormatter : function(val, axis) {
                     //				var factor = axis.tickDecimals ? Math.pow(10, axis.tickDecimals) : 1;
-                    //				var formatted = "" + Math.round(val * factor) / factor;
-                    //				return formatted + "<br>" + this.uom;
+                    //				var formatted = '' + Math.round(val * factor) / factor;
+                    //				return formatted + '<br>' + this.uom;
                     //			}
             },
             legend: {
@@ -735,7 +736,7 @@ angular.module('n52.core.diagram').factory('flotChartServ', [
                 } else {
                     axesList[elem.internalId] = {
                         id: ++Object.keys(axesList).length,
-                        uom: uom + " @ " + elem.station.properties.label,
+                        uom: uom + ' @ ' + elem.station.properties.label,
                         tsColors: [elem.styles.color],
                         zeroScaled: elem.styles.zeroScaled
                     };
@@ -842,7 +843,7 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
                 yaxis: ts.styles.yaxis
             };
             // bar chart
-            if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === "bar") {
+            if (ts.renderingHints && ts.renderingHints.chartType && ts.renderingHints.chartType === 'bar') {
                 var interval = ts.renderingHints.properties.interval;
                 dataEntry.bars = {
                     lineWidth: lineWidth,
@@ -922,7 +923,7 @@ angular.module('n52.core.flot', [])
                     width = attributes.width || '100%';
                     height = attributes.height || '100%';
                     if (((_ref = scope.options) !== null ? (_ref1 = _ref.legend) !== null ? _ref1.container : void 0 : void 0) instanceof jQuery) {
-                        throw 'Please use a jQuery expression string with the "legend.container" option.';
+                        throw 'Please use a jQuery expression string with the legend.container option.';
                     }
 
                     if (!scope.options) {
@@ -964,7 +965,7 @@ angular.module('n52.core.flot', [])
 
                     var createPlotAnnotation = function(plotArea, options) {
                         if (!options.annotation || !options.annotation.hide) {
-                            plotArea.append("<div class='chart-annotation'>" + $translate.instant('chart.annotation') + "</div>");
+                            plotArea.append('<div class="chart-annotation">' + $translate.instant('chart.annotation') + '</div>');
                         }
                     };
 
@@ -978,12 +979,12 @@ angular.module('n52.core.flot', [])
                                 if (!axis.show)
                                     return;
                                 var box = axis.box;
-                                if (axis.direction === "y") {
-                                    $("<div class='axisTargetStyle' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
-                                        .data("axis.n", axis.n)
+                                if (axis.direction === 'y') {
+                                    $('<div class="axisTargetStyle" style="position:absolute; left:' + box.left + 'px; top:' + box.top + 'px; width:' + box.width + 'px; height:' + box.height + 'px"></div>')
+                                        .data('axis.n', axis.n)
                                         .appendTo(plot.getPlaceholder());
-                                    $("<div class='axisTarget' style='position:absolute; left:" + box.left + "px; top:" + box.top + "px; width:" + box.width + "px; height:" + box.height + "px'></div>")
-                                        .data("axis.n", axis.n)
+                                    $('<div class="axisTarget" style="position:absolute; left:' + box.left + 'px; top:' + box.top + 'px; width:' + box.width + 'px; height:' + box.height + 'px"></div>')
+                                        .data('axis.n', axis.n)
                                         .appendTo(plot.getPlaceholder())
                                         .click($.proxy(function(event) {
                                             var selection = {};
@@ -992,7 +993,7 @@ angular.module('n52.core.flot', [])
                                             $.each($('.axisTarget'), function(index, elem) {
                                                 elem = $(elem);
                                                 if (target.data('axis.n') === elem.data('axis.n')) {
-                                                    selected = elem.hasClass("selected");
+                                                    selected = elem.hasClass('selected');
                                                     return false; // break loop
                                                 }
                                             });
@@ -1004,7 +1005,7 @@ angular.module('n52.core.flot', [])
                                                 }
                                             });
                                             if (!selected) {
-                                                target.addClass("selected");
+                                                target.addClass('selected');
                                             }
                                             scope.$apply();
                                             scope.seriesSelectionChanged({
@@ -1012,15 +1013,15 @@ angular.module('n52.core.flot', [])
                                             });
                                             scope.$emit('redrawChart');
                                         }, this));
-                                    var yaxisLabel = $("<div class='axisLabel yaxisLabel' style=left:" + box.left + "px;></div>").text(axis.options.uom)
+                                    var yaxisLabel = $('<div class="axisLabel yaxisLabel" style=left:' + box.left + 'px;></div>').text(axis.options.uom)
                                         .appendTo(plot.getPlaceholder())
-                                        .data("axis.n", axis.n);
+                                        .data('axis.n', axis.n);
                                     if (axis.options.tsColors) {
                                         $.each(axis.options.tsColors, function(idx, color) {
                                             $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
                                         });
                                     }
-                                    yaxisLabel.css("margin-left", -8 - (yaxisLabel.height() - yaxisLabel.width()) / 2);
+                                    yaxisLabel.css('margin-left', -8 - (yaxisLabel.height() - yaxisLabel.width()) / 2);
                                 }
                             }, this));
 
@@ -1193,7 +1194,7 @@ angular.module('n52.core.diagram')
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/diagram/reload-button.html',
+                templateUrl: 'n52.core.diagram.reload-button',
                 controller: 'SwcReloadButtonCtrl'
             };
         }
@@ -1219,7 +1220,7 @@ angular.module('n52.core.diagram')
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/diagram/refresh-time.html',
+                templateUrl: 'n52.core.diagram.refresh-time',
                 controller: 'SwcLastRefreshCtrl'
             };
         }
@@ -1264,12 +1265,12 @@ angular.module('n52.core.diagram')
         }
     ]);
 
-angular.module('n52.core.yAxisHide', [])
+angular.module('n52.core.diagram')
     .directive('swcYaxisHideButton', ['diagramBehaviourService',
         function() {
             return {
                 restrict: 'E',
-                templateUrl: 'templates/diagram/y-axis-hide-button.html',
+                templateUrl: 'n52.core.diagram.y-axis-hide-button',
                 controller: 'SwcYaxisHideCtrl'
             };
         }

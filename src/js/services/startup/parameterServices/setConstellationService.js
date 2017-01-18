@@ -1,6 +1,6 @@
 angular.module('n52.core.startup')
-        .service('SetConstellationService', ['permalinkEvaluationService', '$log', 'settingsService', 'interfaceService', 'timeseriesService',
-            function (permalinkEvaluationService, $log, settingsService, interfaceService, timeseriesService) {
+        .service('SetConstellationService', ['permalinkEvaluationService', '$log', 'settingsService', 'seriesApiInterface', 'timeseriesService',
+            function (permalinkEvaluationService, $log, settingsService, seriesApiInterface, timeseriesService) {
                 var servicesParam = 'services',
                         featuresParam = 'features',
                         offeringsParam = 'offerings',
@@ -41,7 +41,7 @@ angular.module('n52.core.startup')
                         angular.forEach(settingsService.restApiUrls, function (serviceId, url) {
                             angular.forEach(constellations, function (constellation) {
                                 requestLength++;
-                                interfaceService.search(url, constellation).then(function (result) {
+                                seriesApiInterface.search(url, constellation).then(function (result) {
                                     if (result.length > 0) {
                                         var timeseries = [];
                                         angular.forEach(result, function (entry) {

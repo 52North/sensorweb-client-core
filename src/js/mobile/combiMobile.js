@@ -498,8 +498,8 @@ angular.module('n52.core.mobile', [])
             };
         }
     ])
-    .service('combinedSrvc', ['interfaceService', 'statusService', '$route',
-        function(interfaceService, statusService, $route) {
+    .service('combinedSrvc', ['seriesApiInterface', 'statusService', '$route',
+        function(seriesApiInterface, statusService, $route) {
             this.highlight = {};
             this.selectedSection = {
                 values: []
@@ -534,14 +534,14 @@ angular.module('n52.core.mobile', [])
                     url: url
                 };
                 this.series.loading = true;
-                interfaceService.getDatasets(id, url)
+                seriesApiInterface.getDatasets(id, url)
                     .then(s => {
                         angular.extend(this.series, s);
                         var timespan = {
                             start: s.firstValue.timestamp,
                             end: s.lastValue.timestamp
                         };
-                        interfaceService.getDatasetData(s.id, url, timespan, {
+                        seriesApiInterface.getDatasetData(s.id, url, timespan, {
                                 expanded: true
                             })
                             .then(data => {

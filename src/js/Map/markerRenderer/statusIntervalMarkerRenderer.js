@@ -1,6 +1,6 @@
 angular.module('n52.core.map')
-        .factory('statusIntervalMarkerRenderer', ['interfaceService', 'statusService', 'settingsService', 'markerRendererHelper',
-            function (interfaceService, statusService, settingsService, markerRendererHelper) {
+        .factory('statusIntervalMarkerRenderer', ['seriesApiInterface', 'statusService', 'settingsService', 'markerRendererHelper',
+            function (seriesApiInterface, statusService, settingsService, markerRendererHelper) {
                 var fieldName = 'statusIntervals';
 
                 var addMarker = function (params) {
@@ -11,7 +11,7 @@ angular.module('n52.core.map')
                             return true;
                         } else {
                             if (params.element.extras && params.element.extras.indexOf(fieldName) > -1) {
-                                interfaceService.getExtras(params.element.id, params.serviceUrl, {field: fieldName})
+                                seriesApiInterface.getExtras(params.element.id, params.serviceUrl, {field: fieldName})
                                         .then(function (result) {
                                             var interval = getMatchingInterval(params.element.lastValue, result[fieldName]);
                                             addIntervalMarker(params, interval);
@@ -66,7 +66,7 @@ angular.module('n52.core.map')
                 var isTimeseries = function (elem) {
                     return angular.isDefined(elem.station);
                 };
-                
+
                 var needsTimeseriesRequested = function() {
                     return statusService.status.concentrationMarker;
                 };

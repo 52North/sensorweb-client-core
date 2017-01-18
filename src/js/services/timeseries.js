@@ -1,6 +1,6 @@
 angular.module('n52.core.timeseries', [])
-    .service('timeseriesService', ['$rootScope', 'interfaceService', 'statusService', 'styleService', 'settingsService', 'utils',
-        function($rootScope, interfaceService, statusService, styleService, settingsService, utils) {
+    .service('timeseriesService', ['$rootScope', 'seriesApiInterface', 'statusService', 'styleService', 'settingsService', 'utils',
+        function($rootScope, seriesApiInterface, statusService, styleService, settingsService, utils) {
             var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');
 
             this.timeseries = {};
@@ -28,7 +28,7 @@ angular.module('n52.core.timeseries', [])
             _loadTsData = function(ts) {
                 var generalizeData = statusService.status.generalizeData || false;
                 ts.loadingData = true;
-                interfaceService.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer), null, generalizeData)
+                seriesApiInterface.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer), null, generalizeData)
                     .then(data => {
                         _addTsData(data, ts);
                     });
@@ -79,7 +79,7 @@ angular.module('n52.core.timeseries', [])
             };
 
             this.addTimeseriesById = function(id, apiUrl, params) {
-                interfaceService.getTimeseries(id, apiUrl, params).then((data) => {
+                seriesApiInterface.getTimeseries(id, apiUrl, params).then((data) => {
                     if (angular.isArray(data)) {
                         angular.forEach(data, ts => {
                             _addTs(ts, this.timeseries);

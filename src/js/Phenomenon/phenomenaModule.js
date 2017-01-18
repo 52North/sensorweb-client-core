@@ -1,6 +1,6 @@
 angular.module('n52.core.phenomena', [])
-    .factory('PhenomenonListFactory', ['$rootScope', 'interfaceService', 'statusService', 'settingsService', 'providerService',
-        function($rootScope, interfaceService, statusService, settingsService, providerService) {
+    .factory('PhenomenonListFactory', ['$rootScope', 'seriesApiInterface', 'statusService', 'settingsService', 'providerService',
+        function($rootScope, seriesApiInterface, statusService, settingsService, providerService) {
             var phenomena = {};
             phenomena.selection = null;
             phenomena.items = [];
@@ -19,7 +19,7 @@ angular.module('n52.core.phenomena', [])
                     service: serviceID,
                     platformTypes: 'stationary'
                 };
-                interfaceService.getPhenomena(null, providerUrl, params).then(function(data) {
+                seriesApiInterface.getPhenomena(null, providerUrl, params).then(function(data) {
                     addResultsToList(data, serviceID, providerUrl);
                 });
             };

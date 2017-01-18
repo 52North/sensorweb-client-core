@@ -1,10 +1,10 @@
 angular.module('n52.core.interface', [])
-    .service('interfaceService', ['$http', '$q', 'interfaceServiceUtils', 'utils',
-        function($http, $q, interfaceServiceUtils, utils) {
+    .service('seriesApiInterface', ['$http', '$q', 'interfaceUtils', 'utils',
+        function($http, $q, interfaceUtils, utils) {
 
             isNewApi = function(apiUrl) {
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl, interfaceServiceUtils.createRequestConfigs()).then(response => {
+                    $http.get(apiUrl, interfaceUtils.createRequestConfigs()).then(response => {
                         if (response && response.data && !isNaN(response.data.length)) {
                             response.data.forEach(entry => {
                                 if (entry.id === 'platforms') {
@@ -25,32 +25,32 @@ angular.module('n52.core.interface', [])
 
             this.getPlatforms = function(id, apiUrl, params) {
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'platforms/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'platforms/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
 
             this.getStationaryPlatforms = function(id, apiUrl, params) {
-                params = interfaceServiceUtils.extendParams(params, {
+                params = interfaceUtils.extendParams(params, {
                     platformTypes: 'stationary'
                 });
                 return this.getPlatforms(id, apiUrl, params);
             };
 
             this.getServices = function(apiUrl, id, params) {
-                params = interfaceServiceUtils.extendParams(params, {
+                params = interfaceUtils.extendParams(params, {
                     expanded: true
                 });
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'services/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'services/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -59,7 +59,7 @@ angular.module('n52.core.interface', [])
                 return $q((resolve, reject) => {
                     isNewApi(apiUrl).then(isNew => {
                         if (isNew) {
-                            params = interfaceServiceUtils.extendParams(params, {
+                            params = interfaceUtils.extendParams(params, {
                                 expanded: true
                             });
                             this.getStationaryPlatforms(id, apiUrl, params)
@@ -80,11 +80,11 @@ angular.module('n52.core.interface', [])
                                     resolve(response);
                                 });
                         } else {
-                            $http.get(apiUrl + 'stations/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                            $http.get(apiUrl + 'stations/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                                 .then(response => {
                                     resolve(response.data);
                                 }, error => {
-                                    interfaceServiceUtils.errorCallback(error, reject);
+                                    interfaceUtils.errorCallback(error, reject);
                                 });
                         }
                     });
@@ -94,11 +94,11 @@ angular.module('n52.core.interface', [])
             this.getPhenomena = function(id, apiUrl, params) {
                 addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'phenomena/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'phenomena/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -106,11 +106,11 @@ angular.module('n52.core.interface', [])
             this.getCategories = function(id, apiUrl, params) {
                 addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'categories/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'categories/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -118,11 +118,11 @@ angular.module('n52.core.interface', [])
             this.getFeatures = function(id, apiUrl, params) {
                 addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'features/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'features/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -130,11 +130,11 @@ angular.module('n52.core.interface', [])
             this.getProcedures = function(id, apiUrl, params) {
                 addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'procedures/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'procedures/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -142,24 +142,24 @@ angular.module('n52.core.interface', [])
             this.getOfferings = function(id, apiUrl, params) {
                 addAllPlatformTypes(params);
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'offerings/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'offerings/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
 
             this.search = function(apiUrl, arrayParams) {
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'search', interfaceServiceUtils.createRequestConfigs({
+                    $http.get(apiUrl + 'search', interfaceUtils.createRequestConfigs({
                             q: arrayParams.join(',')
                         }))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -176,28 +176,28 @@ angular.module('n52.core.interface', [])
                             this.getDatasets(id, apiUrl, params)
                                 .then(response => {
                                     if (isNaN(response.length)) {
-                                        interfaceServiceUtils.adjustTs(response, apiUrl);
+                                        interfaceUtils.adjustTs(response, apiUrl);
                                     } else {
                                         response.forEach(entry => {
-                                            interfaceServiceUtils.adjustTs(entry, apiUrl);
+                                            interfaceUtils.adjustTs(entry, apiUrl);
                                         });
                                     }
                                     resolve(response);
                                 });
                         } else {
-                            $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                            $http.get(apiUrl + 'timeseries/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                                 .then(response => {
                                     if (angular.isArray(response.data)) {
                                         var array = [];
                                         angular.forEach(response.data, ts => {
-                                            array.push(interfaceServiceUtils.pimpTs(ts, apiUrl));
+                                            array.push(interfaceUtils.pimpTs(ts, apiUrl));
                                         });
                                         resolve(array);
                                     } else {
-                                        resolve(interfaceServiceUtils.pimpTs(response.data, apiUrl));
+                                        resolve(interfaceUtils.pimpTs(response.data, apiUrl));
                                     }
                                 }, error => {
-                                    interfaceServiceUtils.errorCallback(error, reject);
+                                    interfaceUtils.errorCallback(error, reject);
                                 });
                         }
                     });
@@ -206,11 +206,11 @@ angular.module('n52.core.interface', [])
 
             this.getExtras = function(tsId, apiUrl, params) {
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(tsId) + '/extras', interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'timeseries/' + interfaceUtils.createIdString(tsId) + '/extras', interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -233,12 +233,12 @@ angular.module('n52.core.interface', [])
                                     resolve(response);
                                 });
                         } else {
-                            $http.get(apiUrl + 'timeseries/' + interfaceServiceUtils.createIdString(id) + "/getData", interfaceServiceUtils.createRequestConfigs(params))
+                            $http.get(apiUrl + 'timeseries/' + interfaceUtils.createIdString(id) + "/getData", interfaceUtils.createRequestConfigs(params))
                                 .then(response => {
-                                    interfaceServiceUtils.revampTimeseriesData(response.data, id);
+                                    interfaceUtils.revampTimeseriesData(response.data, id);
                                     resolve(response.data);
                                 }, error => {
-                                    interfaceServiceUtils.errorCallback(error, reject);
+                                    interfaceUtils.errorCallback(error, reject);
                                 });
                         }
                     });
@@ -247,11 +247,11 @@ angular.module('n52.core.interface', [])
 
             this.getDatasets = function(id, apiUrl, params) {
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'datasets/' + interfaceServiceUtils.createIdString(id), interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'datasets/' + interfaceUtils.createIdString(id), interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
@@ -264,17 +264,17 @@ angular.module('n52.core.interface', [])
                     angular.extend(params, extendedParams);
                 }
                 return $q((resolve, reject) => {
-                    $http.get(apiUrl + 'datasets/' + interfaceServiceUtils.createIdString(id) + '/data', interfaceServiceUtils.createRequestConfigs(params))
+                    $http.get(apiUrl + 'datasets/' + interfaceUtils.createIdString(id) + '/data', interfaceUtils.createRequestConfigs(params))
                         .then(response => {
                             resolve(response.data);
                         }, error => {
-                            interfaceServiceUtils.errorCallback(error, reject);
+                            interfaceUtils.errorCallback(error, reject);
                         });
                 });
             };
         }
     ])
-    .service('interfaceServiceUtils', ['settingsService', 'utils', '$log',
+    .service('interfaceUtils', ['settingsService', 'utils', '$log',
         function(settingsService, utils, $log) {
 
             this.extendParams = function(params, extendParams) {

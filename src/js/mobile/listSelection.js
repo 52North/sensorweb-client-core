@@ -76,8 +76,8 @@ angular.module('n52.client.mobile')
             };
         }
     ])
-    .controller('ListSelectionMobileCtrl', ['$scope', 'interfaceService', 'combinedSrvc',
-        function($scope, interfaceService, combinedSrvc) {
+    .controller('ListSelectionMobileCtrl', ['$scope', 'seriesApiInterface', 'combinedSrvc',
+        function($scope, seriesApiInterface, combinedSrvc) {
             var url = $scope.provider.url;
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal, oldVal) {
@@ -112,31 +112,31 @@ angular.module('n52.client.mobile')
             $scope.getItems = function(currParam) {
                 currParam.loading = 1;
                 if (currParam.type === 'platform') {
-                    interfaceService.getPlatforms(null, url, $scope.createParams())
+                    seriesApiInterface.getPlatforms(null, url, $scope.createParams())
                         .then(data => {
                             updateParams(currParam, data);
                         })
                         .catch(errorOnGetData);
                 } else if (currParam.type === 'features') {
-                    interfaceService.getFeatures(null, url, $scope.createParams())
+                    seriesApiInterface.getFeatures(null, url, $scope.createParams())
                         .then(data => {
                             updateParams(currParam, data);
                         })
                         .catch(errorOnGetData);
                 } else if (currParam.type === 'phenomenon') {
-                    interfaceService.getPhenomena(null, url, $scope.createParams())
+                    seriesApiInterface.getPhenomena(null, url, $scope.createParams())
                         .then(data => {
                             updateParams(currParam, data);
                         })
                         .catch(errorOnGetData);
                 } else if (currParam.type === 'dataset') {
-                    interfaceService.getDatasets(null, url, $scope.createParams())
+                    seriesApiInterface.getDatasets(null, url, $scope.createParams())
                         .then(data => {
                             updateParams(currParam, data);
                         })
                         .catch(errorOnGetData);
                 } else if (currParam.type === 'offering') {
-                    interfaceService.getOfferings(null, url, $scope.createParams())
+                    seriesApiInterface.getOfferings(null, url, $scope.createParams())
                         .then(data => {
                             updateParams(currParam, data);
                         })

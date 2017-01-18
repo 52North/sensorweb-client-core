@@ -1,12 +1,12 @@
 angular.module('n52.core.map')
-    .controller('SwcModalStationaryInsituCtrl', ['$scope', '$uibModalInstance', 'timeseriesService', '$location', 'stationService', 'selection', 'interfaceService', 'serviceFinder',
-        function($scope, $uibModalInstance, timeseriesService, $location, stationService, selection, interfaceService, serviceFinder) {
+    .controller('SwcModalStationaryInsituCtrl', ['$scope', '$uibModalInstance', 'timeseriesService', '$location', 'stationService', 'selection', 'seriesApiInterface', 'serviceFinder',
+        function($scope, $uibModalInstance, timeseriesService, $location, stationService, selection, seriesApiInterface, serviceFinder) {
 
-            interfaceService.getPlatforms(selection.stationId, selection.url)
+            seriesApiInterface.getPlatforms(selection.stationId, selection.url)
                 .then(platform => {
                     $scope.platform = platform;
                     $scope.platform.datasets.forEach(entry => {
-                        interfaceService.getDatasets(entry.id, selection.url)
+                        seriesApiInterface.getDatasets(entry.id, selection.url)
                             .then(dataset => {
                                 dataset.selected = true;
                                 angular.extend(entry, dataset);

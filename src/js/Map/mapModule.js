@@ -1,6 +1,6 @@
 angular.module('n52.core.map', [])
-    .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'interfaceService', 'statusService', 'settingsService', 'providerService', '$injector',
-        function($rootScope, leafletBoundsHelpers, interfaceService, statusService, settingsService, providerService, $injector) {
+    .factory('mapService', ['$rootScope', 'leafletBoundsHelpers', 'seriesApiInterface', 'statusService', 'settingsService', 'providerService', '$injector',
+        function($rootScope, leafletBoundsHelpers, seriesApiInterface, statusService, settingsService, providerService, $injector) {
             var markerRenderer = ['statusIntervalMarkerRenderer', 'normalMarkerRenderer'];
             if (settingsService.markerRenderer)
                 markerRenderer = settingsService.markerRenderer;
@@ -109,7 +109,7 @@ angular.module('n52.core.map', [])
                     force_latest_values: true,
                     status_intervals: true
                 };
-                interfaceService.getTimeseries(null, url, params).then(function(data) {
+                seriesApiInterface.getTimeseries(null, url, params).then(function(data) {
                     callback(data, url);
                 });
             };
@@ -119,7 +119,7 @@ angular.module('n52.core.map', [])
                     service: serviceID,
                     phenomenon: phenomenonID
                 };
-                interfaceService.getStations(null, url, params).then(function(data) {
+                seriesApiInterface.getStations(null, url, params).then(function(data) {
                     callback(data, url);
                 });
             };
@@ -209,8 +209,8 @@ angular.module('n52.core.map', [])
             };
         }
     ])
-    .service('stationService', ['interfaceService', 'settingsService',
-        function(interfaceService, settingsService) {
+    .service('stationService', ['seriesApiInterface', 'settingsService',
+        function(seriesApiInterface, settingsService) {
             var preselectFirstTimeseries = angular.isUndefined(settingsService.preselectedFirstTimeseriesInStationView) ? false : settingsService.preselectedFirstTimeseriesInStationView === true;
             var selectFirst,
                 station = {
@@ -219,12 +219,12 @@ angular.module('n52.core.map', [])
             determineTimeseries = function(stationId, url) {
                 selectFirst = preselectFirstTimeseries;
                 station.entry = {};
-                interfaceService.getStations(stationId, url).then(function(result) {
+                seriesApiInterface.getStations(stationId, url).then(function(result) {
                     station.entry = result;
                     angular.forEach(result.properties.timeseries, function(timeseries, id) {
                         timeseries.selected = selectFirst || !preselectFirstTimeseries;
                         selectFirst = false;
-                        interfaceService.getTimeseries(id, url).then(function(ts) {
+                        seriesApiInterface.getTimeseries(id, url).then(function(ts) {
                             angular.extend(timeseries, ts);
                         });
                     });

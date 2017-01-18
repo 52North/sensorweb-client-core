@@ -1,6 +1,6 @@
 angular.module('n52.core.favorite', [])
-        .factory('favoriteService', ['localStorageService', '$translate', 'settingsService', 'interfaceService',
-            function (localStorageService, $translate, settingsService, interfaceService) {
+        .factory('favoriteService', ['localStorageService', '$translate', 'settingsService', 'seriesApiInterface',
+            function (localStorageService, $translate, settingsService, seriesApiInterface) {
                 var storageKey = 'favorites';
                 var favorites = {};
                 var groupIdx = Object.keys(favorites).length;
@@ -50,7 +50,7 @@ angular.module('n52.core.favorite', [])
                     delete favorites[tsId];
                     saveFavorites();
                 }
-                
+
                 function hasFavorite(tsId) {
                     return angular.isObject(favorites[tsId]);
                 }
@@ -58,7 +58,7 @@ angular.module('n52.core.favorite', [])
                 function hasFavorites() {
                     return Object.keys(favorites).length > 0;
                 }
-                
+
                 function getFavoritesCount() {
                     return Object.keys(favorites).length;
                 }
@@ -77,7 +77,7 @@ angular.module('n52.core.favorite', [])
                             if (isServiceSupported(fav.timeseries)) {
                                 // send request to get latest value
                                 var oldTs = fav.timeseries;
-                                interfaceService.getTimeseries(oldTs.id, oldTs.apiUrl).then(function (newTs) {
+                                seriesApiInterface.getTimeseries(oldTs.id, oldTs.apiUrl).then(function (newTs) {
                                     newTs.styles = oldTs.styles;
                                     addFavorite(newTs, fav.label);
                                 });
@@ -90,7 +90,7 @@ angular.module('n52.core.favorite', [])
                             angular.forEach(fav.collection, function (ts) {
                                 if (isServiceSupported(ts)) {
                                     count++;
-                                    interfaceService.getTimeseries(ts.id, ts.apiUrl).then(function (newTs) {
+                                    seriesApiInterface.getTimeseries(ts.id, ts.apiUrl).then(function (newTs) {
                                         newTs.styles = ts.styles;
                                         newColl.push(newTs);
                                         count--;

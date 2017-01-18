@@ -8,8 +8,8 @@ angular.module('n52.core.overviewDiagram', [])
                     timeService.setFlexibleTimeExtent(time.from, time.till);
                 };
             }])
-        .factory('flotOverviewChartServ', ['timeseriesService', 'statusService', 'timeService', '$rootScope', 'interfaceService', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
-            function (timeseriesService, statusService, timeService, $rootScope, interfaceService, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
+        .factory('flotOverviewChartServ', ['timeseriesService', 'statusService', 'timeService', '$rootScope', 'seriesApiInterface', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
+            function (timeseriesService, statusService, timeService, $rootScope, seriesApiInterface, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
                 var options = {
                     series: {
                         downsample: {
@@ -115,7 +115,7 @@ angular.module('n52.core.overviewDiagram', [])
                     var ts = timeseriesService.getTimeseries(tsId);
                     if (ts) {
                         var start = options.xaxis.min, end = options.xaxis.max;
-                        interfaceService.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, extendedDataRequest, generalizeData).then(function (data) {
+                        seriesApiInterface.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, extendedDataRequest, generalizeData).then(function (data) {
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
                             options.loading = false;
                         });

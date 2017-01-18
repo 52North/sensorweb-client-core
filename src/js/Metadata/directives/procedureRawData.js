@@ -27,12 +27,12 @@ angular.module('n52.core.metadata')
 
                 procedureMetadataSrv.getSupportedRawFormats($scope.timeseries, $scope.formatsList);
             }])
-        .factory('procedureMetadataSrv', ['interfaceService',
-            function (interfaceService) {
+        .factory('procedureMetadataSrv', ['seriesApiInterface',
+            function (seriesApiInterface) {
                 function getSupportedRawFormats(timeseries, list) {
                     var id = timeseries.parameters.procedure.id,
                             apiUrl = timeseries.apiUrl;
-                    interfaceService.getProcedures(id, apiUrl).then(function (data) {
+                    seriesApiInterface.getProcedures(id, apiUrl).then(function (data) {
                         angular.forEach(data.rawFormats, function (format) {
                             list.push(format);
                         });
