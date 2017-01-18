@@ -6,6 +6,7 @@ angular.module('n52.core.listSelection')
                 templateUrl: 'n52.core.listSelection.list-selection',
                 scope: {
                     parameters: '=',
+                    providerList: '=',
                     listselectionid: '=',
                     datasetSelection: '&onDatasetSelection'
                 },
@@ -13,8 +14,8 @@ angular.module('n52.core.listSelection')
             };
         }
     ])
-    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'statusService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'providerService',
-        function($scope, seriesApiInterface, statusService, $rootScope, listSelectionSrvc, settingsService, providerService) {
+    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'statusService', 'listSelectionSrvc', 'settingsService',
+        function($scope, seriesApiInterface, statusService, listSelectionSrvc, settingsService) {
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
@@ -31,10 +32,12 @@ angular.module('n52.core.listSelection')
                 });
             };
 
-            $rootScope.$on('newProviderSelected', function() {
-                _clearSelection();
-                $scope.openNext(0);
-            });
+            $scope.$watch('providerList', (newVal, oldVal) => {
+                if (newVal !== oldVal) {
+                  _clearSelection();
+                  $scope.openNext(0);
+                }
+            }, true);
 
             $scope.createParams = function(url, serviceID) {
                 var params = {
@@ -80,22 +83,13 @@ angular.module('n52.core.listSelection')
             $scope.requestItems = function(currParam, itemsTypeFunc) {
                 var paramConstellation;
                 currParam.loading = 0;
-                if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
-                    providerService.doForAllServices(function(provider, url) {
-                        paramConstellation = $scope.createParams(url, provider.id);
-                        if (paramConstellation) {
-                            currParam.loading++;
-                            itemsTypeFunc(url, provider.id, currParam, paramConstellation);
-                        }
-                    });
-                } else {
-                    var provider = statusService.status.apiProvider;
+                $scope.providerList.forEach(provider => {
                     paramConstellation = $scope.createParams(provider.url, provider.serviceID);
                     if (paramConstellation) {
                         currParam.loading++;
                         itemsTypeFunc(provider.url, provider.serviceID, currParam, paramConstellation);
                     }
-                }
+                });
             };
 
             $scope.getCategories = function(url, serviceID, currParam, params) {
@@ -208,7 +202,9 @@ angular.module('n52.core.listSelection')
 
             $scope.processSelection = function(params, url) {
                 seriesApiInterface.getTimeseries(null, url, params).then(result => {
-                    $scope.datasetSelection({dataset: result});
+                    $scope.datasetSelection({
+                        dataset: result
+                    });
                 });
             };
 

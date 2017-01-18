@@ -49,6 +49,7 @@ angular.module('n52.core.provider', [])
             this.selectedProvider = {
                 label: ""
             };
+            this.selectedProviderList = [];
 
             var provider = statusService.status.apiProvider;
             if (provider && provider.url && provider.serviceID) {
@@ -56,6 +57,22 @@ angular.module('n52.core.provider', [])
                     this.selectedProvider.label = provider.label;
                 });
             }
+
+            this.createProviderList = function() {
+                this.selectedProviderList.length = 0;
+                if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
+                    this.doForAllServices((provider, url) => {
+                        this.selectedProviderList.push({
+                            url: url,
+                            serviceID: provider.id
+                        });
+                    });
+                } else {
+                    this.selectedProviderList.push(statusService.status.apiProvider);
+                }
+            };
+
+            this.createProviderList();
 
             this.deleteProvider = function(provider) {
                 removeProviderFromUserList(provider, this.providerList);
@@ -92,6 +109,7 @@ angular.module('n52.core.provider', [])
                             serviceID: provider.id
                         };
                         $rootScope.$emit('newProviderSelected');
+                        this.createProviderList();
                         return;
                     } else {
                         provider.selected = false;
@@ -99,6 +117,7 @@ angular.module('n52.core.provider', [])
                 });
                 if (!selection) {
                     statusService.status.apiProvider = {};
+                    this.createProviderList();
                     $rootScope.$emit('newProviderSelected');
                     return;
                 }

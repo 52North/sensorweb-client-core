@@ -4,8 +4,11 @@ angular.module('n52.core.listSelection')
             onSelectionFinished: '&'
         },
         templateUrl: 'n52.core.listSelection.tabbed-list-selection',
-        controller: ['timeseriesService', 'serviceFinder', '$location',
-            function(timeseriesService, serviceFinder, $location) {
+        controller: ['timeseriesService', 'serviceFinder', '$location', 'providerService', 'settingsService', 'statusService', '$rootScope',
+            function(timeseriesService, serviceFinder, $location, providerService, settingsService, statusService, $rootScope) {
+
+                this.providerList = providerService.selectedProviderList;
+
                 this.datasetSelected = function(dataset) {
                     // TODO iterate over results
                     if (dataset[0].datasetType) {
