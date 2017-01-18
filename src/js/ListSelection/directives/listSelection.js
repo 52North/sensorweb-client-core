@@ -6,14 +6,15 @@ angular.module('n52.core.listSelection')
                 templateUrl: 'n52.core.listSelection.list-selection',
                 scope: {
                     parameters: '=',
-                    listselectionid: '='
+                    listselectionid: '=',
+                    datasetSelection: '&onDatasetSelection'
                 },
                 controller: 'SwcListSelectionCtrl'
             };
         }
     ])
-    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'statusService', 'timeseriesService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'providerService', 'serviceFinder', '$location',
-        function($scope, seriesApiInterface, statusService, timeseriesService, $rootScope, listSelectionSrvc, settingsService, providerService, serviceFinder, $location) {
+    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'statusService', '$rootScope', 'listSelectionSrvc', 'settingsService', 'providerService',
+        function($scope, seriesApiInterface, statusService, $rootScope, listSelectionSrvc, settingsService, providerService) {
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
@@ -207,14 +208,7 @@ angular.module('n52.core.listSelection')
 
             $scope.processSelection = function(params, url) {
                 seriesApiInterface.getTimeseries(null, url, params).then(result => {
-                    // TODO iterate over results
-                    var dataset = result[0];
-                    if (dataset.datasetType) {
-                        serviceFinder.getDatasetPresenter(dataset.datasetType, dataset.seriesParameters.platform.platformType, url).presentDataset(dataset, url);
-                    } else {
-                        timeseriesService.addTimeseries(dataset);
-                        $location.url('/diagram');
-                    }
+                    $scope.datasetSelection({dataset: result});
                 });
             };
 
