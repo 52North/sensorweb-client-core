@@ -72,7 +72,6 @@ angular.module('n52.core.provider', [])
                 }
             };
 
-            this.createProviderList();
 
             this.deleteProvider = function(provider) {
                 removeProviderFromUserList(provider, this.providerList);
@@ -171,5 +170,6 @@ angular.module('n52.core.provider', [])
                 });
                 return isBlacklisted;
             };
+            this.createProviderList();
         }
     ]);

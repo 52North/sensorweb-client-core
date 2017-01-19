@@ -14,8 +14,8 @@ angular.module('n52.core.listSelection')
             };
         }
     ])
-    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'statusService', 'listSelectionSrvc', 'settingsService',
-        function($scope, seriesApiInterface, statusService, listSelectionSrvc, settingsService) {
+    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'listSelectionCache',
+        function($scope, seriesApiInterface, listSelectionCache) {
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
@@ -34,8 +34,9 @@ angular.module('n52.core.listSelection')
 
             $scope.$watch('providerList', (newVal, oldVal) => {
                 if (newVal !== oldVal) {
-                  _clearSelection();
-                  $scope.openNext(0);
+                    listSelectionCache.clear();
+                    _clearSelection();
+                    $scope.openNext(0);
                 }
             }, true);
 
@@ -209,10 +210,10 @@ angular.module('n52.core.listSelection')
             };
 
             if ($scope.listselectionid) {
-                if (listSelectionSrvc.hasEntry($scope.listselectionid)) {
-                    $scope.parameters = listSelectionSrvc.getEntry($scope.listselectionid);
+                if (listSelectionCache.hasEntry($scope.listselectionid, $scope.providerList)) {
+                    $scope.parameters = listSelectionCache.getEntry($scope.listselectionid);
                 } else {
-                    listSelectionSrvc.setEntry($scope.listselectionid, $scope.parameters);
+                    listSelectionCache.setEntry($scope.listselectionid, $scope.parameters, $scope.providerList);
                     $scope.openNext(0);
                 }
             } else {
@@ -220,23 +221,38 @@ angular.module('n52.core.listSelection')
             }
         }
     ])
-    .factory('listSelectionSrvc', ['$rootScope', function($rootScope) {
-        var entries = {};
-        getEntry = function(id) {
-            return entries[id];
-        };
-        setEntry = function(id, entry) {
-            entries[id] = entry;
-        };
-        hasEntry = function(id) {
-            return angular.isDefined(entries[id]);
-        };
-        $rootScope.$on('newProviderSelected', function() {
-            entries = {};
-        });
-        return {
-            getEntry: getEntry,
-            setEntry: setEntry,
-            hasEntry: hasEntry
-        };
-    }]);
+    .service('listSelectionCache', [
+        function() {
+            var entries = {};
+            var localProvider = [];
+            var providerListEqual = function(providerList) {
+                if (localProvider === providerList) return true;
+                if (localProvider === null || providerList === null) return false;
+                if (localProvider.length != providerList.length) return false;
+                for (var i = 0; i < localProvider.length; ++i) {
+                    if (localProvider[i].serviceID !== providerList[i].serviceID &&
+                        localProvider[i].url !== providerList[i].url)
+                        return false;
+                }
+                return true;
+            };
+
+            this.getEntry = function(id) {
+                return entries[id];
+            };
+            this.setEntry = function(id, entry, providerList) {
+                entries[id] = entry;
+                angular.copy(providerList, localProvider);
+            };
+            this.hasEntry = function(id, providerList) {
+                if (!providerListEqual(providerList)) {
+                    this.clear();
+                    return false;
+                }
+                return angular.isDefined(entries[id]);
+            };
+            this.clear = function() {
+                entries = {};
+            };
+        }
+    ]);
