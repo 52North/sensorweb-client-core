@@ -1,88 +1,103 @@
 angular.module('n52.core.status', [])
-    .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService',
-        function($rootScope, localStorageService, settingsService) {
-            var lastBuild = 1;
-            if (document.head.querySelector("[property=lastBuild]")) {
-                lastBuild = document.head.querySelector("[property=lastBuild]").content;
-            }
+        .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService',
+            function ($rootScope, localStorageService, settingsService) {
+                var lastBuild = 1,
+                        defStatus,
+                        storageKey = 'status',
+                        // set status to rootscope:
+                        scope = $rootScope;
 
-            var storageKey = 'status';
-
-            // init default status
-            var defStatus = {
-                lastBuild: lastBuild,
-                apiProvider: settingsService.defaultProvider,
-                showLegend: settingsService.showLegendOnStartup || false,
-                showPhenomena: settingsService.showPhenomenaListOnStartup || false,
-                saveStatus: settingsService.saveStatus,
-                generalizeData: settingsService.generalizeData,
-                clusterStations: settingsService.clusterStations,
-                concentrationMarker: settingsService.concentrationMarker,
-                timeseries: {},
-                timespan: {}
-            };
-            defStatus.timespan.duration = settingsService.defaultStartTimeExtent.duration || moment.duration(1, 'day');
-            defStatus.timespan.end = settingsService.defaultStartTimeExtent.end || moment();
-            defStatus.timespan.start = settingsService.defaultStartTimeExtent.start || moment(defStatus.timespan.end).subtract(defStatus.timespan.duration);
-
-            // set status to rootscope:
-            var scope = $rootScope;
-
-            // load status from storage
-            var storage = localStorageService.get(storageKey) || {};
-            if (storage.lastBuild == lastBuild) {
-                scope.status = angular.extend(angular.copy(defStatus), storage);
-            } else {
-                scope.status = defStatus;
-            }
-
-            scope.$watch('status', function(newStatus) {
-                if (newStatus.saveStatus) {
-                    localStorageService.set(storageKey, newStatus);
-                } else {
-                    localStorageService.remove(storageKey);
+                if (document.head.querySelector("[property=lastBuild]")) {
+                    lastBuild = document.head.querySelector("[property=lastBuild]").content;
                 }
-            }, true);
 
-            var resetStatus = function() {
-                angular.copy(defStatus, scope.status);
-            };
+                // init default status
+                function initDefStatus() {
 
-            var removeTimeseries = function(internalId) {
-                delete scope.status.timeseries[internalId];
-            };
+                    defStatus = {
+                        lastBuild: lastBuild,
+                        apiProvider: settingsService.defaultProvider,
+                        showLegend: settingsService.showLegendOnStartup || false,
+                        showPhenomena: settingsService.showPhenomenaListOnStartup || false,
+                        saveStatus: settingsService.saveStatus,
+                        generalizeData: settingsService.generalizeData,
+                        clusterStations: settingsService.clusterStations,
+                        concentrationMarker: settingsService.concentrationMarker,
+                        timeseries: {},
+                        timespan: {}
+                    };
 
-            var removeAllTimeseries = function() {
-                angular.forEach(scope.status.timeseries, function(ts, id) {
-                    removeTimeseries(id);
-                });
-            };
+                    if (!settingsService.defaultStartTimeExtent) {
 
-            var addTimeseries = function(timeseries) {
-                scope.status.timeseries[timeseries.internalId] = timeseries;
-            };
+                        defStatus.timespan.duration = moment.duration(1, 'day');
+                        defStatus.timespan.end = moment();
+                        defStatus.timespan.start = moment(defStatus.timespan.end).subtract(defStatus.timespan.duration);
+                    
+                    } else {
 
-            var getTimeseries = function() {
-                return scope.status.timeseries;
-            };
+                        defStatus.timespan.duration = settingsService.defaultStartTimeExtent.duration || moment.duration(1, 'day');
+                        defStatus.timespan.end = settingsService.defaultStartTimeExtent.end || moment();
+                        defStatus.timespan.start = settingsService.defaultStartTimeExtent.start || moment(defStatus.timespan.end).subtract(defStatus.timespan.duration);
+                    }
+                }
 
-            var getTime = function() {
-                return scope.status.timespan;
-            };
+                initDefStatus();
 
-            var setTime = function(time) {
-                scope.status.timespan = time;
-            };
+                // load status from storage
+                var storage = localStorageService.get(storageKey) || {};
+                if (storage.lastBuild == lastBuild) {
+                    scope.status = angular.extend(angular.copy(defStatus), storage);
+                } else {
+                    scope.status = defStatus;
+                }
 
-            return {
-                resetStatus: resetStatus,
-                addTimeseries: addTimeseries,
-                removeAllTimeseries: removeAllTimeseries,
-                removeTimeseries: removeTimeseries,
-                getTimeseries: getTimeseries,
-                getTime: getTime,
-                setTime: setTime,
-                status: scope.status
-            };
-        }
-    ]);
+                scope.$watch('status', function (newStatus) {
+                    if (newStatus.saveStatus) {
+                        localStorageService.set(storageKey, newStatus);
+                    } else {
+                        localStorageService.remove(storageKey);
+                    }
+                }, true);
+
+                var resetStatus = function () {
+                    angular.copy(defStatus, scope.status);
+                };
+
+                var removeTimeseries = function (internalId) {
+                    delete scope.status.timeseries[internalId];
+                };
+
+                var removeAllTimeseries = function () {
+                    angular.forEach(scope.status.timeseries, function (ts, id) {
+                        removeTimeseries(id);
+                    });
+                };
+
+                var addTimeseries = function (timeseries) {
+                    scope.status.timeseries[timeseries.internalId] = timeseries;
+                };
+
+                var getTimeseries = function () {
+                    return scope.status.timeseries;
+                };
+
+                var getTime = function () {
+                    return scope.status.timespan;
+                };
+
+                var setTime = function (time) {
+                    scope.status.timespan = time;
+                };
+
+                return {
+                    resetStatus: resetStatus,
+                    addTimeseries: addTimeseries,
+                    removeAllTimeseries: removeAllTimeseries,
+                    removeTimeseries: removeTimeseries,
+                    getTimeseries: getTimeseries,
+                    getTime: getTime,
+                    setTime: setTime,
+                    status: scope.status
+                };
+            }
+        ]);
