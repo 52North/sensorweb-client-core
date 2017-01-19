@@ -19,7 +19,7 @@
                 return requestUrl;
             }
 
-            this.getServices = function (apiUrl, id, params) {
+            this.getServices = function (id, apiUrl, params) {
 
                 var requestParams,
                         requestUrl = createRequestUrl(apiUrl, 'services/', id);
@@ -28,7 +28,7 @@
                     expanded: true
                 });
 
-                requestParams = this.createRequestConfigs(params);
+                requestParams = createRequestConfigs(params);
 
                 return this.requestSeriesApi(requestUrl, requestParams);
             };
@@ -36,7 +36,7 @@
             this.getStations = function (id, apiUrl, params) {
 
                 var requestUrl = createRequestUrl(apiUrl, 'stations/', id),
-                        requestParams = this.createRequestConfigs(params);
+                        requestParams = createRequestConfigs(params);
 
                 return this.requestSeriesApi(requestUrl, requestParams);
             };
@@ -44,7 +44,7 @@
             this.getPhenomena = function (id, apiUrl, params) {
 
                 var requestUrl = createRequestUrl(apiUrl, 'phenomena/', id),
-                        requestParams = this.createRequestConfigs(params);
+                        requestParams = createRequestConfigs(params);
 
                 return this.requestSeriesApi(requestUrl, requestParams);
             };
@@ -53,7 +53,7 @@
             this.getCategories = function (id, apiUrl, params) {
 
                 var requestUrl = createRequestUrl(apiUrl, 'categories/', id),
-                        requestParams = this.createRequestConfigs(params);
+                        requestParams = createRequestConfigs(params);
 
                 return this.requestSeriesApi(requestUrl, requestParams);
             };
@@ -61,7 +61,7 @@
             this.getFeatures = function (id, apiUrl, params) {
 
                 var requestUrl = createRequestUrl(apiUrl, 'features/', id),
-                        requestParams = this.createRequestConfigs(params);
+                        requestParams = createRequestConfigs(params);
 
                 return this.requestSeriesApi(requestUrl, requestParams);
 
@@ -70,7 +70,7 @@
             this.getProcedures = function (id, apiUrl, params) {
 
                 var requestUrl = createRequestUrl(apiUrl, 'procedures/', id),
-                        requestParams = this.createRequestConfigs(params);
+                        requestParams = createRequestConfigs(params);
 
                 return this.requestSeriesApi(requestUrl, requestParams);
             };
@@ -78,7 +78,7 @@
             this.getOfferings = function (id, apiUrl, params) {
 
                 var requestUrl = createRequestUrl(apiUrl, 'offerings/', id),
-                        requestParams = this.createRequestConfigs(params);
+                        requestParams = createRequestConfigs(params);
 
                 return this.requestSeriesApi(requestUrl, requestParams);
             };
@@ -86,7 +86,7 @@
             this.search = function (apiUrl, arrayParams) {
 
                 var requestUrl = apiUrl + 'search',
-                        requestParams = this.createRequestConfigs({
+                        requestParams = createRequestConfigs({
                             q: arrayParams.join(',')
                         });
 
@@ -109,11 +109,11 @@
 
             this.requestSeriesApi = function (requestUrl, params) {
 
+
                 return $http.get(requestUrl, params)
-                        .then(
-                                response => {
-                                    return response.data;
-                                },
+                        .then(function (response) {
+                            return response.data;
+                        },
                                 this.errorCallback
                                 );
             };
@@ -122,7 +122,7 @@
             this.getTsData = function (id, apiUrl, timespan, extendedData, generalizeData) {
 
                 var requestUrl = createRequestUrl(apiUrl, 'timeseries/', id) + "/getData",
-                        params = {
+                        requestParams, params = {
                             timespan: utils.createRequestTimespan(timespan.start, timespan.end),
                             generalize: generalizeData || false,
                             expanded: true,
@@ -132,11 +132,13 @@
                 if (extendedData) {
                     angular.extend(params, extendedData);
                 }
+                requestParams = createRequestConfigs(params);
 
-                return $http.get(requestUrl, params)
+                return $http.get(requestUrl, requestParams)
                         .then(
-                                response => {
-                                    this.revampTimeseriesData(response.data, id);
+                                function (response) {
+                                    console.log(response);
+                                    revampTimeseriesData(response.data, id);
                                     return response.data;
                                 },
                                 this.errorCallback
@@ -152,15 +154,18 @@
                 }
             };
 
-            this.revampTimeseriesData = function (data, id) {
+            function revampTimeseriesData(data, id) {
                 if (data[id].values.length > 0 && data[id].values[0].timestamp) {
                     var temp = [];
-                    angular.forEach(data[id].values, entry => {
-                        temp.push([entry.timestamp, entry.value]);
-                    });
+                    angular.forEach(data[id].values,
+                            function (entry) {
+                                temp.push([entry.timestamp, entry.value]);
+                            }
+                    );
                     data[id].values = temp;
                 }
-            };
+            }
+            ;
 
             this.extendParams = function (params, extendParams) {
                 if (!params) {
@@ -170,20 +175,20 @@
                 }
             };
 
-            this.createRequestConfigs = function (params) {
+            function createRequestConfigs(params) {
 
                 if (angular.isUndefined(params)) {
                     params = settingsService.additionalParameters;
                 } else {
                     angular.extend(params, settingsService.additionalParameters);
                 }
+
                 return {
                     params: params,
                     cache: true
                 };
-            };
-
-
+            }
+            
         }
     ]);
 }());

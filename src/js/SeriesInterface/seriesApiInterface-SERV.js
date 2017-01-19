@@ -24,13 +24,13 @@
 
             this.getStations = function (id, apiUrl, params) {
 
-                return seriesApiMappingService.getApiVersion().then(
-                        apiVersionId => {
+                return seriesApiMappingService.getApiVersion(apiUrl).then(
+                        function(apiVersionId) {
 
-                            if (apiVersionId === seriesApiMappingService.apiVersion.n52seriesApiV2) {
+                            if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV2) {
                                 return  seriesApiV2Interface.getStations(id, apiUrl, params);
 
-                            } else if (apiVersionId === seriesApiMappingService.apiVersion.n52seriesApiV1) {
+                            } else if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV1) {
                                 return  seriesApiV1Interface.getStations(id, apiUrl, params);
                             }
                         }
@@ -67,13 +67,13 @@
             };
 
             this.getTimeseries = function (id, apiUrl, params) {
-                return seriesApiMappingService.getApiVersion().then(
-                        apiVersionId => {
-
-                            if (apiVersionId === seriesApiMappingService.apiVersion.n52seriesApiV2) {
+                return seriesApiMappingService.getApiVersion(apiUrl).then(
+                        function(apiVersionId) {
+                            
+                            if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV2) {
                                 return  seriesApiV2Interface.getTimeseries(id, apiUrl, params);
 
-                            } else if (apiVersionId === seriesApiMappingService.apiVersion.n52seriesApiV1) {
+                            } else if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV1) {
                                 return  seriesApiV1Interface.getTimeseries(id, apiUrl, params);
                             }
                         }
@@ -87,13 +87,13 @@
 
             this.getTsData = function (id, apiUrl, timespan, extendedData, generalizeData) {
 
-                return seriesApiMappingService.getApiVersion().then(
-                        apiVersionId => {
+                return seriesApiMappingService.getApiVersion(apiUrl).then(
+                       function( apiVersionId) {
 
-                            if (apiVersionId === seriesApiMappingService.apiVersion.n52seriesApiV2) {
+                            if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV2) {
                                 return  seriesApiV2Interface.getTsData(id, apiUrl, timespan, extendedData, generalizeData);
 
-                            } else if (apiVersionId === seriesApiMappingService.apiVersion.n52seriesApiV1) {
+                            } else if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV1) {
                                 return  seriesApiV1Interface.getTsData(id, apiUrl, timespan, extendedData, generalizeData);
                             }
                         }
@@ -112,54 +112,5 @@
 
         }
     ]);
-
-    angular.module('n52.core.interface').service('seriesApiMappingService', [
-        '$http',
-        '$q',
-        function ($http, $q) {
-
-            var serviceRootUrlToVersionMap = {};
-
-            this.apiVersion = {
-                n52SeriesApiV1: 1,
-                n52seriesApiV2: 2
-            };
-
-
-            this.detectApiVersion = function (apiUrl) {
-
-                return $http.get(apiUrl).then(
-                        response => {
-                            if (response && response.data && !isNaN(response.data.length)) {
-                                response.data.forEach(entry => {
-                                    if (entry.id === 'platforms') {
-                                        return apiVersion.n52seriesApiV2;
-                                    }
-                                });
-                                return apiVersion.n52SeriesApiV1;
-                            }
-                        });
-            };
-
-            this.getApiVersion = function (apiUrl) {
-
-                return $q((resolve, reject) => {
-
-                    if (serviceRootUrlToVersionMap[apiUrl]) {
-
-                        resolve(serviceRootUrlToVersionMap[apiUrl]);
-
-                    } else {
-
-                        detectApiVersion(apiUrl).then(
-                                apiVersion => {
-                                    resolve(apiVersion);
-                                });
-                    }
-                });
-            };
-        }
-    ]);
-
 
 }());

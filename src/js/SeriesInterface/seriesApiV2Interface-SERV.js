@@ -36,9 +36,9 @@
                 return this.getPlatforms(id, apiUrl, params);
             };
 
-            this.getServices = function (apiUrl, id, params) {
+            this.getServices = function (id, apiUrl, params) {
 
-                return seriesApiV1Interface.getServices(apiUrl, id, params);
+                return seriesApiV1Interface.getServices(id, apiUrl, params);
             };
 
             this.getStations = function (id, apiUrl, params) {
@@ -48,14 +48,14 @@
                 });
 
                 return this.getStationaryPlatforms(id, apiUrl, params)
-                        .then(response => {
+                        .then(function (response) {
                             if (isNaN(response.length)) {
                                 response.properties = {
                                     id: response.id,
                                     timeseries: response.datasets
                                 };
                             } else {
-                                response.forEach(entry => {
+                                angular.forEach(response, function (entry) {
                                     entry.properties = {
                                         id: entry.id,
                                         timeseries: entry.datasets
@@ -70,35 +70,35 @@
 
                 addAllPlatformTypes(params);
 
-                return seriesApiV1Interface.getPhenomena(apiUrl, id, params);
+                return seriesApiV1Interface.getPhenomena(id, apiUrl, params);
             };
 
             this.getCategories = function (id, apiUrl, params) {
 
                 addAllPlatformTypes(params);
 
-                return seriesApiV1Interface.getCategories(apiUrl, id, params);
+                return seriesApiV1Interface.getCategories(id, apiUrl, params);
             };
 
             this.getFeatures = function (id, apiUrl, params) {
 
                 addAllPlatformTypes(params);
 
-                return seriesApiV1Interface.getFeatures(apiUrl, id, params);
+                return seriesApiV1Interface.getFeatures(id, apiUrl, params);
             };
 
             this.getProcedures = function (id, apiUrl, params) {
 
                 addAllPlatformTypes(params);
 
-                return seriesApiV1Interface.getProcedures(apiUrl, id, params);
+                return seriesApiV1Interface.getProcedures(id, apiUrl, params);
             };
 
             this.getOfferings = function (id, apiUrl, params) {
 
                 addAllPlatformTypes(params);
 
-                return seriesApiV1Interface.getOfferings(apiUrl, id, params);
+                return seriesApiV1Interface.getOfferings(id, apiUrl, params);
             };
 
             this.search = function (apiUrl, arrayParams) {
@@ -117,12 +117,12 @@
 
                 return  this.getDatasets(id, apiUrl, params)
                         .then(
-                                response => {
+                                function (response) {
                                     if (isNaN(response.length)) {
                                         adjustTs(response, apiUrl);
 
                                     } else {
-                                        response.forEach(entry => {
+                                        angular.forEach(response, function (entry) {
                                             adjustTs(entry, apiUrl);
                                         });
                                     }
@@ -150,7 +150,7 @@
                 }
                 return this.getDatasetData(id, apiUrl, timespan, params)
                         .then(
-                                response => {
+                                function (response) {
                                     return response;
                                 },
                                 seriesApiV1Interface.errorCallback
@@ -171,7 +171,7 @@
                 var requestParams = {
                     timespan: utils.createRequestTimespan(timespan.start, timespan.end)
                 },
-                        requestUrl = createRequestUrl(apiUrl, 'timeseries/', id) + '/data';
+                requestUrl = createRequestUrl(apiUrl, 'timeseries/', id) + '/data';
 
                 if (extendedParams) {
                     angular.extend(requestParams, extendedParams);
