@@ -18,6 +18,10 @@ angular.module('n52.core.timeseries', [])
             };
 
             _addTs = function(ts, timeseries) {
+                ts.internalId = utils.createInternalId(ts.id, ts.apiUrl);
+                if (ts.uom === settingsService.undefinedUomString) {
+                    delete ts.uom;
+                }
                 ts.timebuffer = defaultDuration;
                 styleService.createStylesInTs(ts);
                 timeseries[ts.internalId] = ts;

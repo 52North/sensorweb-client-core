@@ -23,7 +23,6 @@ angular.module('n52.core.styleTs', [])
                 });
             }
 
-
             /**
              *
              * Creates a style object for a given timeseries. The attributes zeroScaled

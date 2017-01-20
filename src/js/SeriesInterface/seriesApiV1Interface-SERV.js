@@ -6,96 +6,86 @@
         '$log',
         'settingsService',
         'utils',
-        function($http, $log, settingsService, utils) {
-
-            function createRequestUrl(apiUrl, endpoint, id) {
-
-                // TODO Check whether apiUrl ends with slash
-                var requestUrl = apiUrl + endpoint;
-
-                if (id) {
-                    requestUrl += id;
-                }
-                return requestUrl;
-            }
+        'interfaceUtils',
+        function($http, $log, settingsService, utils, interfaceUtils) {
 
             this.getServices = function(id, apiUrl, params) {
 
                 var requestParams,
-                    requestUrl = createRequestUrl(apiUrl, 'services/', id);
+                    requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'services/', id);
 
                 params = this.extendParams(params, {
                     expanded: true
                 });
 
-                requestParams = createRequestConfigs(params);
+                requestParams = interfaceUtils.createRequestConfigs(params);
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.getStations = function(id, apiUrl, params) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'stations/', id),
-                    requestParams = createRequestConfigs(params);
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'stations/', id),
+                    requestParams = interfaceUtils.createRequestConfigs(params);
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.getPhenomena = function(id, apiUrl, params) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'phenomena/', id),
-                    requestParams = createRequestConfigs(params);
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'phenomena/', id),
+                    requestParams = interfaceUtils.createRequestConfigs(params);
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
 
             this.getCategories = function(id, apiUrl, params) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'categories/', id),
-                    requestParams = createRequestConfigs(params);
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'categories/', id),
+                    requestParams = interfaceUtils.createRequestConfigs(params);
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.getFeatures = function(id, apiUrl, params) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'features/', id),
-                    requestParams = createRequestConfigs(params);
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'features/', id),
+                    requestParams = interfaceUtils.createRequestConfigs(params);
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
 
             };
 
             this.getProcedures = function(id, apiUrl, params) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'procedures/', id),
-                    requestParams = createRequestConfigs(params);
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'procedures/', id),
+                    requestParams = interfaceUtils.createRequestConfigs(params);
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.getOfferings = function(id, apiUrl, params) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'offerings/', id),
-                    requestParams = createRequestConfigs(params);
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'offerings/', id),
+                    requestParams = interfaceUtils.createRequestConfigs(params);
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.search = function(apiUrl, arrayParams) {
 
                 var requestUrl = apiUrl + 'search',
-                    requestParams = createRequestConfigs({
+                    requestParams = interfaceUtils.createRequestConfigs({
                         q: arrayParams.join(',')
                     });
 
-                return this.requestSeriesApi(requestUrl, requestParams);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.getTimeseries = function(id, apiUrl, params) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'timeseries/', id),
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'timeseries/', id),
                     requestParams = params || {};
 
                 requestParams.expanded = true;
@@ -103,25 +93,25 @@
                 requestParams.status_intervals = true;
                 requestParams.rendering_hints = true;
 
-
-                return this.requestSeriesApi(requestUrl, requestParams);
-            };
-
-            this.requestSeriesApi = function(requestUrl, params) {
-
-
-                return $http.get(requestUrl, params)
-                    .then(function(response) {
-                            return response.data;
+                return $http.get(requestUrl, interfaceUtils.createRequestConfigs(requestParams))
+                    .then(response => {
+                            if (angular.isArray(response.data)) {
+                                angular.forEach(response.data, ts => {
+                                    ts.apiUrl = apiUrl;
+                                });
+                                return response.data;
+                            } else {
+                                response.data.apiUrl = apiUrl;
+                                return response.data;
+                            }
                         },
                         this.errorCallback
                     );
             };
 
-
             this.getTsData = function(id, apiUrl, timespan, extendedData, generalizeData) {
 
-                var requestUrl = createRequestUrl(apiUrl, 'timeseries/', id) + "/getData",
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'timeseries/', id) + "/getData",
                     requestParams, params = {
                         timespan: utils.createRequestTimespan(timespan.start, timespan.end),
                         generalize: generalizeData || false,
@@ -132,7 +122,7 @@
                 if (extendedData) {
                     angular.extend(params, extendedData);
                 }
-                requestParams = createRequestConfigs(params);
+                requestParams = interfaceUtils.createRequestConfigs(params);
 
                 return $http.get(requestUrl, requestParams)
                     .then(
@@ -165,7 +155,7 @@
                     );
                     data[id].values = temp;
                 }
-            };
+            }
 
             this.extendParams = function(params, extendParams) {
                 if (!params) {
@@ -174,20 +164,6 @@
                     return angular.extend(params, extendParams);
                 }
             };
-
-            function createRequestConfigs(params) {
-
-                if (angular.isUndefined(params)) {
-                    params = settingsService.additionalParameters;
-                } else {
-                    angular.extend(params, settingsService.additionalParameters);
-                }
-
-                return {
-                    params: params,
-                    cache: true
-                };
-            }
 
         }
     ]);

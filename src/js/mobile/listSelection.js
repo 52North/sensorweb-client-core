@@ -1,10 +1,10 @@
-angular.module('n52.client.mobile')
+angular.module('n52.core.mobile')
     .controller('ListSelectionMobileButtonCtrl', ['$scope', '$uibModal', 'combinedSrvc',
         function($scope, $uibModal, combinedSrvc) {
             $scope.openListSelectionMobile = function() {
                 $uibModal.open({
                     animation: true,
-                    templateUrl: 'n52.client.mobile.modal-list-selection-mobile',
+                    templateUrl: 'n52.core.mobile.modal-list-selection-mobile',
                     controller: 'ModalListSelectionMobileCtrl'
                 });
             };

@@ -10,7 +10,6 @@ angular.module('n52.core.color', [])
 
                 colorPool.setColors(colorList);
                 colorPool.setRefColors(refColorList);
-
                 colorList = settingsService.colorList;
                 refColorList = settingsService.refColorList || [];
                 selectFromList = settingsService.selectColorFromList || false;

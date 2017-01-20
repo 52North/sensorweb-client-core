@@ -2,8 +2,8 @@
 angular.module('n52.core.interface')
     .config(['$provide',
         function($provide) {
-            $provide.decorator('seriesApiInterface', ['$delegate', '$q', '$http', 'interfaceUtils', 'utils',
-                function($delegate, $q, $http, interfaceUtils, utils) {
+            $provide.decorator('seriesApiInterface', ['$delegate', '$q', '$http', 'utils',
+                function($delegate, $q, $http, utils) {
                     var maxTimeExtent = moment.duration(365, 'day'),
                         promises;
 
