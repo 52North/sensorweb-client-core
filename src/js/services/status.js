@@ -1,32 +1,47 @@
 angular.module('n52.core.status', [])
     .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService',
         function($rootScope, localStorageService, settingsService) {
-            var lastBuild = 1;
-            if (document.head.querySelector('[property=lastBuild]')) {
-                lastBuild = document.head.querySelector('[property=lastBuild]').content;
+            var lastBuild = 1,
+                defStatus,
+                storageKey = 'status',
+                // set status to rootscope:
+                scope = $rootScope;
+
+            if (document.head.querySelector("[property=lastBuild]")) {
+                lastBuild = document.head.querySelector("[property=lastBuild]").content;
             }
 
-            var storageKey = 'status';
-
             // init default status
-            var defStatus = {
-                lastBuild: lastBuild,
-                apiProvider: settingsService.defaultProvider,
-                showLegend: settingsService.showLegendOnStartup || false,
-                showPhenomena: settingsService.showPhenomenaListOnStartup || false,
-                saveStatus: settingsService.saveStatus,
-                generalizeData: settingsService.generalizeData,
-                clusterStations: settingsService.clusterStations,
-                concentrationMarker: settingsService.concentrationMarker,
-                timeseries: {},
-                timespan: {}
-            };
-            defStatus.timespan.duration = settingsService.defaultStartTimeExtent.duration || moment.duration(1, 'day');
-            defStatus.timespan.end = settingsService.defaultStartTimeExtent.end || moment();
-            defStatus.timespan.start = settingsService.defaultStartTimeExtent.start || moment(defStatus.timespan.end).subtract(defStatus.timespan.duration);
+            function initDefStatus() {
 
-            // set status to rootscope:
-            var scope = $rootScope;
+                defStatus = {
+                    lastBuild: lastBuild,
+                    apiProvider: settingsService.defaultProvider,
+                    showLegend: settingsService.showLegendOnStartup || false,
+                    showPhenomena: settingsService.showPhenomenaListOnStartup || false,
+                    saveStatus: settingsService.saveStatus,
+                    generalizeData: settingsService.generalizeData,
+                    clusterStations: settingsService.clusterStations,
+                    concentrationMarker: settingsService.concentrationMarker,
+                    timeseries: {},
+                    timespan: {}
+                };
+
+                if (!settingsService.defaultStartTimeExtent) {
+
+                    defStatus.timespan.duration = moment.duration(1, 'day');
+                    defStatus.timespan.end = moment();
+                    defStatus.timespan.start = moment(defStatus.timespan.end).subtract(defStatus.timespan.duration);
+
+                } else {
+
+                    defStatus.timespan.duration = settingsService.defaultStartTimeExtent.duration || moment.duration(1, 'day');
+                    defStatus.timespan.end = settingsService.defaultStartTimeExtent.end || moment();
+                    defStatus.timespan.start = settingsService.defaultStartTimeExtent.start || moment(defStatus.timespan.end).subtract(defStatus.timespan.duration);
+                }
+            }
+
+            initDefStatus();
 
             // load status from storage
             var storage = localStorageService.get(storageKey) || {};

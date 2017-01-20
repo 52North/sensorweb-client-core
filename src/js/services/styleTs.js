@@ -1,25 +1,8 @@
 angular.module('n52.core.styleTs', [])
     .factory('styleService', ['$rootScope', 'settingsService', 'colorService', '$injector',
         function($rootScope, settingsService, colorService, $injector) {
-            var defaultIntervalList = [{
-                label: 'styleChange.barChartInterval.hour',
-                caption: 'byHour',
-                value: 1
-            }, {
-                label: 'styleChange.barChartInterval.day',
-                caption: 'byDay',
-                value: 24
-            }, {
-                label: 'styleChange.barChartInterval.week',
-                caption: 'byWeek',
-                value: 7 * 24
-            }, {
-                label: 'styleChange.barChartInterval.month',
-                caption: 'byMonth',
-                value: 30 * 24
-            }];
 
-            var intervalList = settingsService.intervalList || defaultIntervalList;
+            var intervalList = settingsService.intervalList;
 
             function createStylesInTs(ts) {
                 if (!ts.styles) {
@@ -28,13 +11,46 @@ angular.module('n52.core.styleTs', [])
                 ts.styles.color = ts.styles.color || ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
                 ts.styles.visible = true;
                 ts.styles.selected = false;
+
                 if (angular.isUndefined(ts.styles.zeroScaled))
                     ts.styles.zeroScaled = settingsService.defaultZeroScale;
+
                 if (angular.isUndefined(ts.styles.groupedAxis))
                     ts.styles.groupedAxis = settingsService.defaultGroupedAxis;
+
                 angular.forEach(ts.referenceValues, function(refValue) {
                     refValue.color = colorService.getRefColor(refValue.referenceValueId);
                 });
+            }
+
+
+            /**
+             *
+             * Creates a style object for a given timeseries. The attributes zeroScaled
+             * and groupedAxis are automatically set from settingsService if not specified as arguments.
+             * The colour attribute is picked from the renderingHints if not specified.
+             *
+             * @param {TimeSeries} ts
+             * @param {String} colour
+             * @param {boolean} zeroScaled
+             * @param {boolean} groupedAxis
+             *
+             * @returns {styleObject}
+             */
+            function createStyle(ts, colour, zeroScaled, groupedAxis) {
+
+                var styles = {};
+
+                styles.color = colour || ts.renderingHints && ts.renderingHints.properties.color || colorService.getColor(ts.id);
+                styles.selected = false;
+                styles.zeroScaled = !angular.isUndefined(zeroScaled) ? zeroScaled : settingsService.defaultZeroScale;
+                styles.groupedAxis = !angular.isUndefined(groupedAxis) ? groupedAxis : settingsService.defaultGroupedAxis;
+
+                angular.forEach(ts.referenceValues, function(refValue) {
+                    refValue.color = colorService.getRefColor(refValue.referenceValueId);
+                });
+
+                return styles;
             }
 
             function deleteStyle(ts) {
@@ -96,6 +112,7 @@ angular.module('n52.core.styleTs', [])
 
             return {
                 createStylesInTs: createStylesInTs,
+                createStyle: createStyle,
                 deleteStyle: deleteStyle,
                 notifyAllTimeseriesChanged: notifyAllTimeseriesChanged,
                 toggleSelection: toggleSelection,
