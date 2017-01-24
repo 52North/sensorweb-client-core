@@ -140,7 +140,7 @@
                 return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
-            this.getTsData = function(id, apiUrl, timespan, extendedData, generalizeData) {
+            this.getTsData = function(id, apiUrl, timespan, extendedData, generalizeData, expanded) {
                 var params = {
                     timespan: utils.createRequestTimespan(timespan.start, timespan.end),
                     generalize: generalizeData || false,
@@ -150,13 +150,18 @@
                 if (extendedData) {
                     angular.extend(params, extendedData);
                 }
+                
+                if (!angular.isUndefined(expanded)) {
+                    params.expanded = expanded;
+                }
+                
                 return this.getDatasetData(id, apiUrl, timespan, params)
                     .then(
 
                         function(response) {
                             return response;
                         },
-                        seriesApiV1Interface.errorCallback
+                        interfaceUtils.errorCallback
                     );
 
             };

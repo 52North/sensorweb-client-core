@@ -87,17 +87,17 @@
                 return seriesApiV2Interface.getExtras(tsId, apiUrl, params);
             };
 
-            this.getTsData = function(id, apiUrl, timespan, extendedData, generalizeData) {
+            this.getTsData = function(id, apiUrl, timespan, extendedData, generalizeData, expanded) {
 
                 return seriesApiMappingService.getApiVersion(apiUrl).then(
 
                     function(apiVersionId) {
 
                         if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV2) {
-                            return seriesApiV2Interface.getTsData(id, apiUrl, timespan, extendedData, generalizeData);
+                            return seriesApiV2Interface.getTsData(id, apiUrl, timespan, extendedData, generalizeData, expanded);
 
                         } else if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV1) {
-                            return seriesApiV1Interface.getTsData(id, apiUrl, timespan, extendedData, generalizeData);
+                            return seriesApiV1Interface.getTsData(id, apiUrl, timespan, extendedData, generalizeData, expanded);
                         }
                     }
                 );

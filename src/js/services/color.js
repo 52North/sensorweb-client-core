@@ -8,11 +8,11 @@ angular.module('n52.core.color', [])
 
             function init() {
 
-                colorPool.setColors(colorList);
-                colorPool.setRefColors(refColorList);
                 colorList = settingsService.colorList;
                 refColorList = settingsService.refColorList || [];
                 selectFromList = settingsService.selectColorFromList || false;
+                colorPool.setColors(colorList);
+                colorPool.setRefColors(refColorList);
             }
 
             init();
