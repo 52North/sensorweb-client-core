@@ -1,4 +1,4 @@
-angular.module('n52.core.color', [])
+angular.module('n52.core.base')
     .factory('colorService', ['settingsService', 'colorPool',
         function(settingsService, colorPool) {
 

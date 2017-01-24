@@ -1,4 +1,4 @@
-angular.module('n52.core.tooltip', ['n52.core.time', 'n52.core.barChart'])
+angular.module('n52.core.diagram')
         .controller('SwcTooltipCtrl', ['$scope',
             function ($scope) {
                 $scope.$apply();

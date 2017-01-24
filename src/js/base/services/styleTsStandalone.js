@@ -1,7 +1,7 @@
-angular.module('n52.core.styleTs', [])
-    .factory('styleServiceStandalone', ['colorService', 
+angular.module('n52.core.base')
+    .factory('styleServiceStandalone', ['colorService',
         function(colorService) {
-            
+
             function createStyle(ts, colour, zeroScaled, groupedAxis, selected, visible) {
 
                 var styles = {};
@@ -11,7 +11,7 @@ angular.module('n52.core.styleTs', [])
                 styles.groupedAxis = groupedAxis;
                 styles.selected = selected;
                 styles.visible = visible;
-         
+
                 angular.forEach(ts.referenceValues, function(refValue) {
                     refValue.color = colorService.getRefColor(refValue.referenceValueId);
                 });
@@ -19,9 +19,8 @@ angular.module('n52.core.styleTs', [])
                 return styles;
             }
 
-            
             return {
                 createStyle: createStyle
-               };
+            };
         }
     ]);

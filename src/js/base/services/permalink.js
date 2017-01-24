@@ -1,4 +1,4 @@
-angular.module('n52.core.permalinkGen', [])
+angular.module('n52.core.base')
     .service('permalinkGenerationService', ['$location', 'timeseriesService', 'statusService', 'utils',
         function($location, timeseriesService, statusService, utils) {
             createTimeseriesParam = function(timeseriesId) {
@@ -41,8 +41,7 @@ angular.module('n52.core.permalinkGen', [])
                 return createBaseUrl('/diagram') + params.join("&");
             };
         }
-    ]);
-angular.module('n52.core.permalinkEval', ['n52.core.utils'])
+    ])
     .factory('permalinkEvaluationService', ['$location', 'utils',
         function($location, utils) {
             var parameters = $location.search();

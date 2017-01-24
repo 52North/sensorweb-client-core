@@ -1,4 +1,4 @@
-angular.module('n52.core.timeseries', [])
+angular.module('n52.core.base')
     .service('timeseriesService', ['$rootScope', 'seriesApiInterface', 'statusService', 'styleService', 'settingsService', 'utils',
         function($rootScope, seriesApiInterface, statusService, styleService, settingsService, utils) {
             var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');

@@ -1,4 +1,4 @@
-angular.module('n52.core.startup', [])
+angular.module('n52.core.startup')
         .service('startupService', ['$injector', '$log',
             function ($injector, $log) {
                 var startupServices = [];

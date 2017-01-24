@@ -1,4 +1,4 @@
-angular.module('n52.core.status', [])
+angular.module('n52.core.base')
     .factory('statusService', ['$rootScope', 'localStorageService', 'settingsService',
         function($rootScope, localStorageService, settingsService) {
             var lastBuild = 1,
