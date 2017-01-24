@@ -131,7 +131,6 @@
                     .then(
 
                         function(response) {
-                            console.log(response);
                             revampTimeseriesData(response.data, id);
                             return response.data;
                         },
