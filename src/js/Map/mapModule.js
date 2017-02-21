@@ -224,9 +224,6 @@ angular.module('n52.core.map', [])
                     angular.forEach(result.properties.timeseries, function(timeseries, id) {
                         timeseries.selected = selectFirst || !preselectFirstTimeseries;
                         selectFirst = false;
-                        seriesApiInterface.getTimeseries(id, url).then(function(ts) {
-                            angular.extend(timeseries, ts);
-                        });
                     });
                 });
             };

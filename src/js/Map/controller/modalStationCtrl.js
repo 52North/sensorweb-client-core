@@ -5,6 +5,7 @@ angular.module('n52.core.map')
                 $scope.isAllSelected = !stationService.preselectFirstTimeseries;
                 $scope.station = stationService.station;
                 $scope.phenomenonId = selection.phenomenonId;
+                $scope.serviceUrl = selection.url;
 
                 $scope.toggleAll = function () {
                     angular.forEach($scope.station.entry.properties.timeseries, function (ts) {
