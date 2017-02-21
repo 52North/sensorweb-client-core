@@ -12,6 +12,8 @@ angular.module('n52.core.metadata')
             this.openCapabilities = function() {
                 $window.open(this.sos.url + '?request=GetCapabilities&service=SOS');
             };
-            sosUrlSrv.getSosUrl(this.timeseries, this.sos);
+            this.$onInit = function() {
+                sosUrlSrv.getSosUrl(this.timeseries, this.sos);
+            };
         }
     ]);
