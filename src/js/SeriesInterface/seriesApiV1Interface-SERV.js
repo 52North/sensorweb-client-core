@@ -92,7 +92,7 @@
                 requestParams.rendering_hints = true;
 
                 return $http.get(requestUrl, interfaceUtils.createRequestConfigs(requestParams))
-                    .then(response => {
+                    .then((response) => {
                             if (angular.isArray(response.data)) {
                                 angular.forEach(response.data, ts => {
                                     ts.apiUrl = apiUrl;
@@ -128,37 +128,13 @@
                 requestParams = interfaceUtils.createRequestConfigs(params);
 
                 return $http.get(requestUrl, requestParams)
-                    .then(
-
-                        function(response) {
-                            revampTimeseriesData(response.data, id);
+                    .then((response) => {
+                            interfaceUtils.revampTimeseriesData(response.data, id);
                             return response.data;
                         },
                         interfaceUtils.errorCallback
                     );
             };
-
-            function revampTimeseriesData(data, id) {
-                var temp = [];
-                if (data[id] &&
-                    data[id].values &&
-                    data[id].values.length > 0 &&
-                    data[id].values[0].timestamp) {
-                    angular.forEach(data[id].values, entry => {
-                        temp.push([entry.timestamp, entry.value]);
-                    });
-                    data[id].values = temp;
-                }
-                if (data &&
-                    data.values &&
-                    data.values.length > 0 &&
-                    data.values[0].timestamp) {
-                    angular.forEach(data.values, entry => {
-                        temp.push([entry.timestamp, entry.value]);
-                    });
-                    data.values = temp;
-                }
-            }
 
             this.extendParams = function(params, extendParams) {
                 if (!params) {
