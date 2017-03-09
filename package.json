@@ -1,6 +1,5 @@
 {
   "name": "n52-sensorweb-client-core",
-  "private": true,
   "version": "2.0.0",
   "description": "The core modul with background functionality and some usefull directives.",
   "repository": "https://github.com/52North/sensorweb-client-core",
