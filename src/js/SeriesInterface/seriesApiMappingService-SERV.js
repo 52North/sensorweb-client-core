@@ -9,7 +9,7 @@
             var serviceRootUrlToVersionMap = {},
                 apiVersion = {
                     n52SeriesApiV1: 1,
-                    n52seriesApiV2: 2
+                    n52SeriesApiV2: 2
                 };
 
             function detectApiVersion(apiUrl) {
@@ -18,12 +18,13 @@
 
                     function(response) {
                         if (response && response.data && !isNaN(response.data.length)) {
+                            var version = apiVersion.n52SeriesApiV1;
                             angular.forEach(response.data, function(entry) {
                                 if (entry.id === 'platforms') {
-                                    return apiVersion.n52seriesApiV2;
+                                    version = apiVersion.n52SeriesApiV2;
                                 }
                             });
-                            return apiVersion.n52SeriesApiV1;
+                            return version;
                         }
                     });
             }
