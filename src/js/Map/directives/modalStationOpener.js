@@ -19,7 +19,7 @@ angular.module('n52.core.map')
                                 platform.id = args.leafletObject.options.stationsId ? args.leafletObject.options.stationsId : '';
                                 platform.url = args.leafletObject.options.url ? args.leafletObject.options.url : '';
                             }
-                            var platformPresenter = serviceFinder.getPlatformPresenter(args.model.platformType);
+                            var platformPresenter = serviceFinder.getPlatformPresenter(args.model.platformType, platform.url);
                             if (platformPresenter) {
                                 platformPresenter.presentPlatform(platform);
                             } else {
