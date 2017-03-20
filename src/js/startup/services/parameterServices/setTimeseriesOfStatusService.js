@@ -6,7 +6,7 @@ angular.module('n52.core.startup')
                     var hasTsParam = permalinkEvaluationService.hasParam('ts');
                     if (!hasTsParam) {
                         angular.forEach(statusService.getTimeseries(), function (ts) {
-                            timeseriesService.addTimeseriesById(ts.id, ts.apiUrl);
+                            timeseriesService.addTimeseries(ts);
                         });
                     } else {
                         statusService.removeAllTimeseries();

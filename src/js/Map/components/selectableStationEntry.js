@@ -9,10 +9,12 @@ angular.module('n52.core.map')
         controller: ['seriesApiInterface', 'utils',
             function(seriesApiInterface, utils) {
                 this.$onInit = function() {
-                    seriesApiInterface.getTimeseries(this.timeseriesId, this.serviceUrl).then((ts) => {
-                        ts.internalId = utils.createInternalId(ts.id, ts.apiUrl);
-                        angular.extend(this.timeseries, ts);
-                    });
+                    if (this.timeseriesId && this.timeseries) {
+                        seriesApiInterface.getTimeseries(this.timeseriesId, this.serviceUrl).then((ts) => {
+                            ts.internalId = utils.createInternalId(ts.id, ts.apiUrl);
+                            angular.extend(this.timeseries, ts);
+                        });
+                    }
                 };
             }
         ]
