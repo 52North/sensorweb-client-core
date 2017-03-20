@@ -32,7 +32,7 @@ angular.module('n52.core.base')
             _loadTsData = function(ts) {
                 var generalizeData = statusService.status.generalizeData || false;
                 ts.loadingData = true;
-                seriesApiInterface.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer), null, generalizeData)
+                seriesApiInterface.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer), ts.filter, generalizeData)
                     .then(data => {
                         _addTsData(data, ts);
                     });

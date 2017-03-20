@@ -53,7 +53,8 @@ angular.module('n52.core.base')
     .service('measurementPresentDataset', ['timeseriesService', '$location',
         function(timeseriesService, $location) {
             this.presentDataset = function(dataset, providerUrl) {
-                timeseriesService.addTimeseriesById(dataset.id, providerUrl);
+                dataset.apiUrl = providerUrl;
+                timeseriesService.addTimeseries(dataset);
                 $location.url('/diagram');
             };
         }

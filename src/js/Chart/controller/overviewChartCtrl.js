@@ -115,7 +115,8 @@ angular.module('n52.core.overviewDiagram', [])
                     var ts = timeseriesService.getTimeseries(tsId);
                     if (ts) {
                         var start = options.xaxis.min, end = options.xaxis.max;
-                        seriesApiInterface.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, extendedDataRequest, generalizeData).then(function (data) {
+                        var params = angular.extend(extendedDataRequest, ts.filter);
+                        seriesApiInterface.getTsData(ts.id, ts.apiUrl, {start: start, end: end}, params, generalizeData).then(function (data) {
                             flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, data[ts.id]);
                             options.loading = false;
                         });
