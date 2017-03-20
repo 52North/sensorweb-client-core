@@ -19,7 +19,7 @@
                     };
 
                     this.createRequestConfigs = function (params) {
-                        if (angular.isUndefined(params)) {
+                        if (angular.isUndefined(params) || params === null) {
                             params = settingsService.additionalParameters;
                         } else {
                             angular.extend(params, settingsService.additionalParameters);

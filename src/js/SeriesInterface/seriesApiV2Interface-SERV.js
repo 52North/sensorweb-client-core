@@ -22,33 +22,32 @@
             }
 
             this.getPlatforms = function(id, apiUrl, params) {
-
                 var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'platforms/', id),
                     requestParams = interfaceUtils.createRequestConfigs(params);
-
                 return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.getStationaryPlatforms = function(id, apiUrl, params) {
-
                 params = seriesApiV1Interface.extendParams(params, {
                     platformTypes: 'stationary'
                 });
-
                 return this.getPlatforms(id, apiUrl, params);
             };
 
-            this.getServices = function(id, apiUrl, params) {
+            this.getPlatformExtras = function(id, apiUrl, params) {
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'platforms/', id) + '/extras',
+                    requestParams = interfaceUtils.createRequestConfigs(params);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
+            };
 
+            this.getServices = function(id, apiUrl, params) {
                 return seriesApiV1Interface.getServices(id, apiUrl, params);
             };
 
             this.getStations = function(id, apiUrl, params) {
-
                 params = seriesApiV1Interface.extendParams(params, {
                     expanded: true
                 });
-
                 return this.getStationaryPlatforms(id, apiUrl, params)
                     .then(function(response) {
                         if (isNaN(response.length)) {
@@ -69,42 +68,31 @@
             };
 
             this.getPhenomena = function(id, apiUrl, params) {
-
                 addAllPlatformTypes(params);
-
                 return seriesApiV1Interface.getPhenomena(id, apiUrl, params);
             };
 
             this.getCategories = function(id, apiUrl, params) {
-
                 addAllPlatformTypes(params);
-
                 return seriesApiV1Interface.getCategories(id, apiUrl, params);
             };
 
             this.getFeatures = function(id, apiUrl, params) {
-
                 addAllPlatformTypes(params);
-
                 return seriesApiV1Interface.getFeatures(id, apiUrl, params);
             };
 
             this.getProcedures = function(id, apiUrl, params) {
-
                 addAllPlatformTypes(params);
-
                 return seriesApiV1Interface.getProcedures(id, apiUrl, params);
             };
 
             this.getOfferings = function(id, apiUrl, params) {
-
                 addAllPlatformTypes(params);
-
                 return seriesApiV1Interface.getOfferings(id, apiUrl, params);
             };
 
             this.search = function(apiUrl, arrayParams) {
-
                 return seriesApiV1Interface.search(apiUrl, arrayParams);
             };
 
@@ -133,7 +121,6 @@
             };
 
             this.getExtras = function(tsId, apiUrl, params) {
-
                 var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'timeseries/', tsId) + '/extras',
                     requestParams = interfaceUtils.createRequestConfigs(params);
 
@@ -150,11 +137,11 @@
                 if (extendedData) {
                     angular.extend(params, extendedData);
                 }
-                
+
                 if (!angular.isUndefined(expanded)) {
                     params.expanded = expanded;
                 }
-                
+
                 return this.getDatasetData(id, apiUrl, timespan, params)
                     .then(
 
@@ -169,12 +156,16 @@
             this.getDatasets = function(id, apiUrl, params) {
                 var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'datasets/', id),
                     requestParams = interfaceUtils.createRequestConfigs(params);
+                return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
+            };
 
+            this.getDatasetExtras = function(id, apiUrl, params) {
+                var requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'datasets/', id) + '/extras',
+                    requestParams = interfaceUtils.createRequestConfigs(params);
                 return interfaceUtils.requestSeriesApi(requestUrl, requestParams);
             };
 
             this.getDatasetData = function(id, apiUrl, timespan, extendedParams) {
-
                 var requestParams = {
                         timespan: utils.createRequestTimespan(timespan.start, timespan.end)
                     },
@@ -183,7 +174,6 @@
                 if (extendedParams) {
                     angular.extend(requestParams, extendedParams);
                 }
-
                 return interfaceUtils.requestSeriesApi(requestUrl, interfaceUtils.createRequestConfigs(requestParams));
             };
         }
