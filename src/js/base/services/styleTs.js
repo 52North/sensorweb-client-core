@@ -90,6 +90,10 @@ angular.module('n52.core.base')
                 $rootScope.$emit('allTimeseriesChanged');
             }
 
+            function triggerStyleUpdate(ts) {
+                $rootScope.$emit('timeseriesChanged', ts.internalId);
+            }
+
             return {
                 createStylesInTs: createStylesInTs,
                 deleteStyle: deleteStyle,
@@ -101,7 +105,8 @@ angular.module('n52.core.base')
                 updateZeroScaled: updateZeroScaled,
                 updateGroupAxis: updateGroupAxis,
                 updateInterval: updateInterval,
-                intervalList: intervalList
+                intervalList: intervalList,
+                triggerStyleUpdate: triggerStyleUpdate
             };
         }
     ]);
