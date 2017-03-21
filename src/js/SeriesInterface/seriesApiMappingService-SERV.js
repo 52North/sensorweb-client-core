@@ -13,9 +13,9 @@
                 };
 
             function detectApiVersion(apiUrl) {
-
-                return $http.get(apiUrl).then(
-
+                return $http.get(apiUrl, {
+                    cache: true
+                }).then(
                     function(response) {
                         if (response && response.data && !isNaN(response.data.length)) {
                             var version = apiVersion.n52SeriesApiV1;
@@ -26,24 +26,20 @@
                             });
                             return version;
                         }
-                    });
+                    }
+                );
             }
 
             function getApiVersion(apiUrl) {
-
                 return $q(function(resolve, reject) {
-
                     if (serviceRootUrlToVersionMap[apiUrl]) {
-
                         resolve(serviceRootUrlToVersionMap[apiUrl]);
-
                     } else {
-
                         detectApiVersion(apiUrl).then(
-
                             function(apiVersion) {
                                 resolve(apiVersion);
-                            });
+                            }
+                        );
                     }
                 });
             }
@@ -54,6 +50,4 @@
             };
         }
     ]);
-
-
 }());
