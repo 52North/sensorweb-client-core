@@ -1,7 +1,6 @@
 angular.module('n52.core.base')
     .service('timeseriesService', ['$rootScope', 'seriesApiInterface', 'statusService', 'styleService', 'settingsService', 'utils',
         function($rootScope, seriesApiInterface, statusService, styleService, settingsService, utils) {
-            var defaultDuration = settingsService.timeseriesDataBuffer || moment.duration(2, 'h');
 
             this.timeseries = {};
             var tsData = {};
@@ -22,7 +21,6 @@ angular.module('n52.core.base')
                 if (ts.uom === settingsService.undefinedUomString) {
                     delete ts.uom;
                 }
-                ts.timebuffer = defaultDuration;
                 styleService.createStylesInTs(ts);
                 timeseries[ts.internalId] = ts;
                 statusService.addTimeseries(ts);
@@ -32,26 +30,13 @@ angular.module('n52.core.base')
             _loadTsData = function(ts) {
                 var generalizeData = statusService.status.generalizeData || false;
                 ts.loadingData = true;
-                seriesApiInterface.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime(), ts.timebuffer), ts.filter, generalizeData)
+                seriesApiInterface.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime()), ts.filter, generalizeData)
                     .then(data => {
                         _addTsData(data, ts);
                     });
             };
 
-            _createNewTimebuffer = function(data) {
-                if (data.length >= 2) {
-                    var newDuration = moment.duration(data[1][0] - data[0][0]);
-                    if (newDuration > defaultDuration) {
-                        return newDuration;
-                    } else {
-                        return defaultDuration;
-                    }
-                }
-                return defaultDuration;
-            };
-
             _addTsData = function(data, ts) {
-                ts.timebuffer = _createNewTimebuffer(data[ts.id].values);
                 tsData[ts.internalId] = data[ts.id];
                 if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
                     ts.hasNoDataInCurrentExtent = false;

@@ -27,18 +27,15 @@ angular.module('n52.core.base')
                 return combination;
             }
 
-            function createBufferedCurrentTimespan(time, buffer) {
-                if (angular.isObject(buffer)) {
-                    return {
-                        start: moment(time.start).subtract(buffer),
-                        end: moment(time.end).add(buffer)
-                    };
-                } else {
-                    return {
-                        start: time.start,
-                        end: time.end
-                    };
-                }
+            function createBufferedCurrentTimespan(time) {
+                var start = moment(time.start);
+                var end = moment(time.end);
+                var factor = settingsService.timebufferFactor || 0.0;
+                var duration = end.diff(start) * factor;
+                return {
+                    start: moment(time.start).subtract(moment.duration(duration)),
+                    end: moment(time.end).add(moment.duration(duration))
+                };
             }
 
             return {
