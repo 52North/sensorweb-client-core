@@ -34,24 +34,25 @@ angular.module('n52.core.legend')
                 return $q(function(resolve, reject) {
                     if (!settingsService.solveLabels) {
                         resolve(label);
-                    }
-                    var urls = findUrls(label);
-                    if (urls.length > 0) {
-                        var request = [];
-                        urls.forEach((url) => {
-                            labelUrl = settingsService.proxyUrl ? settingsService.proxyUrl + url : url;
-                            request.push($http.get(labelUrl, {
-                                cache: true
-                            }).then((response) => {
-                                var xml = jQuery.parseXML(response.data);
-                                label = label.replace(url, $(xml).find('prefLabel').text());
-                            }, (error) => {}));
-                        });
-                        $q.all(request).then(() => {
-                            resolve(label);
-                        });
                     } else {
-                        resolve(label);
+                        var urls = findUrls(label);
+                        if (urls.length > 0) {
+                            var request = [];
+                            urls.forEach((url) => {
+                                labelUrl = settingsService.proxyUrl ? settingsService.proxyUrl + url : url;
+                                request.push($http.get(labelUrl, {
+                                    cache: true
+                                }).then((response) => {
+                                    var xml = jQuery.parseXML(response.data);
+                                    label = label.replace(url, $(xml).find('prefLabel').text());
+                                }, (error) => {}));
+                            });
+                            $q.all(request).then(() => {
+                                resolve(label);
+                            });
+                        } else {
+                            resolve(label);
+                        }
                     }
                 });
             };
