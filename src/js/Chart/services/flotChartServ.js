@@ -134,7 +134,7 @@ angular.module('n52.core.diagram')
                         } else {
                             axesList[elem.internalId] = {
                                 id: ++Object.keys(axesList).length,
-                                uom: uom + ' @ ' + elem.station.properties.label,
+                                uom: uom,
                                 tsColors: [elem.styles.color],
                                 zeroScaled: elem.styles.zeroScaled
                             };
