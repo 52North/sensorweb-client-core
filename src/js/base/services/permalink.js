@@ -5,7 +5,11 @@ angular.module('n52.core.base')
                 var ids = [];
                 if (angular.isUndefined(timeseriesId)) {
                     angular.forEach(timeseriesService.getAllTimeseries(), function(elem) {
-                        ids.push(elem.internalId);
+                        if (elem.datasetType) {
+                            ids.push(elem.apiUrl + 'datasets/' + elem.id);
+                        } else {
+                            ids.push(elem.apiUrl + 'timeseries/' + elem.id);
+                        }
                     });
                 } else {
                     ids.push(timeseriesId);
