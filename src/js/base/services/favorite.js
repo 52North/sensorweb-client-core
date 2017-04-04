@@ -74,50 +74,36 @@ angular.module('n52.core.base')
                 angular.forEach(newFavs, function(fav) {
                     // single
                     if (fav.timeseries) {
-                        if (isServiceSupported(fav.timeseries)) {
-                            // send request to get latest value
-                            var oldTs = fav.timeseries;
-                            seriesApiInterface.getTimeseries(oldTs.id, oldTs.apiUrl).then(function(newTs) {
-                                newTs.styles = oldTs.styles;
-                                addFavorite(newTs, fav.label);
-                            });
-                        }
+                        // send request to get latest value
+                        var oldTs = fav.timeseries;
+                        seriesApiInterface.getTimeseries(oldTs.id, oldTs.apiUrl).then(function(newTs) {
+                            newTs.styles = oldTs.styles;
+                            addFavorite(newTs, fav.label);
+                        });
                     }
                     // group
                     if (fav.collection) {
                         var count = 0;
                         var newColl = [];
                         angular.forEach(fav.collection, function(ts) {
-                            if (isServiceSupported(ts)) {
-                                count++;
-                                seriesApiInterface.getTimeseries(ts.id, ts.apiUrl).then(function(newTs) {
-                                    newTs.styles = ts.styles;
-                                    newColl.push(newTs);
-                                    count--;
-                                    if (count === 0) {
-                                        addFavoriteGroup(newColl, fav.label);
-                                    }
-                                });
-                            }
+                            count++;
+                            seriesApiInterface.getTimeseries(ts.id, ts.apiUrl).then(function(newTs) {
+                                newTs.styles = ts.styles;
+                                newColl.push(newTs);
+                                count--;
+                                if (count === 0) {
+                                    addFavoriteGroup(newColl, fav.label);
+                                }
+                            });
                         });
                     }
                 });
                 saveFavorites();
-                //                $rootScope.$emit("favoritesChanged");
             }
 
             function setFavorite(fav) {
                 favorites[fav.id] = fav;
                 saveFavorites();
-            }
-
-            function isServiceSupported(ts) {
-                var supported = false;
-                angular.forEach(settingsService.restApiUrls, function(id, url) {
-                    if (angular.equals(url, ts.apiUrl))
-                        supported = true;
-                });
-                return supported;
             }
 
             function changeLabel(favorite, label) {
