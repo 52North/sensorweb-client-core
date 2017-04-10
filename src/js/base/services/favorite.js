@@ -15,8 +15,8 @@ angular.module('n52.core.base')
 
             function addFavorite(ts, label) {
                 label = label || ts.label;
-                favorites[ts.internalId] = {
-                    id: ts.internalId,
+                favorites[ts.apiUrl + ts.id] = {
+                    id: ts.apiUrl + ts.id,
                     label: label,
                     type: 'single',
                     timeseries: angular.copy(ts)
@@ -46,13 +46,13 @@ angular.module('n52.core.base')
                 }
             }
 
-            function removeFavorite(tsId) {
-                delete favorites[tsId];
+            function removeFavorite(ts) {
+                delete favorites[ts.apiUrl + ts.id];
                 saveFavorites();
             }
 
-            function hasFavorite(tsId) {
-                return angular.isObject(favorites[tsId]);
+            function hasFavorite(ts) {
+                return angular.isObject(favorites[ts.apiUrl + ts.id]);
             }
 
             function hasFavorites() {
@@ -65,7 +65,7 @@ angular.module('n52.core.base')
 
             function removeAllFavorites() {
                 angular.forEach(favorites, function(elem) {
-                    removeFavorite(elem.id);
+                    removeFavorite(elem);
                 });
             }
 
