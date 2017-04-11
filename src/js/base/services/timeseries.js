@@ -17,7 +17,7 @@ angular.module('n52.core.base')
             };
 
             var _addTs = function(ts, timeseries) {
-                ts.internalId = utils.createInternalId(ts.id, ts.apiUrl);
+                ts.internalId = utils.createInternalId(ts);
                 if (ts.uom === settingsService.undefinedUomString) {
                     delete ts.uom;
                 }

@@ -1,20 +1,20 @@
 angular.module('n52.core.base')
-    .factory('utils', ['$window', 'settingsService',
+    .service('utils', ['$window', 'settingsService',
         function($window, settingsService) {
-            function isFileAPISupported() {
+            this.isFileAPISupported = function() {
                 var isIOS = $window.navigator.userAgent.match(/(iPad|iPhone|iPod)/g) !== null;
                 return ($window.File && $window.FileReader && $window.Blob) && !isIOS;
-            }
+            };
 
-            function createInternalId(tsId, apiUrl) {
-                return settingsService.restApiUrls[apiUrl] + "__" + tsId;
-            }
+            this.createInternalId = function(ts) {
+                return settingsService.restApiUrls[ts.apiUrl] + "__" + ts.id;
+            };
 
-            function createRequestTimespan(start, end) {
+            this.createRequestTimespan = function(start, end) {
                 return moment(start).format() + "/" + moment(end).format();
-            }
+            };
 
-            function getTimeseriesCombinationByInternalId(internalId) {
+            this.getTimeseriesCombinationByInternalId = function(internalId) {
                 var combination = {};
                 angular.forEach(settingsService.restApiUrls, function(apiID, url) {
                     if (internalId.indexOf(apiID) === 0) {
@@ -25,9 +25,9 @@ angular.module('n52.core.base')
                     }
                 });
                 return combination;
-            }
+            };
 
-            function createBufferedCurrentTimespan(time) {
+            this.createBufferedCurrentTimespan = function(time) {
                 var start = moment(time.start);
                 var end = moment(time.end);
                 var factor = settingsService.timebufferFactor || 0.0;
@@ -36,14 +36,6 @@ angular.module('n52.core.base')
                     start: moment(time.start).subtract(moment.duration(duration)),
                     end: moment(time.end).add(moment.duration(duration))
                 };
-            }
-
-            return {
-                createRequestTimespan: createRequestTimespan,
-                getTimeseriesCombinationByInternalId: getTimeseriesCombinationByInternalId,
-                createInternalId: createInternalId,
-                isFileAPISupported: isFileAPISupported,
-                createBufferedCurrentTimespan: createBufferedCurrentTimespan
             };
         }
     ])

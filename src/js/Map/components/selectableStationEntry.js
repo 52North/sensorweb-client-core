@@ -11,7 +11,7 @@ angular.module('n52.core.map')
                 this.$onInit = function() {
                     if (this.timeseriesId && this.timeseries) {
                         seriesApiInterface.getTimeseries(this.timeseriesId, this.serviceUrl).then((ts) => {
-                            ts.internalId = utils.createInternalId(ts.id, ts.apiUrl);
+                            ts.internalId = utils.createInternalId(ts);
                             angular.extend(this.timeseries, ts);
                         });
                     }
