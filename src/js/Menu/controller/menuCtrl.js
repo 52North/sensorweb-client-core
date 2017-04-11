@@ -1,4 +1,4 @@
-menuModule = angular.module('n52.core.menu')
+angular.module('n52.core.menu')
         .controller('SwcMenuCtrl', [
             '$scope',
             'timeseriesService',
@@ -18,5 +18,5 @@ menuModule = angular.module('n52.core.menu')
                     diagramBehaviourService.changeYAxis(showYAxis);
                 };
             }]);
-        
+
         // TODO can be removed?
