@@ -46,12 +46,12 @@ angular.module('n52.core.base')
                 }
             }
 
-            function removeFavorite(ts) {
-                delete favorites[ts.apiUrl + ts.id];
+            function removeFavorite(fav) {
+                delete favorites[fav.id];
                 saveFavorites();
             }
 
-            function hasFavorite(ts) {
+            function hasTimeseriesAsFavorite(ts) {
                 return angular.isObject(favorites[ts.apiUrl + ts.id]);
             }
 
@@ -109,7 +109,7 @@ angular.module('n52.core.base')
             return {
                 addFavorite: addFavorite,
                 addFavoriteGroup: addFavoriteGroup,
-                hasFavorite: hasFavorite,
+                hasTimeseriesAsFavorite: hasTimeseriesAsFavorite,
                 hasFavorites: hasFavorites,
                 setFavorites: setFavorites,
                 removeFavorite: removeFavorite,

@@ -1,7 +1,7 @@
 angular.module('n52.core.favoriteUi')
     .controller('SwcAddFavoriteCtrl', ['$scope', '$translate', 'favoriteService', 'Notification', 'labelMapperSrvc',
         function($scope, $translate, favoriteService, Notification, labelMapperSrvc) {
-            $scope.isFavorite = favoriteService.hasFavorite($scope.timeseries);
+            $scope.isFavorite = favoriteService.hasTimeseriesAsFavorite($scope.timeseries);
             $scope.toggleFavorite = function() {
                 if ($scope.isFavorite) {
                     favoriteService.removeFavorite($scope.timeseries);
@@ -14,7 +14,7 @@ angular.module('n52.core.favoriteUi')
                         Notification.primary($translate.instant('favorite.single.add').replace('{0}', label));
                     });
                 }
-                $scope.isFavorite = favoriteService.hasFavorite($scope.timeseries);
+                $scope.isFavorite = favoriteService.hasTimeseriesAsFavorite($scope.timeseries);
             };
         }
     ]);
