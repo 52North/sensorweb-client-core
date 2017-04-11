@@ -1,1 +1,1 @@
-menuModule = angular.module('n52.core.menu', []);
+angular.module('n52.core.menu', []);
