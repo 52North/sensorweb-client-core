@@ -29,8 +29,8 @@ angular.module('n52.core.metadata')
 
                 timeseriesRawDataOutputSrv.getSupportedRawFormats($scope.timeseries, $scope.formatsList);
             }])
-        .factory('timeseriesRawDataOutputSrv', ['seriesApiInterface',
-            function (seriesApiInterface) {
+        .factory('timeseriesRawDataOutputSrv', [
+            function () {
                 function getSupportedRawFormats(timeseries, list) {
                     angular.forEach(timeseries.rawFormats, function (format) {
                         list.push(format);

@@ -1,7 +1,7 @@
 angular.module('n52.core.helper')
         .factory('mapHelper', [
             function () {
-                adjustBounds = function (latlng, bounds) {
+                var adjustBounds = function (latlng, bounds) {
                     if (angular.isUndefined(bounds)) {
                         bounds = {
                             southWest: {
@@ -29,14 +29,14 @@ angular.module('n52.core.helper')
                     }
                     return bounds;
                 };
-                createBounds = function (latlngs) {
+                var createBounds = function (latlngs) {
                     var bounds;
                     angular.forEach(latlngs, function (latlng) {
                         bounds = adjustBounds(latlng, bounds);
                     });
                     return bounds;
                 };
-                
+
                 return {
                     createBounds: createBounds
                 };

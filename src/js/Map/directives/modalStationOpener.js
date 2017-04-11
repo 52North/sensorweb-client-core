@@ -10,7 +10,7 @@ angular.module('n52.core.map')
                 },
                 controller: ['$scope', '$rootScope', 'modalStationOpenSrvc', 'serviceFinder',
                     function($scope, $rootScope, modalStationOpenSrvc, serviceFinder) {
-                        clickmarker = function(event, args) {
+                        var clickmarker = function(event, args) {
                             var platform = {};
                             if (args.model) {
                                 platform.id = args.model.stationsId ? args.model.stationsId : '';

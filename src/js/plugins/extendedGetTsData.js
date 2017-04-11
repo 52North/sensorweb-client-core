@@ -31,7 +31,7 @@ angular.module('n52.core.interface')
                                 promises.push(promise);
                                 start = step;
                             }
-                            return $q((resolve, reject) => {
+                            return $q((resolve) => {
                                 $q.all(promises).then((results) => {
                                     var data = results[0];
                                     for (var i = 1; i < results.length; i++) {

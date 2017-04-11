@@ -5,18 +5,18 @@ angular.module('n52.core.base')
             this.timeseries = {};
             var tsData = {};
 
-            $rootScope.$on('timeExtentChanged', evt => {
+            $rootScope.$on('timeExtentChanged', () => {
                 _loadAllData(this.timeseries);
             });
 
-            _loadAllData = function(timeseries) {
+            var _loadAllData = function(timeseries) {
                 // TODO evtl. erst wenn alle Daten da sind soll die Daten auch gesetzt werden???
                 angular.forEach(timeseries, ts => {
                     _loadTsData(ts);
                 });
             };
 
-            _addTs = function(ts, timeseries) {
+            var _addTs = function(ts, timeseries) {
                 ts.internalId = utils.createInternalId(ts.id, ts.apiUrl);
                 if (ts.uom === settingsService.undefinedUomString) {
                     delete ts.uom;
@@ -27,7 +27,7 @@ angular.module('n52.core.base')
                 _loadTsData(ts);
             };
 
-            _loadTsData = function(ts) {
+            var _loadTsData = function(ts) {
                 var generalizeData = statusService.status.generalizeData || false;
                 ts.loadingData = true;
                 seriesApiInterface.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime()), ts.filter, generalizeData)
@@ -36,7 +36,7 @@ angular.module('n52.core.base')
                     });
             };
 
-            _addTsData = function(data, ts) {
+            var _addTsData = function(data, ts) {
                 tsData[ts.internalId] = data[ts.id];
                 if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
                     ts.hasNoDataInCurrentExtent = false;

@@ -25,7 +25,7 @@ angular.module('n52.core.listSelection')
                 });
             });
 
-            _clearSelection = function() {
+            var _clearSelection = function() {
                 angular.forEach($scope.parameters, function(parameter) {
                     delete parameter.items;
                     delete parameter.selectedIdx;
@@ -117,7 +117,7 @@ angular.module('n52.core.listSelection')
                 });
             };
 
-            addEntries = function(data, serviceID, url, currParam) {
+            var addEntries = function(data, serviceID, url, currParam) {
                 currParam.loading--;
                 angular.forEach(data, function(entry) {
                     var categorie = {

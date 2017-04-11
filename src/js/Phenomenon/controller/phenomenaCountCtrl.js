@@ -1,6 +1,6 @@
 angular.module('n52.core.phenomena')
-    .controller('SwcPhenomenaCountCtrl', ['$scope', 'seriesApiInterface', 'statusService',
-        function($scope, seriesApiInterface, statusService) {
+    .controller('SwcPhenomenaCountCtrl', ['$scope', 'seriesApiInterface',
+        function($scope, seriesApiInterface) {
             $scope.count = 0;
             $scope.getCount = function(phenomenon) {
                 phenomenon.provider.forEach(provider => {

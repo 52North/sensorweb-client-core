@@ -2,7 +2,7 @@ angular.module('n52.core.provider', [])
     .service('providerService', ['$rootScope', 'statusService', '$q', 'seriesApiInterface', 'settingsService',
         function($rootScope, statusService, $q, seriesApiInterface, settingsService) {
 
-            addProviderToUserList = function(provider, providerList) {
+            var addProviderToUserList = function(provider, providerList) {
                 initStatusProviderList();
                 var result = providerList.find(entry => {
                     return entry.url === provider.url &&
@@ -18,7 +18,7 @@ angular.module('n52.core.provider', [])
                 }
             };
 
-            removeProviderFromUserList = function(provider, providerList) {
+            var removeProviderFromUserList = function(provider, providerList) {
                 providerList.splice(providerList.findIndex(entry => {
                     return entry.id === provider.id && entry.url === provider.url;
                 }), 1);
@@ -27,20 +27,20 @@ angular.module('n52.core.provider', [])
                 }), 1);
             };
 
-            initStatusProviderList = function() {
+            var initStatusProviderList = function() {
                 if (!statusService.status.addedProvider) {
                     statusService.status.addedProvider = [];
                 }
             };
 
-            isProviderSelected = function(provider, url) {
+            var isProviderSelected = function(provider, url) {
                 if (url === statusService.status.apiProvider.url && statusService.status.apiProvider.serviceID === provider.id) {
                     return true;
                 }
                 return false;
             };
 
-            addToProviderList = function(provider, url, providerList) {
+            var addToProviderList = function(provider, url, providerList) {
                 provider.url = url;
                 providerList.push(provider);
             };
@@ -131,7 +131,7 @@ angular.module('n52.core.provider', [])
                                 addProviderToUserList(entry, this.providerList);
                             });
                             resolve();
-                        }, error => {
+                        }, () => {
                             reject();
                         });
                 });

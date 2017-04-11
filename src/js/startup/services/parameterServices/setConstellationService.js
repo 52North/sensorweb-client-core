@@ -6,7 +6,7 @@ angular.module('n52.core.startup')
                         offeringsParam = 'offerings',
                         proceduresParam = 'procedures',
                         phenomenaParam = 'phenomena';
-                createConstellationParameterArray = function () {
+                var createConstellationParameterArray = function () {
                     var constellations = [];
                     var services = permalinkEvaluationService.getParameterArray(servicesParam);
                     var features = permalinkEvaluationService.getParameterArray(featuresParam);
@@ -18,7 +18,7 @@ angular.module('n52.core.startup')
                                 (services.length === offerings.length) &&
                                 (services.length === procedures.length) &&
                                 (services.length === phenomena.length)) {
-                            for (i = 0; i < services.length; i++) {
+                            for (var i = 0; i < services.length; i++) {
                                 var constellation = [];
                                 constellation.push(services[i]);
                                 constellation.push(features[i]);

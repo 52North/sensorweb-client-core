@@ -3,8 +3,8 @@ angular.module('n52.core.table')
             function (ngTableEventsChannel) {
                 return {
                     restrict: 'A',
-                    link: function (scope, element, attrs) {
-                        findParentHeightElement = function (elem) {
+                    link: function (scope, element) {
+                        var findParentHeightElement = function (elem) {
                             if (elem.height() > 0) {
                                 return elem;
                             } else {

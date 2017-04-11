@@ -3,7 +3,7 @@ angular.module('n52.core.table')
             return {
                 restrict: "A",
                 link: function (scope, element, attrs) {
-                    findParentHeightElement = function (elem) {
+                    var findParentHeightElement = function (elem) {
                         if (elem.height() > 0) {
                             return elem;
                         } else {

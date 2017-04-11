@@ -47,7 +47,7 @@ angular.module('n52.core.map', [])
                     overlays: overlays
                 };
 
-                $rootScope.$on('allPhenomenaSelected', function(evt) {
+                $rootScope.$on('allPhenomenaSelected', function() {
                     map.selectedPhenomenon = null;
                     requestStations();
                 });
@@ -55,10 +55,10 @@ angular.module('n52.core.map', [])
                     map.selectedPhenomenon = phenomenon;
                     requestStations(phenomenon);
                 });
-                $rootScope.$on('redrawStations', function(evt, phenomenon) {
+                $rootScope.$on('redrawStations', function() {
                     requestStations(map.selectedPhenomenon);
                 });
-                $rootScope.$on('newProviderSelected', function(evt) {
+                $rootScope.$on('newProviderSelected', function() {
                     requestStations();
                 });
 
@@ -167,7 +167,7 @@ angular.module('n52.core.map', [])
                             }
                         });
                     } else {
-                        console.warn('Found stations in service ' + serviceUrl + ' which don\'t have coordinates to draw them on the map.');
+                        console.log('Found stations in service ' + serviceUrl + ' which don\'t have coordinates to draw them on the map.');
                     }
                     if (requestCounter === 0)
                         setBounds(bounds.bottommost, bounds.leftmost, bounds.topmost, bounds.rightmost);
@@ -216,12 +216,12 @@ angular.module('n52.core.map', [])
                 station = {
                     entry: {}
                 };
-            determineTimeseries = function(stationId, url) {
+            var determineTimeseries = function(stationId, url) {
                 selectFirst = preselectFirstTimeseries;
                 station.entry = {};
                 seriesApiInterface.getStations(stationId, url).then(function(result) {
                     station.entry = result;
-                    angular.forEach(result.properties.timeseries, function(timeseries, id) {
+                    angular.forEach(result.properties.timeseries, function(timeseries) {
                         timeseries.selected = selectFirst || !preselectFirstTimeseries;
                         selectFirst = false;
                     });

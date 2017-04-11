@@ -8,37 +8,39 @@ Copyright (c) 2015 Chaveiro - Licensed under the MIT license.
 
 Plugin triggers this events : touchstarted, touchended, tap and dbltap
 
-If option simulClick is true the plugin will generate a simulated Mouse click event to browser on tap or double tap. 
-                
+If option simulClick is true the plugin will generate a simulated Mouse click event to browser on tap or double tap.
+
 Use as follow:
     $("#graph").bind("touchstarted", function (event, pos)
     {
-        var x = pos.x; 
+        var x = pos.x;
         var y = pos.y;
         // add code to act on touched point
     });
-    
+
     $("#graph").bind("touchended", function (event, ranges)
     {
-        var xstart = ranges.xaxis.from; 
+        var xstart = ranges.xaxis.from;
         var xend = ranges.xaxis.to;
         // add code to get json data then plot again with latest data
     });
-    
+
     $("#graph").bind("tap", function (event, pos)
     {
-        var x = pos.x; 
+        var x = pos.x;
         var y = pos.y;
         // add code to act on tap point
     });
-    
+
     $("#graph").bind("dbltap", function (event, pos)
     {
-        var x = pos.x; 
+        var x = pos.x;
         var y = pos.y;
         // add code to act on double tap point
     });
 */
+
+/*global clearTimeout, setTimeout, MouseEvent*/
 
 (function($) {
 
@@ -59,9 +61,9 @@ Use as follow:
         var scaleOrigin = { x: 50, y: 50 };
         var lastRedraw= new Date().getTime();
         var eventdelayTouchEnded;
-        
+
         var tapNum = 0;
-        var tapTimer, tapTimestamp;
+        var tapTimestamp;
 
         function pan(delta) {
             var placeholder = plot.getPlaceholder();
@@ -113,7 +115,7 @@ Use as follow:
         function processOptions(plot) {
             var placeholder = plot.getPlaceholder();
             var options = plot.getOptions();
-            
+
             if (options.touch.autoWidth) {
                 placeholder.css('width', '100%');
             }
@@ -137,15 +139,15 @@ Use as follow:
         function getTimestamp() {
             return new Date().getTime();
         }
-    
-        function bindEvents(plot, eventHolder) {
+
+        function bindEvents(plot) {
             var placeholder = plot.getPlaceholder();
             var options = plot.getOptions();
-            
+
             if (options.touch.css) {
                 placeholder.parent('div').css({'overflow': 'hidden'});
             }
-            
+
             if (options.touch && (options.touch.pan || options.touch.scale)) {
                 placeholder.bind('touchstart', function (evt) {
                     clearTimeout(eventdelayTouchEnded); // cancel pending event
@@ -270,7 +272,7 @@ Use as follow:
                     var touches = evt.originalEvent.changedTouches;
 
                     // reset the tap counter
-                    tapTimer = setTimeout(function () {
+                    setTimeout(function () {
                         tapNum = 0;
                     }, options.touch.dbltapThreshold);
                     // check if tap or dbltap
@@ -306,8 +308,8 @@ Use as follow:
                     } else
                     {
                         var r = {};
-                        c1 = {x: 0, y: 0};
-                        c2 = {x: plot.width(), y: plot.height()};
+                        var c1 = {x: 0, y: 0};
+                        var c2 = {x: plot.width(), y: plot.height()};
                         $.each(plot.getAxes(), function (name, axis) {
                             if (axis.used) {
                                 var p1 = axis.c2p(c1[axis.direction]), p2 = axis.c2p(c2[axis.direction]);
@@ -409,26 +411,25 @@ Use as follow:
         }
 
 
-        
-        function processDatapoints(plot, series, datapoints) {
-            if (window.devicePixelRatio) {
-                var placeholder = plot.getPlaceholder();
-                placeholder.children('canvas').each(function(index, canvas) {
-                    var context = canvas.getContext('2d');
-                    var width = $(canvas).attr('width');
-                    var height = $(canvas).attr('height');
+        // function processDatapoints(plot, series, datapoints) {
+        //     if (window.devicePixelRatio) {
+        //         var placeholder = plot.getPlaceholder();
+        //         placeholder.children('canvas').each(function(index, canvas) {
+        //             var context = canvas.getContext('2d');
+        //             var width = $(canvas).attr('width');
+        //             var height = $(canvas).attr('height');
+        //
+        //             $(canvas).attr('width', width * window.devicePixelRatio);
+        //             $(canvas).attr('height', height * window.devicePixelRatio);
+        //             $(canvas).css('width', width + 'px');
+        //             $(canvas).css('height', height + 'px');
+        //
+        //             context.scale(window.devicePixelRatio, window.devicePixelRatio);
+        //         });
+        //     }
+        // }
 
-                    $(canvas).attr('width', width * window.devicePixelRatio);
-                    $(canvas).attr('height', height * window.devicePixelRatio);
-                    $(canvas).css('width', width + 'px');
-                    $(canvas).css('height', height + 'px');
-
-                    context.scale(window.devicePixelRatio, window.devicePixelRatio);
-                });
-            }
-        }
-        
-        function shutdown(plot, eventHolder) {
+        function shutdown(plot) {
             var placeholder = plot.getPlaceholder();
             placeholder.unbind('touchstart').unbind('touchmove').unbind('touchend');
         }

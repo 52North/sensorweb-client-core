@@ -2,10 +2,9 @@ angular.module('n52.core.table')
     .controller('SwcTableCtrl', ['$scope', '$filter', 'ngTableParams', 'timeseriesService', 'timeService', '$rootScope', '$translate',
         function($scope, $filter, ngTableParams, timeseriesService, timeService, $rootScope, $translate) {
             // http://ngmodules.org/modules/ng-table
-            createValueArray = function() {
+            var createValueArray = function() {
                 var array = [];
                 var map = {};
-                var count = 0;
                 angular.forEach(timeseriesService.getAllTimeseries(), function(ts) {
                     var data = timeseriesService.getData(ts.internalId);
                     if (data.values.length > 0) {
@@ -21,15 +20,14 @@ angular.module('n52.core.table')
                             map[time][ts.internalId] = value;
                         });
                     }
-                    count++;
                 });
                 var i = 0;
-                angular.forEach(map, function(entry, idx) {
+                angular.forEach(map, function(entry) {
                     array[i++] = entry;
                 });
                 return array;
             };
-            createColumns = function() {
+            var createColumns = function() {
                 var columns = [];
                 columns.push({
                     phenomenon: $translate.instant('table.time'),
@@ -51,7 +49,7 @@ angular.module('n52.core.table')
                 });
                 return columns;
             };
-            createTable = function() {
+            var createTable = function() {
                 $scope.tableParams = new ngTableParams({
                     page: 1,
                     count: 30,
@@ -69,7 +67,7 @@ angular.module('n52.core.table')
                     }
                 });
             };
-            removeOverlappingValues = function(values) {
+            var removeOverlappingValues = function(values) {
                 // remove values before start
                 var start = timeService.getStartInMillies();
                 var count = 0;
@@ -91,7 +89,7 @@ angular.module('n52.core.table')
                 $scope.tableParams.count($scope.tableParams.count() + 10);
                 $scope.tableParams.reload();
             };
-            var timeseriesChangedListener = $rootScope.$on('timeseriesChanged', function(evt, id) {
+            var timeseriesChangedListener = $rootScope.$on('timeseriesChanged', function() {
                 data = createValueArray();
                 $scope.columns = createColumns();
             });
@@ -99,7 +97,7 @@ angular.module('n52.core.table')
                 data = createValueArray();
                 $scope.columns = createColumns();
             });
-            var timeseriesDataChangedListener = $rootScope.$on('timeseriesDataChanged', function(evt, id) {
+            var timeseriesDataChangedListener = $rootScope.$on('timeseriesDataChanged', function() {
                 data = createValueArray();
                 $scope.columns = createColumns();
                 $scope.tableParams.reload();

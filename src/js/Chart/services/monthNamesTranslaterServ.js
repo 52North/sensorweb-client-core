@@ -1,7 +1,7 @@
 angular.module('n52.core.diagram')
     .factory('monthNamesTranslaterServ', ['$translate',
         function($translate) {
-            getMonthNames = function() {
+            var getMonthNames = function() {
                 return [
                     $translate.instant('chart.monthNames.jan'),
                     $translate.instant('chart.monthNames.feb'),

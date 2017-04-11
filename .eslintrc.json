@@ -1,0 +1,25 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "extends": "eslint:recommended",
+  "globals": {
+    "angular": true,
+    "require": true,
+    "moment": true,
+    "window": true,
+    "document": true,
+    "navigator": true,
+    "console": true,
+    "jQuery": true,
+    "L": true,
+    "qr": true,
+    "xslt": true,
+    "$": true
+  },
+  "rules": {
+    "semi": 2,
+    "no-console": 0
+  }
+}

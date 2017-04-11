@@ -3,7 +3,7 @@ angular.module('n52.core.favoriteUi')
                 return {
                     restrict: 'E',
                     templateUrl: 'n52.core.favoriteUi.favorite-import-button',
-                    link: function (scope, element, attrs) {
+                    link: function (scope, element) {
                         if (utils.isFileAPISupported()) {
                             element.find('input').change({}, function (event) {
                                 favoriteImExportService.importFavorites(event);

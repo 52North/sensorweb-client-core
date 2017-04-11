@@ -1,7 +1,7 @@
 angular.module('n52.core.base')
     .service('permalinkGenerationService', ['$location', 'timeseriesService', 'statusService', 'utils',
         function($location, timeseriesService, statusService, utils) {
-            createTimeseriesParam = function(timeseriesId) {
+            var createTimeseriesParam = function(timeseriesId) {
                 var ids = [];
                 if (angular.isUndefined(timeseriesId)) {
                     angular.forEach(timeseriesService.getAllTimeseries(), function(elem) {
@@ -16,11 +16,11 @@ angular.module('n52.core.base')
                 }
                 return "ts=" + encodeURIComponent(ids.join());
             };
-            createTimeParam = function() {
+            var createTimeParam = function() {
                 var timespan = statusService.getTime();
                 return "timespan=" + encodeURIComponent(utils.createRequestTimespan(timespan.start, timespan.end));
             };
-            createBaseUrl = function(path) {
+            var createBaseUrl = function(path) {
                 if (path) {
                     return $location.absUrl().substring(0, $location.absUrl().indexOf($location.path())) + path + '?';
                 } else {
@@ -46,19 +46,19 @@ angular.module('n52.core.base')
             };
         }
     ])
-    .factory('permalinkEvaluationService', ['$location', 'utils',
-        function($location, utils) {
+    .factory('permalinkEvaluationService', ['$location',
+        function($location) {
             var parameters = $location.search();
-            hasParam = function(name) {
+            var hasParam = function(name) {
                 return angular.isDefined(parameters[name]);
             };
-            getParam = function(name) {
+            var getParam = function(name) {
                 if (hasParam(name, parameters)) {
                     return parameters[name];
                 }
                 return null;
             };
-            getParameterArray = function(param) {
+            var getParameterArray = function(param) {
                 var array = getParam(param);
                 if (angular.isString(array)) {
                     return array.split(',');

@@ -12,8 +12,8 @@ angular.module('n52.core.flot', [])
                     identifier: '='
                 },
                 link: function(scope, element, attributes) {
-                    var height, plot, plotArea, width, _ref, _ref1;
-                    plot = null;
+                    var height, plotArea, width, _ref, _ref1;
+                    // var plot = null;
                     width = attributes.width || '100%';
                     height = attributes.height || '100%';
                     if (((_ref = scope.options) !== null ? (_ref1 = _ref.legend) !== null ? _ref1.container : void 0 : void 0) instanceof jQuery) {
@@ -244,7 +244,7 @@ angular.module('n52.core.flot', [])
                 });
             }
 
-            function objectLoad(e) {
+            function objectLoad() {
                 this.contentDocument.defaultView.__resizeTrigger__ = this.__resizeElement__;
                 this.contentDocument.defaultView.addEventListener('resize', resizeListener);
             }
@@ -256,7 +256,7 @@ angular.module('n52.core.flot', [])
                         element.__resizeTrigger__ = element;
                         element.attachEvent('onresize', resizeListener);
                     } else {
-                        if (getComputedStyle(element).position == 'static') element.style.position = 'relative';
+                        if (window.getComputedStyle(element).position == 'static') element.style.position = 'relative';
                         var obj = element.__resizeTrigger__ = document.createElement('object');
                         obj.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
                         obj.__resizeElement__ = element;

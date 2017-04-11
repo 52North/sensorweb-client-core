@@ -2,7 +2,7 @@ angular.module('n52.core.startup')
         .service('SetConstellationServiceHack', ['permalinkEvaluationService', '$log', 'settingsService', 'seriesApiInterface', 'timeseriesService',
             function (permalinkEvaluationService, $log, settingsService, seriesApiInterface, timeseriesService) {
                 var featuresParam = 'features', proceduresParam = 'procedures', phenomenaParam = 'phenomena';
-                createConstellationParameterArray = function () {
+                var createConstellationParameterArray = function () {
                     var constellations = [];
                     var features = permalinkEvaluationService.getParameterArray(featuresParam);
                     var procedures = permalinkEvaluationService.getParameterArray(proceduresParam);
@@ -10,7 +10,7 @@ angular.module('n52.core.startup')
                     if (features && procedures && phenomena) {
                         if ((features.length === procedures.length) &&
                                 (features.length === phenomena.length)) {
-                            for (i = 0; i < features.length; i++) {
+                            for (var i = 0; i < features.length; i++) {
                                 var constellation = [];
                                 constellation.push(features[i]);
                                 constellation.push(procedures[i]);

@@ -8,9 +8,9 @@ angular.module('n52.core.provider')
                 //ctrl.providerUrl = 'http://sensorweb.demo.52north.org/sensorwebclient-webapp-stable/api/v1/';
                 ctrl.addProvider = function() {
                     providerService.addProvider(ctrl.providerUrl)
-                        .then(res => {
+                        .then(() => {
                             ctrl.addSuccessful();
-                        }, error => {
+                        }, () => {
                             ctrl.unsuccessful();
                         });
                 };

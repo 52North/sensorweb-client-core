@@ -112,6 +112,7 @@ angular.module('n52.core.diagram')
                 var axesList = {};
                 var requests = [];
                 angular.forEach(timeseriesService.getAllTimeseries(), function(elem) {
+                    var request;
                     if (elem.uom) {
                         request = labelMapperSrvc.getMappedLabel(elem.uom);
                     } else {

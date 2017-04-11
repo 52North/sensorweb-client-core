@@ -31,7 +31,7 @@
             }
 
             function getApiVersion(apiUrl) {
-                return $q(function(resolve, reject) {
+                return $q(function(resolve) {
                     if (serviceRootUrlToVersionMap[apiUrl]) {
                         resolve(serviceRootUrlToVersionMap[apiUrl]);
                     } else {

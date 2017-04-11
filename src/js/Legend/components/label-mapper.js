@@ -20,7 +20,6 @@ angular.module('n52.core.legend')
             var findUrls = function(text) {
                 var source = (text || '').toString();
                 var urlArray = [];
-                var url;
                 var matchArray;
                 var regexToken = /(((ftp|https?):\/\/)[\-\w@:%_\+.~#?&\/\/=]+)/g;
                 while ((matchArray = regexToken.exec(source)) !== null) {
@@ -31,7 +30,7 @@ angular.module('n52.core.legend')
             };
 
             this.getMappedLabel = function(label) {
-                return $q(function(resolve, reject) {
+                return $q(function(resolve) {
                     if (!settingsService.solveLabels) {
                         resolve(label);
                     } else {
@@ -39,13 +38,13 @@ angular.module('n52.core.legend')
                         if (urls.length > 0) {
                             var request = [];
                             urls.forEach((url) => {
-                                labelUrl = settingsService.proxyUrl ? settingsService.proxyUrl + url : url;
+                                var labelUrl = settingsService.proxyUrl ? settingsService.proxyUrl + url : url;
                                 request.push($http.get(labelUrl, {
                                     cache: true
                                 }).then((response) => {
-                                    var xml = jQuery.parseXML(response.data);
+                                    var xml = $.parseXML(response.data);
                                     label = label.replace(url, $(xml).find('prefLabel').text());
-                                }, (error) => {}));
+                                }, () => {}));
                             });
                             $q.all(request).then(() => {
                                 resolve(label);

@@ -101,11 +101,6 @@ angular.module('n52.core.base')
                 saveFavorites();
             }
 
-            function setFavorite(fav) {
-                favorites[fav.id] = fav;
-                saveFavorites();
-            }
-
             function changeLabel(favorite, label) {
                 favorites[favorite.id].label = label;
                 saveFavorites();
@@ -131,12 +126,12 @@ angular.module('n52.core.base')
                 if (utils.isFileAPISupported() && angular.isObject(event)) {
                     var override = true;
                     if (favoriteService.hasFavorites()) {
-                        override = confirm($translate.instant('favorite.import.override'));
+                        override = window.confirm($translate.instant('favorite.import.override'));
                     }
                     if (override) {
                         var files = event.target.files;
                         if (files && files.length > 0) {
-                            var reader = new FileReader();
+                            var reader = new window.FileReader();
                             reader.readAsText(files[0]);
                             reader.onerror = function() {
                                 alertService.error($translate.instant('favorite.import.wrongFile'));
@@ -155,7 +150,7 @@ angular.module('n52.core.base')
                     var content = angular.toJson(favoriteService.favorites, 2);
                     if (window.navigator.msSaveBlob) {
                         // IE version >= 10
-                        var blob = new Blob([content], {
+                        var blob = new window.Blob([content], {
                             type: 'application/json;charset=utf-8;'
                         });
                         window.navigator.msSaveBlob(blob, filename);

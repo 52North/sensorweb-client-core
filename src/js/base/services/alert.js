@@ -10,7 +10,7 @@ angular.module('n52.core.base')
         }
 
         function _createMessage(level, message) {
-            alert(level + "\n" + message);
+            window.alert(level + "\n" + message);
         }
         return {
             error: error,

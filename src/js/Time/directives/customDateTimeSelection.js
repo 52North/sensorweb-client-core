@@ -5,7 +5,7 @@ angular.module('n52.core.timeUi')
                 return {
                     restrict: 'E',
                     templateUrl: 'n52.core.timeUi.custom-time-range-selection',
-                    link: function ($scope, element, attrs) {
+                    link: function ($scope) {
                         var evaluateDate = function (ev) {
                             var id = "#" + ev.currentTarget.id;
                             if (moment($('#startPicker').data('date')).isAfter($('#endPicker').data('date'))) {
@@ -19,7 +19,6 @@ angular.module('n52.core.timeUi')
                             } else {
                                 $('#alertTimeExtent').hide();
                                 $('#confirmTimeExtent').removeClass('disabled');
-                                startDate = new Date(ev.date);
                             }
                             $(id).text(moment($(id).data('date')).format(settingsService.dateformat));
                             $(id).datetimepicker('hide');

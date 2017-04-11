@@ -3,7 +3,6 @@ angular.module('n52.core.favoriteUi')
         function($scope, $translate, favoriteService, Notification, labelMapperSrvc) {
             $scope.isFavorite = favoriteService.hasFavorite($scope.timeseries);
             $scope.toggleFavorite = function() {
-                var label;
                 if ($scope.isFavorite) {
                     favoriteService.removeFavorite($scope.timeseries);
                     labelMapperSrvc.getMappedLabel($scope.timeseries.label).then((label) => {

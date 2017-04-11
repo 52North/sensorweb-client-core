@@ -5,7 +5,7 @@ angular.module('n52.core.phenomena', [])
             phenomena.selection = null;
             phenomena.items = [];
 
-            loadPhenomena = function() {
+            var loadPhenomena = function() {
                 phenomena.items = [];
                 if (settingsService.aggregateServices && angular.isUndefined(statusService.status.apiProvider.url)) {
                     loadPhenomenaForAllProvider();
@@ -14,7 +14,7 @@ angular.module('n52.core.phenomena', [])
                 }
             };
 
-            loadPhenomenaForProvider = function(serviceID, providerUrl) {
+            var loadPhenomenaForProvider = function(serviceID, providerUrl) {
                 var params = {
                     service: serviceID,
                     platformTypes: 'stationary'
@@ -24,14 +24,14 @@ angular.module('n52.core.phenomena', [])
                 });
             };
 
-            loadPhenomenaForAllProvider = function() {
+            var loadPhenomenaForAllProvider = function() {
                 phenomena.items = [];
                 providerService.doForAllServices(function(provider, url) {
                     loadPhenomenaForProvider(provider.id, url);
                 });
             };
 
-            addResultsToList = function(results, serviceID, providerUrl) {
+            var addResultsToList = function(results, serviceID, providerUrl) {
                 angular.forEach(results, function(entry) {
                     var phenomenon = {
                         serviceID: serviceID,
@@ -57,7 +57,7 @@ angular.module('n52.core.phenomena', [])
                 });
             };
 
-            setSelection = function(phenomenon) {
+            var setSelection = function(phenomenon) {
                 if (phenomenon) {
                     phenomena.selection = phenomenon;
                     $rootScope.$emit('phenomenonSelected', phenomenon);

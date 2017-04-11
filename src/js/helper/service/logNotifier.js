@@ -40,6 +40,7 @@ angular.module('n52.core.helper')
         .service('Logging', ['$injector', 'settingsService',
             function ($injector, settingsService) {
                 var logLevel = settingsService.logLevel ? settingsService.logLevel : 0;
+                var self = {};
                 var service = {
                     error: function () {
                         self.type = 'error';
