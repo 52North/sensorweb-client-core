@@ -5,18 +5,17 @@
   },
   "extends": "eslint:recommended",
   "globals": {
+    "$": true,
     "angular": true,
-    "require": true,
-    "moment": true,
-    "window": true,
-    "document": true,
-    "navigator": true,
-    "console": true,
     "jQuery": true,
     "L": true,
+    "moment": true,
     "qr": true,
-    "xslt": true,
-    "$": true
+    "xslt": true
+  },
+  "env": {
+    "browser": true,
+    "node": true
   },
   "rules": {
     "semi": 2,
