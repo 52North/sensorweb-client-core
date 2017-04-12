@@ -140,7 +140,9 @@ angular.module('n52.core.map', [])
                         }
                         angular.forEach(data, function(elem) {
                             var geom = getCoordinates(elem);
-                            if (!isNaN(geom[0]) || !isNaN(geom[1])) {
+                            if (!geom) {
+                              console.error(elem.id + ' has no geometry');
+                            } else if (!isNaN(geom[0]) || !isNaN(geom[1])) {
                                 if (geom[0] > bounds.rightmost) {
                                     bounds.rightmost = geom[0];
                                 }
