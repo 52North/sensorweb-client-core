@@ -7,6 +7,7 @@ export * from './services/settings.js';
 export * from './services/status.js';
 export * from './services/styleTs.js';
 export * from './services/styleTsStandalone.js';
+export * from './services/templateLoader.js';
 export * from './services/time.js';
 export * from './services/timeseries.js';
 export * from './services/utils.js';
