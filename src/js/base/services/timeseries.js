@@ -105,5 +105,19 @@ angular.module('n52.core.base')
             this.isTimeseriesVisible = function(internalId) {
                 return this.hasTimeseries(internalId) && this.timeseries[internalId].styles.visible;
             };
+
+            this.getPhenomenonLabel = function(ts) {
+              if (ts.parameters && ts.parameters.phenomenon && ts.parameters.phenomenon.label)
+                return ts.parameters.phenomenon.label;
+              if (ts.seriesParameters && ts.seriesParameters.phenomenon && ts.seriesParameters.phenomenon.label)
+                return ts.seriesParameters.phenomenon.label;
+            };
+
+            this.getFeatureLabel = function(ts) {
+                if (ts.parameters && ts.parameters.feature && ts.parameters.feature.label)
+                  return ts.parameters.feature.label;
+                if (ts.seriesParameters && ts.seriesParameters.feature && ts.seriesParameters.feature.label)
+                  return ts.seriesParameters.feature.label;
+            };
         }
     ]);

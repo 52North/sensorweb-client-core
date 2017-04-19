@@ -35,12 +35,12 @@ angular.module('n52.core.table')
                     visible: true
                 });
                 angular.forEach(timeseriesService.getAllTimeseries(), function(ts) {
-                    var phenomenonLabel = ts.parameters.phenomenon.label;
+                    var phenomenonLabel = timeseriesService.getPhenomenonLabel(ts);
                     if (ts.uom) {
                         phenomenonLabel += ' (' + ts.uom + ')';
                     }
                     columns.push({
-                        station: ts.parameters.feature.label,
+                        station: timeseriesService.getFeatureLabel(ts),
                         phenomenon: phenomenonLabel,
                         field: ts.internalId,
                         color: ts.styles.color,
