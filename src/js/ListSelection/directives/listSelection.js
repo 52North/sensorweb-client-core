@@ -14,8 +14,8 @@ angular.module('n52.core.listSelection')
             };
         }
     ])
-    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'listSelectionCache',
-        function($scope, seriesApiInterface, listSelectionCache) {
+    .controller('SwcListSelectionCtrl', ['$scope', 'seriesApiInterface', 'listSelectionCache', 'seriesApiMappingService',
+        function($scope, seriesApiInterface, listSelectionCache, seriesApiMappingService) {
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
@@ -202,11 +202,25 @@ angular.module('n52.core.listSelection')
             };
 
             $scope.processSelection = function(params, url) {
-                seriesApiInterface.getTimeseries(null, url, params).then(result => {
-                    $scope.datasetSelection({
-                        dataset: result
-                    });
-                });
+                seriesApiMappingService.getApiVersion(url).then(
+                    function(apiVersionId) {
+                        if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV2) {
+                          seriesApiInterface.getDatasets(null, url, params).then(result => {
+                              $scope.datasetSelection({
+                                  dataset: result,
+                                  url: url
+                              });
+                          });
+                        } else if (apiVersionId === seriesApiMappingService.apiVersion.n52SeriesApiV1) {
+                          seriesApiInterface.getTimeseries(null, url, params).then(result => {
+                              $scope.datasetSelection({
+                                  dataset: result,
+                                  url: url
+                              });
+                          });
+                        }
+                    }
+                );
             };
 
             if ($scope.listselectionid) {
