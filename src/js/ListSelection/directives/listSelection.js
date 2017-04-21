@@ -221,8 +221,8 @@ angular.module('n52.core.listSelection')
             }
         }
     ])
-    .service('listSelectionCache', [
-        function() {
+    .service('listSelectionCache', ['$rootScope',
+        function($rootScope) {
             var entries = {};
             var localProvider = [];
             var providerListEqual = function(providerList) {
@@ -236,6 +236,10 @@ angular.module('n52.core.listSelection')
                 }
                 return true;
             };
+
+            $rootScope.$on('newProviderSelected', () => {
+                this.clear();
+            });
 
             this.getEntry = function(id) {
                 return entries[id];
