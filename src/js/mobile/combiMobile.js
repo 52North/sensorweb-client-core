@@ -1,3 +1,4 @@
+/*global d3*/
 angular.module('n52.core.mobile', [])
     .directive('swcCombiMobile', [
         function() {
@@ -28,8 +29,12 @@ angular.module('n52.core.mobile', [])
 
                         $scope.$watch('geometry', function(geometry) {
                             if (geometry && geometry.data && geometry.data.coordinates.length > 0) {
-                                centerMap();
-                                resetHighlighter();
+                                if ($scope.seriesId !== $scope.series.id || $scope.providerUrl !== $scope.series.providerUrl) {
+                                  centerMap();
+                                  resetHighlighter();
+                                  $scope.seriesId = $scope.series.id;
+                                  $scope.providerUrl = $scope.series.providerUrl;
+                                }
                             }
                         }, true);
 
@@ -41,7 +46,7 @@ angular.module('n52.core.mobile', [])
                             }
                         }, true);
 
-                        $scope.$on('leafletDirectiveMap.mobileCombiMap.zoomend', function(temp) {
+                        $scope.$on('leafletDirectiveMap.mobileCombiMap.zoomend', function() {
                             if ($scope.highlight.latlng !== undefined) {
                                 drawMapMarker($scope.highlight);
                             }
@@ -157,7 +162,7 @@ angular.module('n52.core.mobile', [])
         function($window, combinedSrvc) {
             return {
                 restrict: 'EA',
-                link: function(scope, elem, attrs) {
+                link: function(scope, elem) {
                     scope.data = combinedSrvc.data;
                     scope.series = combinedSrvc.series;
                     scope.highlight = combinedSrvc.highlight;
@@ -381,7 +386,7 @@ angular.module('n52.core.mobile', [])
                             .attr("class", "mouse-focus-label-y");
                     }
 
-                    function mousemoveHandler(d, i, ctx) {
+                    function mousemoveHandler() {
                         if (!scope.data.values || scope.data.values.length === 0) {
                             return;
                         }
@@ -498,8 +503,8 @@ angular.module('n52.core.mobile', [])
             };
         }
     ])
-    .service('combinedSrvc', ['seriesApiInterface', 'statusService', '$route',
-        function(seriesApiInterface, statusService, $route) {
+    .service('combinedSrvc', ['seriesApiInterface', 'statusService', '$route', '$q',
+        function(seriesApiInterface, statusService, $route, $q) {
             this.highlight = {};
             this.selectedSection = {
                 values: []
@@ -528,30 +533,34 @@ angular.module('n52.core.mobile', [])
             this.series = {};
 
             this.loadSeries = function(id, url) {
-                this.series.providerUrl = url;
-                statusService.status.mobile = {
-                    id: id,
-                    url: url
-                };
-                this.series.loading = true;
-                seriesApiInterface.getDatasets(id, url)
-                    .then(s => {
-                        angular.extend(this.series, s);
-                        var timespan = {
-                            start: s.firstValue.timestamp,
-                            end: s.lastValue.timestamp
-                        };
-                        seriesApiInterface.getDatasetData(s.id, url, timespan, {
-                                expanded: true
-                            })
-                            .then(data => {
-                                this.processData(data[id].values);
-                                this.series.loading = false;
-                            });
-                    }, e => {
-                        this.series.label = 'Error while loading dataset';
-                        this.series.loading = false;
-                    });
+                return $q((resolve, reject) => {
+                  this.series.providerUrl = url;
+                  statusService.status.mobile = {
+                      id: id,
+                      url: url
+                  };
+                  this.series.loading = true;
+                  seriesApiInterface.getDatasets(id, url, {cache:false})
+                      .then(s => {
+                          angular.extend(this.series, s);
+                          var timespan = {
+                              start: s.firstValue.timestamp,
+                              end: s.lastValue.timestamp
+                          };
+                          seriesApiInterface.getDatasetData(s.id, url, timespan, {
+                                  expanded: true
+                              })
+                              .then(data => {
+                                  this.processData(data[id].values);
+                                  this.series.loading = false;
+                                  resolve();
+                              });
+                      }, () => {
+                          this.series.label = 'Error while loading dataset';
+                          this.series.loading = false;
+                          reject();
+                      });
+                });
             };
 
             this.processData = function(data) {
@@ -639,22 +648,69 @@ angular.module('n52.core.mobile', [])
     .component('swcMobilePermalink', {
         templateUrl: 'n52.core.mobile.permalink',
         bindings: {
-            datasetid: '<',
-            providerurl: '<'
+            datasetId: '<',
+            providerUrl: '<'
         },
         controller: ['permalinkGenerationService', '$window', '$translate',
             function(permalinkGenerationService, $window, $translate) {
                 var ctrl = this;
                 ctrl.createPermalink = function() {
                     var link = permalinkGenerationService.createPermalink('/mobileDiagram', {
-                        datasetId: ctrl.datasetid,
-                        providerUrl: ctrl.providerurl
+                        datasetId: ctrl.datasetId,
+                        providerUrl: ctrl.providerUrl
                     });
                     $window.prompt($translate.instant('settings.permalink.clipboardInfo'), link);
                 };
             }
         ]
     })
+    .component('swcMobileReload', {
+        templateUrl: 'n52.core.mobile.reload',
+        bindings: {
+            datasetId: '<',
+            providerUrl: '<'
+        },
+        controller: ['mobileReloadSrvc',
+            function(mobileReloadSrvc) {
+                this.$onChanges = function() {
+                    mobileReloadSrvc.stopReload();
+                };
+                this.toggled = false;
+                this.toggleReload = function() {
+                  this.toggled = !this.toggled;
+                  if (this.toggled) {
+                    mobileReloadSrvc.startReload(this.datasetId, this.providerUrl);
+                  } else {
+                    mobileReloadSrvc.stopReload();
+                  }
+                };
+            }
+        ]
+    })
+    .service('mobileReloadSrvc', ['combinedSrvc',
+      function(combinedSrvc) {
+        this.reload = false;
+
+        this.startReload = function(id, url) {
+          this.reload = true;
+          this.reloadData(id, url);
+        };
+
+        this.stopReload = function() {
+          this.reload = false;
+        };
+
+        this.reloadData = function(id, url) {
+          if (this.reload) {
+            combinedSrvc.loadSeries(id, url).then(() => {
+              setTimeout(() => {
+                  this.reloadData(id, url);
+              },2000);
+            });
+          }
+        };
+      }
+    ])
     .service('mobilePresentDataset', ['$location', 'combinedSrvc',
         function($location, combinedSrvc) {
             this.presentDataset = function(dataset, providerUrl) {

@@ -24,9 +24,14 @@
                         } else {
                             angular.extend(params, settingsService.additionalParameters);
                         }
+                        var cache = true;
+                        if (typeof(params.cache) === "boolean") {
+                          cache = params.cache;
+                          delete params.cache;
+                        }
                         return {
                             params: params,
-                            cache: true
+                            cache: cache
                         };
                     };
 
