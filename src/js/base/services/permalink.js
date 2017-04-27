@@ -5,7 +5,7 @@ angular.module('n52.core.base')
                 var ids = [];
                 if (angular.isUndefined(timeseriesId)) {
                     angular.forEach(timeseriesService.getAllTimeseries(), function(elem) {
-                        if (elem.datasetType) {
+                        if (elem.datasetType || elem.valueType) {
                             ids.push(elem.apiUrl + 'datasets/' + elem.id);
                         } else {
                             ids.push(elem.apiUrl + 'timeseries/' + elem.id);

@@ -200,12 +200,12 @@ angular.module('n52.core.base')
     .service('serviceFinder', ['settingsService', '$injector',
         function(settingsService, $injector) {
 
-            this.getDatasetPresenter = function(datasetType, platformType, providerUrl) {
+            this.getDatasetPresenter = function(valueType, platformType, providerUrl) {
                 var datasetPresenterConfig = settingsService.datasetPresenter;
                 if (datasetPresenterConfig) {
-                    if (datasetType in datasetPresenterConfig && datasetPresenterConfig[datasetType].length) {
+                    if (valueType in datasetPresenterConfig && datasetPresenterConfig[valueType].length) {
                         var serviceString;
-                        datasetPresenterConfig[datasetType].some(entry => {
+                        datasetPresenterConfig[valueType].some(entry => {
                             if (entry &&
                                 (!entry.url || entry.url === providerUrl) &&
                                 (!entry.platformType || entry.platformType === platformType)
@@ -218,11 +218,11 @@ angular.module('n52.core.base')
                             return $injector.get(serviceString);
                     }
                 }
-                switch (datasetType) {
+                switch (valueType) {
                     case 'measurement':
                         return $injector.get('measurementPresentDataset');
                     default:
-                        console.error('Doesn\'t find a service for the datasetType \'' + datasetType + '\' with platformType \'' + platformType + '\'. Please check the settings of the client.');
+                        console.error('Doesn\'t find a service for the valueType \'' + valueType + '\' with platformType \'' + platformType + '\'. Please check the settings of the client.');
                         return null;
                 }
             };

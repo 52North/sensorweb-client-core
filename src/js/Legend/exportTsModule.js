@@ -11,7 +11,7 @@ angular.module('n52.core.exportTs', [])
                 kvp = kvp + '&locale=' + $translate.preferredLanguage();
                 kvp = kvp + '&zip=true';
                 kvp = kvp + '&bom=true';
-                if (ts.datasetType) {
+                if (ts.datasetType || ts.valueType) {
                     return apiUrl + 'datasets/' + tsId + '/data.zip' + kvp;
                 } else {
                     return apiUrl + 'timeseries/' + tsId + '/getData.zip' + kvp;

@@ -6,7 +6,7 @@ angular.module('n52.core.startup')
                 var hasTsParam = permalinkEvaluationService.hasParam('ts');
                 if (!hasTsParam) {
                     angular.forEach(statusService.getTimeseries(), function(ts) {
-                        if (ts.datasetType) {
+                        if (ts.datasetType || ts.valueType) {
                             seriesApiInterface.getDatasets(ts.id, ts.apiUrl)
                                 .then((dataset) => {
                                     setSeries(ts, dataset);
