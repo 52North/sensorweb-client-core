@@ -1,24 +1,25 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module"
-  },
-  "extends": "eslint:recommended",
-  "globals": {
-    "$": true,
-    "angular": true,
-    "jQuery": true,
-    "L": true,
-    "moment": true,
-    "qr": true,
-    "xslt": true
-  },
-  "env": {
-    "browser": true,
-    "node": true
-  },
-  "rules": {
-    "semi": 2,
-    "no-console": 0
-  }
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "extends": "eslint:recommended",
+    "globals": {
+        "$": true,
+        "angular": true,
+        "jQuery": true,
+        "L": true,
+        "moment": true,
+        "qr": true,
+        "xslt": true
+    },
+    "env": {
+        "browser": true,
+        "node": true
+    },
+    "rules": {
+        "semi": 2,
+        "no-console": 0,
+        "no-debugger": 1
+    }
 }

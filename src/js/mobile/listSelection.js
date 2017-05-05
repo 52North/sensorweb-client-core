@@ -80,7 +80,7 @@ angular.module('n52.core.mobile')
         function($scope, seriesApiInterface, combinedSrvc) {
             var url = $scope.provider.url;
             angular.forEach($scope.parameters, function(param, openedIdx) {
-                $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal, oldVal) {
+                $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
                     if (newVal) {
                         $scope.selectedParameterIndex = openedIdx;
                         angular.forEach($scope.parameters, function(param, idx) {
@@ -144,13 +144,13 @@ angular.module('n52.core.mobile')
                 }
             };
 
-            updateParams = function(currParam, data) {
+            var updateParams = function(currParam, data) {
                 currParam.items = data;
                 currParam.loading--;
             };
 
-            errorOnGetData = function() {
-                currParam.error = true;
+            var errorOnGetData = function() {
+                // currParam.error = true;
             };
 
             $scope.openNext = function(idx) {
