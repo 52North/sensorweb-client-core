@@ -8,7 +8,7 @@ angular.module('n52.core.mobile', [])
                 replace: true,
                 controller: ['$scope', 'combinedSrvc', 'leafletData',
                     function($scope, combinedSrvc, leafletData) {
-                        var mouseValueLabel, mouseTimeLabel, pointG, mouseRect;
+                        var mouseValueLabel, mouseTimeLabel, pointG, mouseRect, highlighterGraph;
                         $scope.events = {
                             geometry: {
                                 enable: ['mouseover']
@@ -108,26 +108,28 @@ angular.module('n52.core.mobile', [])
                                 var layerpoint = map.latLngToLayerPoint(highlighted.latlng);
 
                                 if (!pointG) {
-                                    var g = d3.select('.leaflet-overlay-pane svg')
+                                    highlighterGraph = d3.select('.leaflet-overlay-pane svg')
                                         .append('g');
 
-                                    pointG = g.append('g');
+                                    pointG = highlighterGraph.append('g');
                                     pointG.append('svg:circle')
                                         .attr('r', 6)
                                         .attr('cx', 0)
                                         .attr('cy', 0)
                                         .attr('class', 'height-focus circle-lower');
 
-                                    mouseRect = g.append('svg:rect')
+                                    mouseRect = highlighterGraph.append('svg:rect')
                                         .attr('class', 'map-highlight-label');
-                                    mouseValueLabel = g.append('svg:text')
+                                    mouseValueLabel = highlighterGraph.append('svg:text')
                                         .attr('class', 'focus-label')
                                         .style('pointer-events', 'none');
-                                    mouseTimeLabel = g.append('svg:text')
+                                    mouseTimeLabel = highlighterGraph.append('svg:text')
                                         .attr('class', 'focus-label')
                                         .style('pointer-events', 'none');
-
                                 }
+
+                                highlighterGraph.moveToFront();
+
                                 pointG.attr('transform', 'translate(' + layerpoint.x + ',' + layerpoint.y + ')')
                                     .style('visibility', 'visible');
                                 mouseValueLabel.attr('x', layerpoint.x + 10)
@@ -168,6 +170,9 @@ angular.module('n52.core.mobile', [])
                     scope.data = combinedSrvc.data;
                     scope.series = combinedSrvc.series;
                     scope.options = combinedSrvc.options;
+                    scope.selection = combinedSrvc.selectedSection;
+                    scope.values;
+                    scope.showSelection = false;
 
                     var margin = {
                         top: 10,
@@ -214,7 +219,7 @@ angular.module('n52.core.mobile', [])
                             case 'time':
                                 return [values[0].timestamp, values[values.length - 1].timestamp];
                             default:
-                                return [0, values.length - 1];
+                                return [values[0].tick, values[values.length - 1].tick];
                         }
                     };
 
@@ -229,11 +234,11 @@ angular.module('n52.core.mobile', [])
                         .y1(calcYValue)
                         .interpolate('linear');
 
-                    var drawValueLine = () => {
+                    var drawValueLine = (values) => {
                         // draw the value line
                         graph.append('svg:path')
                             .attr({
-                                d: lineFun(scope.data.values),
+                                d: lineFun(values),
                                 'stroke': 'blue',
                                 'stroke-width': 1,
                                 'fill': 'none',
@@ -241,17 +246,17 @@ angular.module('n52.core.mobile', [])
                             });
                         // draw filled area
                         graph.append('svg:path')
-                            .datum(scope.data.values)
+                            .datum(values)
                             .attr({
                                 d: area,
                                 'class': 'graphArea'
                             });
                     };
 
-                    var drawDots = () => {
+                    var drawDots = (values) => {
                         // draw dots
                         graph.selectAll('dot')
-                            .data(scope.data.values)
+                            .data(values)
                             .enter().append('circle')
                             .attr('stroke', 'blue')
                             .attr('r', 1.5)
@@ -259,12 +264,27 @@ angular.module('n52.core.mobile', [])
                             .attr('cy', calcYValue);
                     };
 
-                    var redrawChart = () => {
+                    var redrawChart = (data) => {
+                        if (data) scope.values = data;
                         drawLineChart();
                         resetDrag();
                     };
 
-                    scope.$watchCollection('data', () => redrawChart());
+                    scope.$watchCollection('data', () => {
+                        if (scope.data.values.length > 0) {
+                            redrawChart(scope.data.values);
+                        }
+                    });
+
+                    scope.$watchCollection('selection', () => {
+                        if (scope.selection.values.length > 0) {
+                            scope.showSelection = true;
+                            redrawChart(scope.selection.values);
+                        } else {
+                            scope.showSelection = false;
+                            redrawChart(scope.data.values);
+                        }
+                    });
 
                     scope.$watch('options.axisType', () => redrawChart());
 
@@ -276,7 +296,7 @@ angular.module('n52.core.mobile', [])
                         }
                     });
 
-                    angular.element($window).bind('resize', () => redrawChart());
+                    angular.element($window).bind('resize', () => drawLineChart());
 
                     var getXValue = (data, i) => {
                         switch (scope.options.axisType) {
@@ -284,8 +304,8 @@ angular.module('n52.core.mobile', [])
                                 return data.dist;
                             case 'time':
                                 return data.timestamp;
-                            default:
-                                return i;
+                            case 'ticks':
+                                return data.tick;
                         }
                     };
 
@@ -315,20 +335,19 @@ angular.module('n52.core.mobile', [])
                     };
 
                     var drawLineChart = () => {
-                        if (!scope.data || scope.data.values.length == 0) {
+                        if (!scope.values || scope.values.length == 0) {
                             return;
                         }
 
                         graph.selectAll('*').remove();
 
                         xScale = d3.scale.linear()
-                            .domain(getXDomain(scope.data.values))
+                            .domain(getXDomain(scope.values))
                             .range([0, width()]);
-
-                        var range = scope.data.range.max - scope.data.range.min;
-                        var rangeOffset = range * 0.05;
+                        var range = d3.extent(scope.values, (d) => d.value);
+                        var rangeOffset = (range[1] - range[0]) * 0.05;
                         yScale = d3.scale.linear()
-                            .domain([scope.data.range.min - rangeOffset, scope.data.range.max + rangeOffset])
+                            .domain([range[0] - rangeOffset, range[1] + rangeOffset])
                             .range([height(), 0]);
 
                         xAxisGen = d3.svg.axis()
@@ -403,9 +422,9 @@ angular.module('n52.core.mobile', [])
                                 .tickFormat(''));
 
                         if (scope.options.drawLine) {
-                            drawValueLine();
+                            drawValueLine(scope.values);
                         } else {
-                            drawDots();
+                            drawDots(scope.values);
                         }
 
                         background = graph.append('svg:rect')
@@ -441,12 +460,16 @@ angular.module('n52.core.mobile', [])
                     };
 
                     var mousemoveHandler = () => {
-                        if (!scope.data.values || scope.data.values.length === 0) {
+                        if (!scope.values || scope.values.length === 0) {
                             return;
                         }
                         var coords = d3.mouse(background.node());
-                        combinedSrvc.highlightByIdx(getItemForX(coords[0]));
+                        combinedSrvc.highlightByIdx(getItemForX(coords[0], scope.values) + getSelectionOffset());
                         scope.$apply();
+                    };
+
+                    var getSelectionOffset = () => {
+                        return scope.selection.offset ? scope.selection.offset : 0;
                     };
 
                     var mouseoutHandler = () => {
@@ -471,9 +494,13 @@ angular.module('n52.core.mobile', [])
                         if (!dragStart || !dragging) {
                             dragStart = null;
                             dragging = false;
+                            combinedSrvc.resetSelection();
                             resetDrag();
                         } else {
-                            combinedSrvc.setSelection(getItemForX(dragStart[0]), getItemForX(dragCurrent[0]));
+                            var offset = getSelectionOffset(),
+                                start = getItemForX(dragStart[0], scope.values) + offset,
+                                end = getItemForX(dragCurrent[0], scope.values) + offset;
+                            combinedSrvc.setSelection(start, end);
                             dragStart = null;
                             dragging = false;
                         }
@@ -507,7 +534,6 @@ angular.module('n52.core.mobile', [])
                     };
 
                     var resetDrag = () => {
-                        combinedSrvc.resetSelection();
                         if (dragRectG) {
                             dragRectG.remove();
                             dragRectG = null;
@@ -515,38 +541,39 @@ angular.module('n52.core.mobile', [])
                         }
                     };
 
-                    var getItemForX = (x) => {
+                    var getItemForX = (x, data) => {
                         var index = xScale.invert(x),
                             i;
-                        if (scope.options.axisType != 'ticks') {
-                            var bisectDate = d3.bisector(function(d) {
-                                switch (scope.options.axisType) {
-                                    case 'distance':
-                                        return d.dist;
-                                    case 'time':
-                                        return d.timestamp;
-                                }
-                            }).left;
-                            i = bisectDate(scope.data.values, index);
-                        } else {
-                            i = Math.round(index);
-                        }
-
-                        var d0, d1;
-                        if (i > 0 && i < scope.data.values.length) {
+                        var bisectDate = d3.bisector(function(d) {
                             switch (scope.options.axisType) {
                                 case 'distance':
-                                    d0 = scope.data.values[i - 1].dist;
-                                    d1 = scope.data.values[i].dist;
+                                    return d.dist;
+                                case 'time':
+                                    return d.timestamp;
+                                case 'ticks':
+                                    return d.tick;
+                            }
+                        }).left;
+                        i = bisectDate(data, index);
+
+                        var d0, d1;
+                        if (i > 0 && i < data.length) {
+                            switch (scope.options.axisType) {
+                                case 'distance':
+                                    d0 = data[i - 1].dist;
+                                    d1 = data[i].dist;
                                     break;
                                 case 'time':
-                                    d0 = scope.data.values[i - 1].timestamp;
-                                    d1 = scope.data.values[i].timestamp;
+                                    d0 = data[i - 1].timestamp;
+                                    d1 = data[i].timestamp;
                                     break;
+                                case 'ticks':
+                                    d0 = data[i - 1].tick;
+                                    d1 = data[i].tick;
                             }
                             return index - d0 < d1 - index ? i - 1 : i;
                         } else {
-                            return i > scope.data.values.length - 1 ? scope.data.values.length - 1 : i;
+                            return i > data.length - 1 ? data.length - 1 : i;
                         }
                     };
 
@@ -584,7 +611,7 @@ angular.module('n52.core.mobile', [])
                             focuslabelY
                                 .attr('y', height() - 5)
                                 .attr('x', item.xDiagCoord + 2)
-                                .text('Measurement: ' + scope.options.highlightIdx);
+                                .text('Measurement: ' + item.tick);
                         }
                     };
                 }
@@ -613,12 +640,7 @@ angular.module('n52.core.mobile', [])
                 }
             };
             this.data = {
-                values: [],
-                range: {
-                    max: 0,
-                    min: Infinity
-                },
-                dist: 0
+                values: []
             };
             this.series = {};
 
@@ -660,7 +682,7 @@ angular.module('n52.core.mobile', [])
                 this.resetData();
                 for (var i = 0; i < data.length; i++) {
                     this.addToGeometry(data[i]);
-                    this.addToData(data[i], data[i ? i - 1 : 0]);
+                    this.addToData(data[i], data[i ? i - 1 : 0], i);
                 }
             };
 
@@ -668,14 +690,13 @@ angular.module('n52.core.mobile', [])
                 this.geometry.data.coordinates.push(entry.geometry.coordinates);
             };
 
-            this.addToData = function(entry, previous) {
+            this.addToData = function(entry, previous, idx) {
                 var s = new L.LatLng(entry.geometry.coordinates[1], entry.geometry.coordinates[0]);
                 var e = new L.LatLng(previous.geometry.coordinates[1], previous.geometry.coordinates[0]);
                 var newdist = s.distanceTo(e);
                 this.data.dist = this.data.dist + Math.round(newdist / 1000 * 100000) / 100000;
-                this.data.range.max = this.data.range.max < entry.value ? entry.value : this.data.range.max;
-                this.data.range.min = this.data.range.min > entry.value ? entry.value : this.data.range.min;
                 this.data.values.push({
+                    tick: idx,
                     dist: Math.round(this.data.dist * 10) / 10,
                     timestamp: entry.timestamp,
                     value: entry.value,
@@ -692,8 +713,6 @@ angular.module('n52.core.mobile', [])
             this.resetData = function() {
                 this.data.values = [];
                 this.data.dist = 0;
-                this.data.range.max = 0;
-                this.data.range.min = Infinity;
             };
 
             this.findItemIdxForLatLng = function(latlng) {
@@ -720,6 +739,7 @@ angular.module('n52.core.mobile', [])
             this.setSelection = function(startIdx, endIdx) {
                 var start = Math.min(startIdx, endIdx),
                     end = Math.max(startIdx, endIdx);
+                this.selectedSection.offset = start;
                 this.selectedSection.values = this.data.values.slice(start, end);
             };
 
@@ -728,6 +748,7 @@ angular.module('n52.core.mobile', [])
             };
 
             this.resetSelection = function() {
+                this.selectedSection.offset = 0;
                 this.selectedSection.values = [];
             };
 
