@@ -166,11 +166,12 @@
             };
 
             this.getDatasetData = function(id, apiUrl, timespan, extendedParams) {
-                var requestParams = {
-                        timespan: utils.createRequestTimespan(timespan.start, timespan.end)
-                    },
+                var requestParams = {},
                     requestUrl = interfaceUtils.createRequestUrl(apiUrl, 'datasets/', id) + '/data';
 
+                if (timespan) {
+                    requestParams.timespan = utils.createRequestTimespan(timespan.start, timespan.end);
+                }
                 if (extendedParams) {
                     angular.extend(requestParams, extendedParams);
                 }

@@ -298,7 +298,7 @@ angular.module('n52.core.mobile', [])
 
                     angular.element($window).bind('resize', () => drawLineChart());
 
-                    var getXValue = (data, i) => {
+                    var getXValue = (data) => {
                         switch (scope.options.axisType) {
                             case 'distance':
                                 return data.dist;
