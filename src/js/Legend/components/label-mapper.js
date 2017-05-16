@@ -7,9 +7,13 @@ angular.module('n52.core.legend')
         controller: ['$http', '$q', 'labelMapperSrvc',
             function($http, $q, labelMapperSrvc) {
                 this.$onInit = function() {
-                    labelMapperSrvc.getMappedLabel(this.label).then((label) => {
-                        this.determinedLabel = label;
-                    });
+                    if (!this.label) {
+                        this.determinedLabel = this.label;
+                    } else {
+                        labelMapperSrvc.getMappedLabel(this.label).then((label) => {
+                            this.determinedLabel = label;
+                        });
+                    }
                 };
             }
         ]
