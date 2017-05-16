@@ -36,7 +36,11 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
                                         id: id + '_refVal_' + refValue.referenceValueId,
                                         color: refValue.color,
                                         data: timeseriesService.getData(id).referenceValues[refValue.referenceValueId],
-                                        type: 'refVal'
+                                        type: 'refVal',
+                                        lines: {
+                                            lineWidth: settingsService.commonLineWidth,
+                                            steps: true
+                                        }
                                     });
                                 }
                             }
