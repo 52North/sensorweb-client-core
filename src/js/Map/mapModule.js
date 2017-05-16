@@ -27,16 +27,12 @@ angular.module('n52.core.map', [])
             var map = {
                 id: settingsService.stationMap ? settingsService.stationMap : 'stationMap'
             };
-            if (settingsService.showScale) {
-                map.controls = {
-                    scale: true
-                };
-            }
             var requestCounter;
             var bounds;
 
             var init = function() {
                 map.loading = false;
+                map.controls = settingsService.mapControls;
                 map.markers = {};
                 map.paths = {};
                 map.popup = {};
