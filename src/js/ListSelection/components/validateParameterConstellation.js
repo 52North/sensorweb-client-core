@@ -6,16 +6,17 @@ angular.module('n52.core.listSelection')
             onToggle: '&'
         },
         templateUrl: 'n52.core.listSelection.validate-parameter-constellation',
-        controller: ['seriesApiInterface', 'timeseriesService',
-            function(seriesApiInterface, timeseriesService) {
-                this.isActive = false;
+        controller: ['seriesApiInterface', 'timeseriesService', 'utils',
+            function(seriesApiInterface, timeseriesService, utils) {
                 seriesApiInterface.getTimeseries(null, this.provider.url, this.params).then(data => {
                     if (angular.isArray(data)) {
-                        this.series = data[0];
-                    } else {
                         this.series = data;
+                    } else {
+                        this.series = [data];
                     }
-                    this.checkActive(this.series);
+                    this.series.forEach(entry => {
+                        entry.internalId = utils.createInternalId(entry);
+                    });
                 });
                 this.toggleTs = function(series) {
                     this.onToggle({series: series});
@@ -24,13 +25,12 @@ angular.module('n52.core.listSelection')
                     } else {
                         timeseriesService.removeTimeseries(series.internalId);
                     }
-                    this.checkActive(series);
                 };
-                this.checkActive = function(series) {
+                this.isDisplayed = function(series) {
                     if (!timeseriesService.hasTimeseries(series.internalId)) {
-                        this.isActive = false;
+                        return false;
                     } else {
-                        this.isActive = true;
+                        return true;
                     }
                 };
             }
