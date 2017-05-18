@@ -2,6 +2,8 @@ angular.module('n52.core.map')
     .controller('SwcModalStationaryInsituCtrl', ['$scope', '$uibModalInstance', 'timeseriesService', '$location', 'stationService', 'selection', 'seriesApiInterface', 'serviceFinder',
         function($scope, $uibModalInstance, timeseriesService, $location, stationService, selection, seriesApiInterface, serviceFinder) {
 
+            $scope.phenomenonId = selection.phenomenonId;
+
             seriesApiInterface.getPlatforms(selection.stationId, selection.url)
                 .then(platform => {
                     $scope.platform = platform;
