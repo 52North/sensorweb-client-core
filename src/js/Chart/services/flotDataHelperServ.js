@@ -6,6 +6,7 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
         function updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesList) {
             if (angular.isUndefined(timeseriesList))
                 timeseriesList = timeseriesService.getAllTimeseries();
+            dataset.length = 0;
             angular.forEach(timeseriesList, function(ts) {
                 updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, timeseriesService.getData(ts.internalId));
             });

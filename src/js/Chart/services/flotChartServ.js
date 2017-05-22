@@ -95,10 +95,7 @@ angular.module('n52.core.diagram')
                 createYAxis();
                 flotDataHelperServ.updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesService.getAllTimeseries());
             });
-            $rootScope.$on('timeseriesDataChanged', function(evt, id) {
-                createYAxis();
-                flotDataHelperServ.updateTimeseriesInDataSet(dataset, renderOptions, id, timeseriesService.getData(id));
-            });
+
             $rootScope.$on('timeExtentChanged', function() {
                 setTimeExtent();
             });
@@ -106,6 +103,11 @@ angular.module('n52.core.diagram')
             function setTimeExtent() {
                 options.xaxis.min = timeService.time.start.toDate().getTime();
                 options.xaxis.max = timeService.time.end.toDate().getTime();
+            }
+
+            function timeseriesDataChanged(timeseries) {
+                createYAxis();
+                flotDataHelperServ.updateAllTimeseriesToDataSet(dataset, renderOptions, timeseries);
             }
 
             function createYAxis() {
@@ -170,7 +172,8 @@ angular.module('n52.core.diagram')
 
             return {
                 dataset: dataset,
-                options: options
+                options: options,
+                timeseriesDataChanged: timeseriesDataChanged
             };
         }
     ]);

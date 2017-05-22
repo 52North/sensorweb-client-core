@@ -1,8 +1,9 @@
 angular.module('n52.core.base')
-    .service('timeService', ['$rootScope', 'statusService',
-        function($rootScope, statusService) {
+    .service('timeService', ['$rootScope', 'statusService', 'timeseriesService',
+        function($rootScope, statusService, timeseriesService) {
             var fireNewTimeExtent = function(time) {
                 statusService.setTime(time);
+                timeseriesService.timeChanged();
                 $rootScope.$emit('timeExtentChanged');
             };
 

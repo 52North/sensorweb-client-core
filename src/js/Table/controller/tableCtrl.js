@@ -1,6 +1,10 @@
 angular.module('n52.core.table')
     .controller('SwcTableCtrl', ['$scope', '$filter', 'ngTableParams', 'timeseriesService', 'timeService', '$rootScope', '$translate',
         function($scope, $filter, ngTableParams, timeseriesService, timeService, $rootScope, $translate) {
+
+            $scope.timeseries = timeseriesService.timeseries;
+            $scope.data = timeseriesService.tsData;
+
             // http://ngmodules.org/modules/ng-table
             var createValueArray = function() {
                 var array = [];
@@ -78,7 +82,7 @@ angular.module('n52.core.table')
                 var idx = values.length - 1;
                 var end = timeService.getEndInMillies();
                 count = 0;
-                while (values[idx][0] > end) {
+                while (values[idx] && values[idx][0] > end) {
                     count++;
                     idx--;
                 }
@@ -97,15 +101,20 @@ angular.module('n52.core.table')
                 data = createValueArray();
                 $scope.columns = createColumns();
             });
-            var timeseriesDataChangedListener = $rootScope.$on('timeseriesDataChanged', function() {
-                data = createValueArray();
+
+            $scope.$watch('timeseries', function() {
                 $scope.columns = createColumns();
                 $scope.tableParams.reload();
-            });
+            }, true);
+
+            $scope.$watch('data', function() {
+                data = createValueArray();
+                $scope.tableParams.reload();
+            }, true);
+
             $scope.columns = createColumns();
             $scope.$on('$destroy', function() {
                 timeseriesChangedListener();
-                timeseriesDataChangedListener();
                 alltimeseriesChangedListener();
             });
             var data = createValueArray();

@@ -1,13 +1,9 @@
 angular.module('n52.core.base')
-    .service('timeseriesService', ['$rootScope', 'seriesApiInterface', 'statusService', 'styleService', 'settingsService', 'utils',
-        function($rootScope, seriesApiInterface, statusService, styleService, settingsService, utils) {
+    .service('timeseriesService', ['seriesApiInterface', 'statusService', 'styleService', 'settingsService', 'utils',
+        function(seriesApiInterface, statusService, styleService, settingsService, utils) {
 
             this.timeseries = {};
-            var tsData = {};
-
-            $rootScope.$on('timeExtentChanged', () => {
-                _loadAllData(this.timeseries);
-            });
+            this.tsData = {};
 
             var _loadAllData = function(timeseries) {
                 // TODO evtl. erst wenn alle Daten da sind soll die Daten auch gesetzt werden???
@@ -27,7 +23,7 @@ angular.module('n52.core.base')
                 _loadTsData(ts);
             };
 
-            var _loadTsData = function(ts) {
+            var _loadTsData = (ts) => {
                 var generalizeData = statusService.status.generalizeData || false;
                 ts.loadingData = true;
                 seriesApiInterface.getTsData(ts.id, ts.apiUrl, utils.createBufferedCurrentTimespan(statusService.getTime()), ts.filter, generalizeData)
@@ -36,19 +32,22 @@ angular.module('n52.core.base')
                     });
             };
 
-            var _addTsData = function(data, ts) {
-                tsData[ts.internalId] = data[ts.id];
-                if (tsData[ts.internalId].values && tsData[ts.internalId].values.length) {
+            var _addTsData = (data, ts) => {
+                this.tsData[ts.internalId] = data[ts.id];
+                if (this.tsData[ts.internalId].values && this.tsData[ts.internalId].values.length) {
                     ts.hasNoDataInCurrentExtent = false;
                 } else {
                     ts.hasNoDataInCurrentExtent = true;
                 }
-                $rootScope.$emit('timeseriesDataChanged', ts.internalId);
                 ts.loadingData = false;
             };
 
+            this.timeChanged = function() {
+                _loadAllData(this.timeseries);
+            };
+
             this.getData = function(internalId) {
-                return tsData[internalId];
+                return this.tsData[internalId];
             };
 
             this.getTimeseries = function(internalId) {
@@ -86,9 +85,8 @@ angular.module('n52.core.base')
             this.removeTimeseries = function(internalId) {
                 styleService.deleteStyle(this.timeseries[internalId]);
                 delete this.timeseries[internalId];
-                delete tsData[internalId];
+                delete this.tsData[internalId];
                 statusService.removeTimeseries(internalId);
-                $rootScope.$emit('timeseriesDataChanged', internalId);
             };
 
             this.removeAllTimeseries = function() {
@@ -97,9 +95,8 @@ angular.module('n52.core.base')
                 });
             };
 
-            this.toggleReferenceValue = function(refValue, internalId) {
+            this.toggleReferenceValue = function(refValue) {
                 refValue.visible = !refValue.visible;
-                $rootScope.$emit('timeseriesDataChanged', internalId);
             };
 
             this.isTimeseriesVisible = function(internalId) {

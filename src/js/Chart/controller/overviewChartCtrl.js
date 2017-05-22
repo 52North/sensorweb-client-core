@@ -1,15 +1,26 @@
 angular.module('n52.core.overviewDiagram', [])
-        .controller('SwcOverviewChartCtrl', ['$scope', 'flotOverviewChartServ', 'timeService',
-            function ($scope, flotOverviewChartServ, timeService) {
+        .controller('SwcOverviewChartCtrl', ['$scope', 'flotOverviewChartServ', 'timeService', 'timeseriesService',
+            function ($scope, flotOverviewChartServ, timeService, timeseriesService) {
                 $scope.options = flotOverviewChartServ.options;
                 $scope.dataset = flotOverviewChartServ.dataset;
+                $scope.timeseries = timeseriesService.timeseries;
+                $scope.time = timeService.time;
+
+                $scope.$watch('timeseries', (timeseries) => {
+                    flotOverviewChartServ.timeseriesDataChanged(timeseries);
+                }, true);
+
+                $scope.$watch('time', (time) => {
+                    flotOverviewChartServ.timeExtentChanged(time);
+                }, true);
 
                 $scope.timeChanged = function(time) {
                     timeService.setFlexibleTimeExtent(time.from, time.till);
                 };
+
             }])
-        .factory('flotOverviewChartServ', ['timeseriesService', 'statusService', 'timeService', '$rootScope', 'seriesApiInterface', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
-            function (timeseriesService, statusService, timeService, $rootScope, seriesApiInterface, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
+        .factory('flotOverviewChartServ', ['timeseriesService', 'statusService', '$rootScope', 'seriesApiInterface', 'flotDataHelperServ', 'settingsService', 'monthNamesTranslaterServ',
+            function (timeseriesService, statusService, $rootScope, seriesApiInterface, flotDataHelperServ, settingsService, monthNamesTranslaterServ) {
                 var options = {
                     series: {
                         downsample: {
@@ -60,8 +71,6 @@ angular.module('n52.core.overviewDiagram', [])
                 var extendedDataRequest = {
                     generalize: true
                 };
-                setTimeExtent();
-                setSelectionExtent();
                 loadAllOverViewData();
 
                 $rootScope.$on('$translateChangeEnd', function () {
@@ -76,18 +85,17 @@ angular.module('n52.core.overviewDiagram', [])
                     loadAllOverViewData();
                 });
 
-                $rootScope.$on('timeseriesDataChanged', function (evt, id) {
-                    loadOverViewData(id);
-                });
-
-                $rootScope.$on('timeExtentChanged', function () {
-                    setTimeExtent();
-                    setSelectionExtent();
+                function timeseriesDataChanged() {
                     loadAllOverViewData();
-                });
+                }
 
-                function setTimeExtent() {
-                    var time = timeService.time;
+                function timeExtendChanged(time) {
+                    setTimeExtent(time);
+                    setSelectionExtent(time);
+                    loadAllOverViewData();
+                }
+
+                function setTimeExtent(time) {
                     var durationBuffer = moment.duration(time.duration).add(time.duration);
                     var start = moment(time.start).subtract(durationBuffer);
                     var end = moment(time.end).add(durationBuffer);
@@ -95,14 +103,15 @@ angular.module('n52.core.overviewDiagram', [])
                     options.xaxis.max = end.toDate().getTime();
                 }
 
-                function setSelectionExtent() {
+                function setSelectionExtent(time) {
                     options.selection.range = {
-                        from: timeService.time.start.toDate().getTime(),
-                        to: timeService.time.end.toDate().getTime()
+                        from: time.start.toDate().getTime(),
+                        to: time.end.toDate().getTime()
                     };
                 }
 
                 function loadAllOverViewData() {
+                    dataset.length = 0;
                     angular.forEach(timeseriesService.timeseries, function (ts) {
                         loadOverViewData(ts.internalId);
                     });
@@ -128,7 +137,9 @@ angular.module('n52.core.overviewDiagram', [])
 
                 return {
                     dataset: dataset,
-                    options: options
+                    options: options,
+                    timeseriesDataChanged: timeseriesDataChanged,
+                    timeExtentChanged: timeExtendChanged
                 };
             }]);
 
