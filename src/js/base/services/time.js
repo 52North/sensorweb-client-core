@@ -1,10 +1,9 @@
 angular.module('n52.core.base')
     .service('timeService', ['$rootScope', 'statusService', 'timeseriesService',
         function($rootScope, statusService, timeseriesService) {
-            var fireNewTimeExtent = function(time) {
+            var fireNewTimeExtent = (time) => {
                 statusService.setTime(time);
                 timeseriesService.timeChanged();
-                $rootScope.$emit('timeExtentChanged');
             };
 
             this.time = {
@@ -13,14 +12,14 @@ angular.module('n52.core.base')
                 end: moment(statusService.getTime().end)
             };
 
-            this.setFlexibleTimeExtent = function(start, end) {
+            this.setFlexibleTimeExtent = (start, end) => {
                 this.time.start = start;
                 this.time.end = end;
                 this.time.duration = moment.duration(end.diff(start));
                 fireNewTimeExtent(this.time);
             };
 
-            this.setPresetInterval = function(interval) {
+            this.setPresetInterval = (interval) => {
                 if (interval.from)
                     this.time.start = interval.from;
                 if (interval.till)
@@ -39,19 +38,19 @@ angular.module('n52.core.base')
                 fireNewTimeExtent(this.time);
             };
 
-            this.stepBack = function() {
+            this.stepBack = () => {
                 this.time.start = moment(this.time.start).subtract(this.time.duration);
                 this.time.end = moment(this.time.end).subtract(this.time.duration);
                 fireNewTimeExtent(this.time);
             };
 
-            this.stepForward = function() {
+            this.stepForward = () => {
                 this.time.start = moment(this.time.start).add(this.time.duration);
                 this.time.end = moment(this.time.end).add(this.time.duration);
                 fireNewTimeExtent(this.time);
             };
 
-            this.jumpToLastTimeStamp = function(timestamp, daylimit) {
+            this.jumpToLastTimeStamp = (timestamp, daylimit) => {
                 this.time.end = moment(timestamp);
                 if (daylimit)
                     this.time.end.endOf('day');
@@ -59,7 +58,7 @@ angular.module('n52.core.base')
                 fireNewTimeExtent(this.time);
             };
 
-            this.jumpToFirstTimeStamp = function(timestamp, daylimit) {
+            this.jumpToFirstTimeStamp = (timestamp, daylimit) => {
                 this.time.start = moment(timestamp);
                 if (daylimit)
                     this.time.start.startOf('day');
@@ -67,7 +66,7 @@ angular.module('n52.core.base')
                 fireNewTimeExtent(this.time);
             };
 
-            this.centerTimespan = function(duration) {
+            this.centerTimespan = (duration) => {
                 this.time.duration = moment.duration(duration);
                 var halfspan = moment.duration(this.time.duration.valueOf() / 2);
                 var center = (this.time.end.valueOf() - this.time.start.valueOf()) / 2;
@@ -76,15 +75,15 @@ angular.module('n52.core.base')
                 fireNewTimeExtent(this.time);
             };
 
-            this.isInCurrentTimespan = function(timestamp) {
+            this.isInCurrentTimespan = (timestamp) => {
                 return moment(timestamp).isBetween(this.time.start, this.time.end);
             };
 
-            this.getStartInMillies = function() {
+            this.getStartInMillies = () => {
                 return this.time.start.unix() * 1000;
             };
 
-            this.getEndInMillies = function() {
+            this.getEndInMillies = () => {
                 return this.time.end.unix() * 1000;
             };
         }

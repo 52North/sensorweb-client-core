@@ -10,6 +10,7 @@ angular.module('n52.core.diagram')
             $scope.behaviour = diagramBehaviourService.behaviour;
             $scope.timeseries = timeseriesService.timeseries;
             $scope.data = timeseriesService.tsData;
+            $scope.time = timeService.time;
             $scope.options = flotChartService.options;
             $scope.dataset = flotChartService.dataset;
 
@@ -19,6 +20,10 @@ angular.module('n52.core.diagram')
 
             $scope.$watch('data', () => {
                 flotChartService.timeseriesDataChanged($scope.timeseries);
+            }, true);
+
+            $scope.$watch('time', () => {
+                flotChartService.setTimeExtent();
             }, true);
 
             $scope.$watch('behaviour', function(behaviour) {

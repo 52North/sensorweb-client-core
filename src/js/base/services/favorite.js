@@ -1,21 +1,18 @@
 angular.module('n52.core.base')
-    .factory('favoriteService', ['localStorageService', '$translate', 'settingsService', 'seriesApiInterface',
+    .service('favoriteService', ['localStorageService', '$translate', 'settingsService', 'seriesApiInterface',
         function(localStorageService, $translate, settingsService, seriesApiInterface) {
             var storageKey = 'favorites';
-            var favorites = {};
-            var groupIdx = Object.keys(favorites).length;
+            this.favorites = {};
+            var groupIdx = Object.keys(this.favorites).length;
             if (groupIdx === 0) groupIdx++;
 
-            // load favorites
-            setFavorites(localStorageService.get(storageKey));
+            var saveFavorites = () => {
+                localStorageService.set(storageKey, this.favorites);
+            };
 
-            function saveFavorites() {
-                localStorageService.set(storageKey, favorites);
-            }
-
-            function addFavorite(ts, label) {
+            this.addFavorite = (ts, label) => {
                 label = label || ts.label;
-                favorites[ts.apiUrl + ts.id] = {
+                this.favorites[ts.apiUrl + ts.id] = {
                     id: ts.apiUrl + ts.id,
                     label: label,
                     type: 'single',
@@ -23,16 +20,16 @@ angular.module('n52.core.base')
                 };
                 saveFavorites();
                 return label;
-            }
+            };
 
-            function addFavoriteGroup(tsColl, label) {
+            this.addFavoriteGroup = (tsColl, label) => {
                 var collection = [];
                 angular.forEach(tsColl, function(elem) {
                     collection.push(angular.copy(elem));
                 });
                 if (collection.length !== 0) {
                     label = label || $translate.instant('favorite.label') + ' ' + groupIdx;
-                    favorites[groupIdx] = {
+                    this.favorites[groupIdx] = {
                         id: groupIdx,
                         label: label,
                         type: 'group',
@@ -44,85 +41,80 @@ angular.module('n52.core.base')
                 } else {
                     return null;
                 }
-            }
+            };
 
-            function removeFavorite(fav) {
-                delete favorites[fav.id];
+            this.removeFavorite = (fav) => {
+                delete this.favorites[fav.id];
                 saveFavorites();
-            }
+            };
 
-            function hasTimeseriesAsFavorite(ts) {
-                return angular.isObject(favorites[ts.apiUrl + ts.id]);
-            }
+            this.removeTsAsFavorite = (ts) => {
+                delete this.favorites[ts.apiUrl + ts.id];
+                saveFavorites();
+            };
 
-            function hasFavorites() {
-                return Object.keys(favorites).length > 0;
-            }
+            this.hasTimeseriesAsFavorite = (ts) => {
+                return angular.isObject(this.favorites[ts.apiUrl + ts.id]);
+            };
 
-            function getFavoritesCount() {
-                return Object.keys(favorites).length;
-            }
+            this.hasFavorites = () => {
+                return Object.keys(this.favorites).length > 0;
+            };
 
-            function removeAllFavorites() {
-                angular.forEach(favorites, function(elem) {
-                    removeFavorite(elem);
+            this.getFavoritesCount = () => {
+                return Object.keys(this.favorites).length;
+            };
+
+            this.removeAllFavorites = () => {
+                angular.forEach(this.favorites, function(elem) {
+                    this.removeFavorite(elem);
                 });
-            }
+            };
 
-            function setFavorites(newFavs) {
-                removeAllFavorites();
-                angular.forEach(newFavs, function(fav) {
+            this.setFavorites = (newFavs) => {
+                this.removeAllFavorites();
+                angular.forEach(newFavs, (fav) => {
                     // single
                     if (fav.timeseries) {
                         // send request to get latest value
                         var oldTs = fav.timeseries;
-                        seriesApiInterface.getTimeseries(oldTs.id, oldTs.apiUrl).then(function(newTs) {
+                        seriesApiInterface.getTimeseries(oldTs.id, oldTs.apiUrl).then((newTs) => {
                             newTs.styles = oldTs.styles;
-                            addFavorite(newTs, fav.label);
+                            this.addFavorite(newTs, fav.label);
                         });
                     }
                     // group
                     if (fav.collection) {
                         var count = 0;
                         var newColl = [];
-                        angular.forEach(fav.collection, function(ts) {
+                        angular.forEach(fav.collection, (ts) => {
                             count++;
-                            seriesApiInterface.getTimeseries(ts.id, ts.apiUrl).then(function(newTs) {
+                            seriesApiInterface.getTimeseries(ts.id, ts.apiUrl).then((newTs) => {
                                 newTs.styles = ts.styles;
                                 newColl.push(newTs);
                                 count--;
                                 if (count === 0) {
-                                    addFavoriteGroup(newColl, fav.label);
+                                    this.addFavoriteGroup(newColl, fav.label);
                                 }
                             });
                         });
                     }
                 });
                 saveFavorites();
-            }
-
-            function changeLabel(favorite, label) {
-                favorites[favorite.id].label = label;
-                saveFavorites();
-            }
-
-            return {
-                addFavorite: addFavorite,
-                addFavoriteGroup: addFavoriteGroup,
-                hasTimeseriesAsFavorite: hasTimeseriesAsFavorite,
-                hasFavorites: hasFavorites,
-                setFavorites: setFavorites,
-                removeFavorite: removeFavorite,
-                removeAllFavorites: removeAllFavorites,
-                changeLabel: changeLabel,
-                getFavoritesCount: getFavoritesCount,
-                favorites: favorites
             };
+
+            this.changeLabel = (favorite, label) => {
+                this.favorites[favorite.id].label = label;
+                saveFavorites();
+            };
+
+            // load favorites
+            this.setFavorites(localStorageService.get(storageKey));
         }
     ])
-    .factory('favoriteImExportService', ['favoriteService', '$translate', 'alertService', 'utils',
+    .service('favoriteImExportService', ['favoriteService', '$translate', 'alertService', 'utils',
         function(favoriteService, $translate, alertService, utils) {
-            function importFavorites(event) {
+            this.importFavorites = (event) => {
                 if (utils.isFileAPISupported() && angular.isObject(event)) {
                     var override = true;
                     if (favoriteService.hasFavorites()) {
@@ -142,9 +134,9 @@ angular.module('n52.core.base')
                         }
                     }
                 }
-            }
+            };
 
-            function exportFavorites() {
+            this.exportFavorites = () => {
                 if (utils.isFileAPISupported()) {
                     var filename = 'favorites.json';
                     var content = angular.toJson(favoriteService.favorites, 2);
@@ -164,11 +156,6 @@ angular.module('n52.core.base')
                         a.click();
                     }
                 }
-            }
-
-            return {
-                importFavorites: importFavorites,
-                exportFavorites: exportFavorites
             };
         }
     ]);

@@ -8,13 +8,18 @@ angular.module('n52.core.diagram')
             };
         }
     ])
-    .controller('SwcReloadButtonCtrl', ['$scope', 'statusService', 'refreshDataSrvc',
-        function($scope, statusService, refreshDataSrvc) {
+    .controller('SwcReloadButtonCtrl', ['$scope', 'statusService', 'refreshDataSrvc', 'timeService',
+        function($scope, statusService, refreshDataSrvc, timeService) {
             if (angular.isUndefined(statusService.status.reloadChartData)) {
                 statusService.status.reloadChartData = false;
             }
+            $scope.time = timeService.time;
             $scope.reload = statusService.status.reloadChartData;
             refreshDataSrvc.reloadData();
+
+            $scope.$watch('time', function() {
+                refreshDataSrvc.timeExtentChanged();
+            }, true);
 
             $scope.toggleReload = function() {
                 $scope.reload = statusService.status.reloadChartData = !statusService.status.reloadChartData;
@@ -37,39 +42,33 @@ angular.module('n52.core.diagram')
     .controller('SwcLastRefreshCtrl', ['$scope', 'refreshDataSrvc', function($scope, refreshDataSrvc) {
         $scope.lastRefresh = refreshDataSrvc.lastRefresh;
     }])
-    .factory('refreshDataSrvc', ['$cacheFactory', 'settingsService', '$rootScope', '$interval', 'statusService',
-        function($cacheFactory, settingsService, $rootScope, $interval, statusService) {
+    .service('refreshDataSrvc', ['$cacheFactory', 'settingsService', '$rootScope', '$interval', 'statusService', 'timeseriesService',
+        function($cacheFactory, settingsService, $rootScope, $interval, statusService, timeseriesService) {
+            this.lastRefresh = {};
             var reloadPromise,
-                lastRefresh = {},
                 refreshInterval = settingsService.refreshDataInterval ? settingsService.refreshDataInterval : 60000;
 
-            $rootScope.$on('timeExtentChanged', function() {
-                lastRefresh.time = new Date();
-            });
+            this.timeExtentChanged = () => {
+                this.lastRefresh.time = new Date();
+            };
 
-            function refreshData() {
+            this.refreshData = () => {
                 $cacheFactory.get('$http').removeAll();
-                $rootScope.$emit('timeExtentChanged');
-            }
+                timeseriesService.timeChanged();
+            };
 
-            function reloadData() {
-                stopReloadingData();
+            this.reloadData = () => {
+                this.stopReloadingData();
                 if (statusService.status.reloadChartData) {
-                    refreshData();
-                    reloadPromise = $interval(function() {
-                        refreshData();
+                    this.refreshData();
+                    reloadPromise = $interval(() => {
+                        this.refreshData();
                     }, refreshInterval);
                 }
-            }
+            };
 
-            function stopReloadingData() {
+            this.stopReloadingData = () => {
                 $interval.cancel(reloadPromise);
-            }
-
-            return {
-                lastRefresh: lastRefresh,
-                reloadData: reloadData,
-                stopReloadingData: stopReloadingData
             };
         }
     ]);
