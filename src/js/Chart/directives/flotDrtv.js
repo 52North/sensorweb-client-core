@@ -42,7 +42,6 @@ angular.module('n52.core.flot', [])
                             setSelection(plotObj, options);
                         } else {
                             plotArea.empty();
-                            $('.axisLabel').remove();
                         }
                     };
 
