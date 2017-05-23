@@ -141,7 +141,8 @@ angular.module('n52.core.provider', [])
                 var temp = Object.keys(settingsService.restApiUrls);
                 temp.forEach(url => {
                     seriesApiInterface.getServices(url, null, {
-                        platformTypes: platformType
+                        platformTypes: platformType,
+                        valueTypes: 'quantity'
                     }).then(providers => {
                         providers.forEach(provider => {
                             if (!this.isServiceBlacklisted(provider.id, url)) {
