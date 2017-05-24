@@ -5,7 +5,7 @@ The following configuration parameters are available:
 
 ## General
 
-#####`defaultProvider`
+### `defaultProvider`
 
 ```json
 "defaultProvider": {
@@ -16,7 +16,7 @@ The following configuration parameters are available:
 
 The default selected provider to show stations in the map.
 
-#####`providerBlackList`
+### `providerBlackList`
 
 ```json
 "providerBlackList": [
@@ -29,7 +29,7 @@ The default selected provider to show stations in the map.
 
 The provider in this list will be removed from the provider list offered to the user.
 
-#####`restApiUrls`
+### `restApiUrls`
 
 ```json
 "restApiUrls": {
@@ -40,7 +40,7 @@ The provider in this list will be removed from the provider list offered to the 
 
 A list of timeseries-API urls and an appropriate identifier to create internal timeseries ids.
 
-#####`supportedLanguages`
+### `supportedLanguages`
 
 ```json
 "supportedLanguages": [{
@@ -55,7 +55,7 @@ A list of timeseries-API urls and an appropriate identifier to create internal t
 
 These are the supported languages in the client. For every language there must exist a translation file in the i18n folder.
 
-#####`dateFormat`
+### `dateFormat`
 
 ```json
 "dateFormat": "DD.MM.YY HH:mm [h]"
@@ -63,7 +63,7 @@ These are the supported languages in the client. For every language there must e
 
 Date/time format which is used on several places.
 
-#####`additionalParameters`
+### `additionalParameters`
 
 ```json
 "additionalParameters": {
@@ -73,7 +73,7 @@ Date/time format which is used on several places.
 
 Additional parameters which are append to the requests to the API.
 
-#####`colorList`
+### `colorList`
 
 ```json
 "colorList": [
@@ -85,7 +85,7 @@ Additional parameters which are append to the requests to the API.
 
 Colorlist to select for a different timeseries color.
 
-#####`refColorList`
+### `refColorList`
 
 ```json
 "refColorList": [
@@ -97,7 +97,7 @@ Colorlist to select for a different timeseries color.
 
 Colorlist for the reference values, similiar to the `colorList`
 
-#####`selectColorFromList`
+### `selectColorFromList`
 
 ```json
 "selectColorFromList": true
@@ -105,7 +105,7 @@ Colorlist for the reference values, similiar to the `colorList`
 
 Select the color from the predefined lists
 
-#####`undefinedUomString`
+### `undefinedUomString`
 
 ```json
 "undefinedUomString": "-"
@@ -113,7 +113,7 @@ Select the color from the predefined lists
 
 Hides the uom if it matches the defined parameter.
 
-#####`showLegendOnStartup`
+### `showLegendOnStartup`
 
 ```json
 "showLegendOnStartup": true
@@ -121,7 +121,7 @@ Hides the uom if it matches the defined parameter.
 
 Parameter to collapse the legend.
 
-#####`showPhenomenaListOnStartup`
+### `showPhenomenaListOnStartup`
 
 ```json
 "showPhenomenaListOnStartup": true
@@ -129,7 +129,7 @@ Parameter to collapse the legend.
 
 Parameter to collapse the phenomena list.
 
-#####`saveStatus`
+### `saveStatus`
 
 ```json
 "saveStatus": true
@@ -137,7 +137,7 @@ Parameter to collapse the phenomena list.
 
 Save the status
 
-#####`generalizeData`
+### `generalizeData`
 
 ```json
 "generalizeData": true
@@ -148,7 +148,7 @@ Requests generalized timeseries data when this parameter is set.
 
 ## Map
 
-#####`baselayer`
+### `baselayer`
 
 ```json
 "baselayer": {
@@ -165,7 +165,7 @@ Requests generalized timeseries data when this parameter is set.
 
 All configured baselayer can be selected in the map.
 
-#####`overlays`
+### `overlays`
 
 ```json
 "overlays": {
@@ -174,7 +174,7 @@ All configured baselayer can be selected in the map.
 
 Same effect as the `baselayer` configuration.
 
-#####`showScale`
+### `showScale`
 
 ```json
 "showScale": true
@@ -182,7 +182,7 @@ Same effect as the `baselayer` configuration.
 
 Show the scale bar in the map.
 
-#####`locateIconOptions`
+### `locateIconOptions`
 
 ```json
 "locateIconOptions": {
@@ -202,15 +202,15 @@ Show the scale bar in the map.
 Location marker, when using the locate functionality. See [here] (http://leafletjs.com/reference.html#icon) for more informations.
 
 
-#####`searchResultIconOptions`
+### `searchResultIconOptions`
 
 Marker to show the search result in the map. Same as `locateIconOptions`
 
-#####`stationIconOptions`
+### `stationIconOptions`
 
 Marker to represent a station on the map. Same as `locateIconOptions`
 
-#####`defaultMarkerColor`
+### `defaultMarkerColor`
 
 ```json
 "defaultMarkerColor": "#123456"
@@ -218,7 +218,7 @@ Marker to represent a station on the map. Same as `locateIconOptions`
 
 Default color for circled marker, if last value is not set.
 
-#####`clusterStations`
+### `clusterStations`
 
 ```json
 "clusterStations": true
@@ -228,7 +228,7 @@ Cluster the stations shown on the map.
 
 ## Chart
 
-#####`chartOptions`
+### `chartOptions`
 
 ```json
 "chartOptions": {}
@@ -236,7 +236,7 @@ Cluster the stations shown on the map.
 
 Chart styling options see for more details: https://github.com/flot/flot/blob/master/API.md     
 
-#####`commonLineWidth`
+### `commonLineWidth`
 
 ```json
 "commonLineWidth": 1
@@ -244,7 +244,7 @@ Chart styling options see for more details: https://github.com/flot/flot/blob/ma
 
 Common line width of a timeseries in the chart.
 
-#####`selectedLineWidth`
+### `selectedLineWidth`
 
 ```json
 "selectedLineWidth": 4,
@@ -252,7 +252,7 @@ Common line width of a timeseries in the chart.
 
 Line width of a selected timeseries in the chart.
 
-#####`activeLineWidth`
+### `activeLineWidth`
 
 ```json
 "activeLineWidth": 3,
@@ -262,7 +262,7 @@ Line width of an active timeseries in the chart.
 
 ## Overview chart
 
-#####`overviewChartOptions`
+### `overviewChartOptions`
 
 ```json
 "overviewChartOptions": {}
