@@ -18,7 +18,7 @@ angular.module('n52.core.mobile')
         function($scope, $uibModalInstance) {
             $scope.modalInstance = $uibModalInstance;
             $scope.platformParams = [{
-                type: 'platform',
+                type: 'platforms',
                 header: 'trajectories.headers.platform'
             }, {
                 type: 'offering',
@@ -111,7 +111,7 @@ angular.module('n52.core.mobile')
 
             $scope.getItems = function(currParam) {
                 currParam.loading = 1;
-                if (currParam.type === 'platform') {
+                if (currParam.type === 'platforms') {
                     seriesApiInterface.getPlatforms(null, url, $scope.createParams())
                         .then(data => {
                             updateParams(currParam, data);
