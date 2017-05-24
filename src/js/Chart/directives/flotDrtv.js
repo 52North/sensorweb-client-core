@@ -114,7 +114,7 @@ angular.module('n52.core.flot', [])
                                             $('<span>').html('&nbsp;&#x25CF;').css('color', color).addClass('labelColorMarker').appendTo(yaxisLabel);
                                         });
                                     }
-                                    yaxisLabel.css('margin-left', - 4 + (yaxisLabel.height() - yaxisLabel.width()) / 2);
+                                    yaxisLabel.css('margin-left', -4 + (yaxisLabel.height() - yaxisLabel.width()) / 2);
                                 }
                             }, this));
 
@@ -213,7 +213,6 @@ angular.module('n52.core.flot', [])
             // borrowed from http://www.backalleycoder.com/2013/03/18/cross-browser-event-based-element-resize-detection/ to have a cross browser solution for element resize detection
             var attachEvent = document.attachEvent;
             var isIE = navigator.userAgent.match(/Trident/);
-            console.log(isIE);
             var requestFrame = (function() {
                 var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
                     function(fn) {
@@ -256,7 +255,8 @@ angular.module('n52.core.flot', [])
                         element.attachEvent('onresize', resizeListener);
                     } else {
                         if (window.getComputedStyle(element).position == 'static') element.style.position = 'relative';
-                        var obj = element.__resizeTrigger__ = document.createElement('object');
+                        var obj = element.__resizeTrigger__ = document.createElement('iframe');
+                        obj.setAttribute('frameBorder', '0');
                         obj.setAttribute('style', 'display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; pointer-events: none; z-index: -1;');
                         obj.__resizeElement__ = element;
                         obj.onload = objectLoad;
