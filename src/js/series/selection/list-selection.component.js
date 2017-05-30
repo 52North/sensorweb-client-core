@@ -1,14 +1,15 @@
 require('../series');
 angular.module('n52.core.series')
-    .component('swcSeriesListSelector', {
+    .component('swcListSelector', {
         bindings: {
             parameters: '<',
             providerList: '<',
+            selectorId: '@',
             datasetSelection: '&onDatasetSelection'
         },
         templateUrl: 'n52.core.series.list-selection',
-        controller: ['seriesApiMappingService', 'seriesApiInterface',
-            function(seriesApiMappingService, seriesApiInterface) {
+        controller: ['seriesApiMappingService', 'seriesApiInterface', 'swcListSelectorSrvc',
+            function(seriesApiMappingService, seriesApiInterface, swcListSelectorSrvc) {
 
                 var openDataset = (url, params) => {
                     seriesApiMappingService.getApiVersion(url).then(
@@ -33,13 +34,20 @@ angular.module('n52.core.series')
                 };
 
                 this.$onInit = () => {
-                    // create filterlist for first parameter entry
-                    this.parameters[0].filterList = this.providerList;
-                    // open first tab
-                    this.parameters[0].isOpen = true;
-                    // disable parameterList
-                    for (var i = 1; i < this.parameters.length; i++) {
-                        this.parameters[i].isDisabled = true;
+                    if (this.selectorId && swcListSelectorSrvc[this.selectorId]) {
+                        this.parameters = swcListSelectorSrvc[this.selectorId];
+                    } else {
+                        if (this.selectorId) {
+                            swcListSelectorSrvc[this.selectorId] = this.parameters;
+                        }
+                        // create filterlist for first parameter entry
+                        this.parameters[0].filterList = this.providerList;
+                        // open first tab
+                        this.parameters[0].isOpen = true;
+                        // disable parameterList
+                        for (var i = 1; i < this.parameters.length; i++) {
+                            this.parameters[i].isDisabled = true;
+                        }
                     }
                 };
 
@@ -70,4 +78,7 @@ angular.module('n52.core.series')
                 };
             }
         ]
-    });
+    })
+    .service('swcListSelectorSrvc', [
+        function() {}
+    ]);
