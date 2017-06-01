@@ -618,8 +618,8 @@ angular.module('n52.core.mobile', [])
             };
         }
     ])
-    .service('combinedSrvc', ['seriesApiInterface', 'statusService', '$route', '$q',
-        function(seriesApiInterface, statusService, $route, $q) {
+    .service('combinedSrvc', ['seriesApiInterface', 'statusService', '$location', '$q',
+        function(seriesApiInterface, statusService, $location, $q) {
             this.options = {
                 axisType: 'distance'
             };
@@ -752,8 +752,9 @@ angular.module('n52.core.mobile', [])
                 this.selectedSection.values = [];
             };
 
-            if ($route.current.params.datasetId && $route.current.params.providerUrl) {
-                this.loadSeries($route.current.params.datasetId, $route.current.params.providerUrl);
+            var parameters = $location.search();
+            if (parameters.datasetId && parameters.providerUrl) {
+                this.loadSeries(parameters.datasetId, parameters.providerUrl);
             } else if (statusService.status.mobile) {
                 let lastEntry = statusService.status.mobile;
                 if (lastEntry.id && lastEntry.url) {
