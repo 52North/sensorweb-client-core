@@ -808,8 +808,9 @@ angular.module('n52.core.mobile', [])
     .component('swcMobileAxisToggler', {
         templateUrl: 'n52.core.mobile.axis-toggler',
         bindings: {
-            axisType: '<',
-            icon: '<',
+            axisType: '@',
+            icon: '@',
+            tooltip: '@',
             selectedAxisType: '<'
         },
         controller: ['combinedSrvc',
