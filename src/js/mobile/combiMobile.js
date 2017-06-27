@@ -14,28 +14,18 @@ angular.module('n52.core.mobile', [])
                                 enable: ['mouseover']
                             }
                         };
-                        $scope.geometry = combinedSrvc.geometry;
+                        $scope.coordinates = combinedSrvc.coordinates;
+                        $scope.data = combinedSrvc.data;
                         $scope.series = combinedSrvc.series;
                         $scope.providerUrl = combinedSrvc.providerUrl;
                         $scope.selectedSection = combinedSrvc.selectedSection;
                         $scope.options = combinedSrvc.options;
-                        $scope.paths = {
-                            section: {
-                                color: 'blue',
-                                weight: 4,
-                                latlngs: []
-                            }
-                        };
+                        $scope.paths = {};
 
-                        $scope.$watch('geometry', function(geometry) {
-                            if (geometry && geometry.data && geometry.data.coordinates.length > 0) {
-                                if ($scope.seriesId !== $scope.series.id || $scope.providerUrl !== $scope.series.providerUrl) {
-                                    centerMap();
-                                    resetHighlighter();
-                                    $scope.seriesId = $scope.series.id;
-                                    $scope.providerUrl = $scope.series.providerUrl;
-                                }
-                            }
+                        $scope.$watchCollection('coordinates', function(coordinates) {
+                            showData(coordinates.values);
+                            centerMap();
+                            resetHighlighter();
                         }, true);
 
                         $scope.$watch('options.highlightIdx', function() {
@@ -46,6 +36,11 @@ angular.module('n52.core.mobile', [])
                             }
                         }, true);
 
+                        $scope.$watch('options.mapPath', function(mapPath) {
+                            showSelection(combinedSrvc.selectedSection, mapPath, false);
+                            showData(combinedSrvc.coordinates.values);
+                        }, true);
+
                         $scope.$on('leafletDirectiveMap.mobileCombiMap.zoomend', function() {
                             if ($scope.options.highlightIdx !== undefined) {
                                 drawMapMarker($scope.data.values[$scope.options.highlightIdx]);
@@ -53,26 +48,7 @@ angular.module('n52.core.mobile', [])
                         });
 
                         $scope.$watchCollection('selectedSection', function(selection) {
-                            if (selection && selection.values && selection.values.length > 0) {
-                                $scope.paths.section.latlngs = [];
-                                var ll = [];
-                                angular.forEach(selection.values, function(value) {
-                                    $scope.paths.section.latlngs.push({
-                                        lat: value.latlng.lat,
-                                        lng: value.latlng.lng
-                                    });
-                                    ll.push(value.latlng);
-                                });
-                                leafletData.getPaths('mobileCombiMap').then(function(paths) {
-                                    paths.section.bringToFront();
-                                });
-                                leafletData.getMap('mobileCombiMap').then(function(map) {
-                                    map.fitBounds(ll);
-                                });
-                            } else {
-                                centerMap();
-                                $scope.paths.section.latlngs = [];
-                            }
+                            showSelection(selection, $scope.options.mapPath, true);
                         }, true);
 
                         $scope.$on('leafletDirectiveGeoJson.mobileCombiMap.mouseover', function(event, path) {
@@ -90,6 +66,88 @@ angular.module('n52.core.mobile', [])
                                     });
                                     map.fitBounds(latlngs);
                                 });
+                            }
+                        };
+
+                        var showData = (coordinates) => {
+                            $scope.geometry = {
+                                data: {
+                                    coordinates: [],
+                                    type: 'MultiPoint'
+                                }
+                            };
+                            if ($scope.options.mapPath) {
+                                $scope.geometry.style = {
+                                    weight: 2,
+                                    opacity: 1,
+                                    color: 'red',
+                                    dashArray: '10, 5',
+                                    clickable: true
+                                };
+                                $scope.geometry.data = {
+                                    type: 'LineString'
+                                };
+                            } else {
+                                $scope.geometry.pointToLayer = function(feature, latlng) {
+                                        return L.circleMarker(latlng, {
+                                            radius: 1,
+                                            weight: 1,
+                                            color: 'red',
+                                            fillColor: 'red',
+                                            opacity: 1
+                                        });
+                                    },
+                                    $scope.geometry.data = {
+                                        type: 'MultiPoint'
+                                    };
+                            }
+                            $scope.geometry.data.coordinates = coordinates;
+                            $scope.seriesId = $scope.series.id;
+                            $scope.providerUrl = $scope.series.providerUrl;
+                        };
+
+                        var showSelection = (selection, path, center) => {
+                            if (selection && selection.values && selection.values.length > 0) {
+                                $scope.paths = {
+                                    path: {
+                                        color: 'blue',
+                                        weight: 3,
+                                        latlngs: []
+                                    }
+                                };
+                                var ll = [];
+                                angular.forEach(selection.values, function(value, idx) {
+                                    if (path) {
+                                        $scope.paths.path.latlngs.push({
+                                            lat: value.latlng.lat,
+                                            lng: value.latlng.lng
+                                        });
+                                    } else {
+                                        $scope.paths['section' + idx] = {
+                                            color: 'blue',
+                                            fillColor: 'blue',
+                                            latlngs: {
+                                                lat: value.latlng.lat,
+                                                lng: value.latlng.lng
+                                            },
+                                            radius: 1,
+                                            weight: 3,
+                                            type: 'circleMarker'
+                                        };
+                                    }
+                                    ll.push(value.latlng);
+                                });
+                                leafletData.getPaths('mobileCombiMap').then(function(paths) {
+                                    paths.path.bringToFront();
+                                });
+                                if (center) {
+                                    leafletData.getMap('mobileCombiMap').then(function(map) {
+                                        map.fitBounds(ll);
+                                    });
+                                }
+                            } else {
+                                if (center) centerMap();
+                                $scope.paths = {};
                             }
                         };
 
@@ -626,18 +684,8 @@ angular.module('n52.core.mobile', [])
             this.selectedSection = {
                 values: []
             };
-            this.geometry = {
-                style: {
-                    weight: 2,
-                    opacity: 1,
-                    color: 'red',
-                    dashArray: '10, 5',
-                    clickable: true
-                },
-                data: {
-                    coordinates: [],
-                    type: 'LineString'
-                }
+            this.coordinates = {
+                values: []
             };
             this.data = {
                 values: []
@@ -678,16 +726,16 @@ angular.module('n52.core.mobile', [])
             };
 
             this.processData = function(data) {
-                this.resetGeometry();
+                this.resetCoordinates();
                 this.resetData();
                 for (var i = 0; i < data.length; i++) {
-                    this.addToGeometry(data[i]);
+                    this.addToCoordinates(data[i]);
                     this.addToData(data[i], data[i ? i - 1 : 0], i);
                 }
             };
 
-            this.addToGeometry = function(entry) {
-                this.geometry.data.coordinates.push(entry.geometry.coordinates);
+            this.addToCoordinates = function(entry) {
+                this.coordinates.values.push(entry.geometry.coordinates);
             };
 
             this.addToData = function(entry, previous, idx) {
@@ -706,8 +754,8 @@ angular.module('n52.core.mobile', [])
                 });
             };
 
-            this.resetGeometry = function() {
-                this.geometry.data.coordinates = [];
+            this.resetCoordinates = function() {
+                this.coordinates.values = [];
             };
 
             this.resetData = function() {
@@ -822,23 +870,6 @@ angular.module('n52.core.mobile', [])
                 this.toggleAxis = function() {
                     combinedSrvc.setAxis(this.axisType);
                     this.toggled = combinedSrvc.options.axisType === this.axisType;
-                };
-            }
-        ]
-    })
-    .component('swcMobileChartDrawLineToggler', {
-        templateUrl: 'n52.core.mobile.chart-draw-line-toggler',
-        bindings: {},
-        controller: ['combinedSrvc',
-            function(combinedSrvc) {
-                combinedSrvc.options.drawLine = true;
-
-                this.$onChanges = function() {
-                    this.toggled = combinedSrvc.options.drawLine === true;
-                };
-
-                this.toggleDrawLine = function() {
-                    this.toggled = combinedSrvc.options.drawLine = !combinedSrvc.options.drawLine;
                 };
             }
         ]
