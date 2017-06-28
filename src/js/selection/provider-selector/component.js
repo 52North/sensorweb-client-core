@@ -21,11 +21,12 @@ angular.module('n52.core.selection')
                             .then(
                                 res => {
                                     this.loadingCount--;
-                                    res.forEach(entry => {
-                                        if (entry.quantities.platforms > 0) {
-                                            this.providers.push(entry);
-                                        }
-                                    });
+                                    if (res && res instanceof Array)
+                                        res.forEach(entry => {
+                                            if (entry.quantities.platforms > 0) {
+                                                this.providers.push(entry);
+                                            }
+                                        });
                                 },
                                 () => {
                                     this.loadingCount--;

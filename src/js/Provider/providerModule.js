@@ -144,11 +144,13 @@ angular.module('n52.core.provider', [])
                         platformTypes: platformType,
                         valueTypes: 'quantity'
                     }).then(providers => {
-                        providers.forEach(provider => {
-                            if (!this.isServiceBlacklisted(provider.id, url)) {
-                                doFunc(provider, url, settingsService.restApiUrls[url]);
-                            }
-                        });
+                        if (providers && providers instanceof Array) {
+                            providers.forEach(provider => {
+                                if (!this.isServiceBlacklisted(provider.id, url)) {
+                                    doFunc(provider, url, settingsService.restApiUrls[url]);
+                                }
+                            });
+                        }
                     });
                 });
                 initStatusProviderList();

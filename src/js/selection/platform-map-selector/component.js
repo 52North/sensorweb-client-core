@@ -14,39 +14,9 @@ angular.module('n52.core.selection')
             function(seriesApiInterface, $scope, leafletData) {
 
                 this.markers = {};
-                var clickHandler;
-
-                var createLayer = () => {
-                        this.mapLayers.overlays.platforms = {
-                            name: 'markergroup',
-                            type: this.cluster ? 'markercluster': 'featureGroup',
-                            visible: true,
-                            layerOptions: {
-                                showOnSelector: false
-                            }
-                        };
-                };
-
-                var createEventListener = () => {
-                    this.events = {
-                        markers: {
-                            enable: ['click'],
-                        }
-                    };
-                    var eventNam = 'leafletDirectiveMarker.' + this.mapId + '.' + 'click';
-                    clickHandler = $scope.$on(eventNam, (event, item) => {
-                        seriesApiInterface.getPlatforms(item.modelName, this.serviceUrl)
-                            .then(entry => {
-                                this.platformSelected({
-                                    platform: entry
-                                });
-                            });
-                    });
-                };
+                var layer;
 
                 this.$onInit = () => {
-                    createEventListener();
-                    createLayer();
                     setTimeout(() => {
                         leafletData.getMap(this.mapId).then((map) => {
                             map.invalidateSize();
@@ -54,38 +24,38 @@ angular.module('n52.core.selection')
                     }, 10);
                 };
 
-                this.$onDestroy = () => {
-                    clickHandler();
-                };
-
                 this.$onChanges = () => {
                     this.loading = true;
-                    var markers = {};
-                    leafletData.getLayers(this.mapId).then((layers) => {
-                        layers.overlays.platforms.clearLayers();
-                    });
-                    seriesApiInterface.getPlatforms(null, this.serviceUrl, this.filter)
-                        .then((res) => {
-                            res.forEach(entry => {
-                                markers[entry.id] = {
-                                    lat: entry.geometry.coordinates[1],
-                                    lng: entry.geometry.coordinates[0],
-                                    draggable: false,
-                                    focus: true,
-                                    layer: 'platforms'
-                                };
-                            });
+                    leafletData.getMap(this.mapId).then((map) => {
+                        // clear layer
+                        if (layer) map.removeLayer(layer);
+                        // add marker to layer
+                        seriesApiInterface.getPlatforms(null, this.serviceUrl, this.filter)
+                            .then((res) => {
+                                layer = L.markerClusterGroup();
+                                res.forEach(entry => {
+                                    var marker = L.marker([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], {
 
-                            this.markers = markers;
-
-                            setTimeout(() => {
-                                leafletData.getLayers(this.mapId).then((layers) => {
-                                    var temp = layers.overlays.platforms.getBounds();
-                                    layers.overlays.platforms._map.fitBounds(temp);
-                                    this.loading = false;
+                                    });
+                                    marker.on('click', () => {
+                                        seriesApiInterface.getPlatforms(entry.id, this.serviceUrl)
+                                            .then(entry => {
+                                                this.platformSelected({
+                                                    platform: entry
+                                                });
+                                            });
+                                    });
+                                    marker.addTo(map);
+                                    layer.addLayer(marker);
                                 });
-                            }, 10);
-                        });
+
+                                layer.addTo(map);
+                                // zoom to layer
+                                map.invalidateSize();
+                                map.fitBounds(layer.getBounds());
+                                this.loading = false;
+                            });
+                    });
                 };
             }
         ]

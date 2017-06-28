@@ -15,14 +15,14 @@ angular.module('n52.core.selection')
             this.fetchProvidersOfAPI = (url, blacklist, filter) => {
                 return $q((resolve, reject) => {
                     seriesApiInterface.getServices(url, null, filter)
-                        .then(
-                            providers => {
-                                var usableProviders = providers.map((provider) => {
-                                    if (!isServiceBlacklisted(provider.id, url, blacklist)) {
-                                        provider.providerUrl = url;
-                                        return provider;
-                                    }
-                                });
+                        .then(providers => {
+                                if (providers && providers instanceof Array)
+                                    var usableProviders = providers.map((provider) => {
+                                        if (!isServiceBlacklisted(provider.id, url, blacklist)) {
+                                            provider.providerUrl = url;
+                                            return provider;
+                                        }
+                                    });
                                 resolve(usableProviders);
                             },
                             error => reject(error)
