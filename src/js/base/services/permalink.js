@@ -71,4 +71,11 @@ angular.module('n52.core.base')
                 getParameterArray: getParameterArray
             };
         }
+    ])
+    .service('permalinkOpener', ['$window', '$translate',
+        function($window, $translate) {
+            this.openPermalink = (url) => {
+                $window.prompt($translate.instant('settings.permalink.clipboardInfo'), url);
+            };
+        }
     ]);
