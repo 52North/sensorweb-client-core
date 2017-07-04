@@ -1,6 +1,7 @@
 require('../selection');
+
 angular.module('n52.core.selection')
-    .component('stationMapSelector', {
+    .component('swcStationMapSelector', {
         bindings: {
             mapId: '@',
             serviceUrl: '<',

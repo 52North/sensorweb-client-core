@@ -1,6 +1,7 @@
 require('../selection');
+
 angular.module('n52.core.selection')
-    .component('platformMapSelector', {
+    .component('swcPlatformMapSelector', {
         bindings: {
             mapId: '@',
             serviceUrl: '<',

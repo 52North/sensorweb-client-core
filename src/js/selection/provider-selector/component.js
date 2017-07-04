@@ -1,7 +1,8 @@
 require('../selection');
 require('./service');
+
 angular.module('n52.core.selection')
-    .component('providerSelector', {
+    .component('swcProviderSelector', {
         bindings: {
             providerList: '<',
             providerBlacklist: '<',
