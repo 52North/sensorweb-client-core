@@ -33,8 +33,24 @@ angular.module('n52.core.series')
                     );
                 };
 
+                var isEqual = (listOne, listTwo) => {
+                    var match = true;
+                    if (listOne.length === listTwo.length) {
+                        listOne.forEach(entryOne => {
+                            var found = listTwo.find(entryTwo => {
+                                if (entryOne.id === entryTwo.id && entryOne.url === entryTwo.url) return true;
+                                return false;
+                            });
+                            if (!found) match = false;
+                        });
+                    } else {
+                        match = false;
+                    }
+                    return match;
+                };
+
                 this.$onInit = () => {
-                    if (this.selectorId && swcListSelectorSrvc[this.selectorId]) {
+                    if (this.selectorId && swcListSelectorSrvc[this.selectorId] && isEqual(this.providerList, swcListSelectorSrvc.providerList)) {
                         this.parameters = swcListSelectorSrvc[this.selectorId];
                     } else {
                         if (this.selectorId) {
@@ -42,6 +58,7 @@ angular.module('n52.core.series')
                         }
                         // create filterlist for first parameter entry
                         this.parameters[0].filterList = this.providerList;
+                        swcListSelectorSrvc.providerList = this.providerList;
                         // open first tab
                         this.parameters[0].isOpen = true;
                         // disable parameterList
