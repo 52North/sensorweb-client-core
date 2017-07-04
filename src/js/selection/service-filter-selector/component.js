@@ -1,6 +1,7 @@
 require('../selection');
+
 angular.module('n52.core.selection')
-    .component('serviceFilterSelector', {
+    .component('swcServiceFilterSelector', {
         bindings: {
             endpoint: '<',
             serviceUrl: '<',

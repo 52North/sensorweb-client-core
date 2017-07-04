@@ -1,5 +1,6 @@
 require('../selection');
 require('./service');
+
 angular.module('n52.core.selection')
     .component('swcProviderSelector', {
         bindings: {
