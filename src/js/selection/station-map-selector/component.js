@@ -36,6 +36,7 @@ angular.module('n52.core.selection')
                 };
 
                 this.$onChanges = () => {
+                    this.noResultsFound = false;
                     this.loading = true;
                     leafletData.getMap(this.mapId).then((map) => {
                         // clear layer
@@ -46,7 +47,7 @@ angular.module('n52.core.selection')
                                 layer = L.markerClusterGroup({
                                     animate: false
                                 });
-                                if (res instanceof Array) {
+                                if (res instanceof Array && res.length > 0) {
                                     res.forEach(entry => {
                                         var marker = L.marker([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], {
                                             icon: myIcon
@@ -60,6 +61,8 @@ angular.module('n52.core.selection')
                                     });
                                     layer.addTo(map);
                                     map.fitBounds(layer.getBounds());
+                                } else {
+                                    this.noResultsFound = true;
                                 }
                                 map.invalidateSize();
                                 this.loading = false;
