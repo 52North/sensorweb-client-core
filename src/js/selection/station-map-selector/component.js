@@ -46,25 +46,22 @@ angular.module('n52.core.selection')
                                 layer = L.markerClusterGroup({
                                     animate: false
                                 });
-                                res.forEach(entry => {
-                                    var marker = L.marker([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], {
-                                        icon: myIcon
-                                    });
-                                    marker.on('click', () => {
-                                        seriesApiInterface.getStations(entry.properties.id, this.serviceUrl)
-                                            .then(entry => {
-                                                this.stationSelected({
-                                                    station: entry
-                                                });
+                                if (res instanceof Array) {
+                                    res.forEach(entry => {
+                                        var marker = L.marker([entry.geometry.coordinates[1], entry.geometry.coordinates[0]], {
+                                            icon: myIcon
+                                        });
+                                        marker.on('click', () => {
+                                            this.stationSelected({
+                                                station: entry
                                             });
+                                        });
+                                        layer.addLayer(marker);
                                     });
-                                    layer.addLayer(marker);
-                                });
-
-                                layer.addTo(map);
-                                // zoom to layer
+                                    layer.addTo(map);
+                                    map.fitBounds(layer.getBounds());
+                                }
                                 map.invalidateSize();
-                                map.fitBounds(layer.getBounds());
                                 this.loading = false;
                             });
                     });
