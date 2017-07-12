@@ -15,13 +15,15 @@ angular.module('n52.core.mobile')
                         top: 10,
                         right: 20,
                         bottom: 40,
-                        left: 40
+                        left: 10
                     };
                     var background,
                         pathClass = 'path',
-                        xScale, yScale, xAxisGen, yAxisGen,
+                        xScale, yScale,
                         focusG, highlightFocus, focuslabelValue, focuslabelTime, focuslabelY,
                         dragging, dragStart, dragCurrent, dragRect, dragRectG;
+
+                    var maxLabelwidth = 0;
 
                     var d3 = $window.d3;
 
@@ -35,11 +37,11 @@ angular.module('n52.core.mobile')
 
                     var graph = svgElem
                         .append('g')
-                        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+                        .attr('transform', 'translate(' + (margin.left + maxLabelwidth) + ',' + margin.top + ')');
 
                     var height = () => rawSvg.height() - margin.top - margin.bottom;
 
-                    var width = () => rawSvg.width() - margin.left - margin.right;
+                    var width = () => rawSvg.width() - margin.left - maxLabelwidth - margin.right;
 
                     var calcXValue = (d, i) => {
                         var xDiagCoord = xScale(getXValue(d, i));
@@ -171,23 +173,12 @@ angular.module('n52.core.mobile')
                         }
                     };
 
-                    var drawLineChart = () => {
-                        if (!scope.values || scope.values.length == 0) {
-                            return;
-                        }
-
-                        graph.selectAll('*').remove();
-
+                    var drawXAxis = () => {
                         xScale = d3.scale.linear()
                             .domain(getXDomain(scope.values))
                             .range([0, width()]);
-                        var range = d3.extent(scope.values, (d) => d.value);
-                        var rangeOffset = (range[1] - range[0]) * 0.05;
-                        yScale = d3.scale.linear()
-                            .domain([range[0] - rangeOffset, range[1] + rangeOffset])
-                            .range([height(), 0]);
 
-                        xAxisGen = d3.svg.axis()
+                        var xAxisGen = d3.svg.axis()
                             .scale(xScale)
                             .orient('bottom')
                             .ticks(5);
@@ -197,11 +188,11 @@ angular.module('n52.core.mobile')
                                 return d3.time.format('%d.%m.%Y %H:%M:%S')(new Date(d));
                             });
                         }
-
-                        yAxisGen = d3.svg.axis()
-                            .scale(yScale)
-                            .orient('left')
-                            .ticks(5);
+                        // draw x axis
+                        graph.append('svg:g')
+                            .attr('class', 'x axis')
+                            .attr('transform', 'translate(0,' + height() + ')')
+                            .call(xAxisGen);
 
                         // draw the x grid lines
                         graph.append('svg:g')
@@ -209,32 +200,7 @@ angular.module('n52.core.mobile')
                             .attr('transform', 'translate(0,' + height() + ')')
                             .call(make_x_axis().tickSize(-height(), 0, 0).tickFormat(''));
 
-                        graph.append('text') // text label for the x axis
-                            .attr('x', width() / 2)
-                            .attr('y', height() + margin.bottom - 5)
-                            .style('text-anchor', 'middle')
-                            .text(getXAxisLabel());
-
-                        // draw the y grid lines
-                        graph.append('svg:g')
-                            .attr('class', 'grid')
-                            .call(make_y_axis().tickSize(-width(), 0, 0).tickFormat(''));
-
-                        graph.append('text')
-                            .attr('transform', 'rotate(-90)')
-                            .attr('y', 0 - margin.left)
-                            .attr('x', 0 - (height() / 2))
-                            .attr('dy', '1em')
-                            .style('text-anchor', 'middle')
-                            .text(scope.series.uom);
-
-                        // draw x axis
-                        graph.append('svg:g')
-                            .attr('class', 'x axis')
-                            .attr('transform', 'translate(0,' + height() + ')')
-                            .call(xAxisGen);
-
-                        // draw right axis as border
+                        // draw upper axis as border
                         graph.append('svg:g')
                             .attr('class', 'x axis')
                             .call(d3.svg.axis()
@@ -243,10 +209,56 @@ angular.module('n52.core.mobile')
                                 .tickSize(0)
                                 .tickFormat(''));
 
+                        graph.append('text') // text label for the x axis
+                            .attr('x', width() / 2)
+                            .attr('y', height() + margin.bottom - 5)
+                            .style('text-anchor', 'middle')
+                            .text(getXAxisLabel());
+
+                    };
+
+                    var drawYAxis = () => {
+                        var range = d3.extent(scope.values, (d) => d.value);
+                        var rangeOffset = (range[1] - range[0]) * 0.10;
+                        yScale = d3.scale.linear()
+                            .domain([range[0] - rangeOffset, range[1] + rangeOffset])
+                            .range([height(), 0]);
+
+                        var yAxisGen = d3.svg.axis()
+                            .scale(yScale)
+                            .orient('left')
+                            .ticks(5);
+
                         // draw y axis
                         graph.append('svg:g')
                             .attr('class', 'y axis')
                             .call(yAxisGen);
+
+                        // calculate
+                        var labels = d3.select('.y.axis').selectAll('text');
+                        if (labels instanceof Array && labels.length === 1) {
+                            maxLabelwidth = 0;
+                            labels[0].forEach((elem) => {
+                                if (elem.getBBox().width > maxLabelwidth) {
+                                    maxLabelwidth = elem.getBBox().width;
+                                }
+                            });
+                            graph.attr('transform', 'translate(' + (margin.left + maxLabelwidth) + ',' + margin.top + ')');
+                        }
+
+                        // draw y axis label
+                        graph.append('text')
+                            .attr('transform', 'rotate(-90)')
+                            .attr('y', 0 - margin.left - maxLabelwidth)
+                            .attr('x', 0 - (height() / 2))
+                            .attr('dy', '1em')
+                            .style('text-anchor', 'middle')
+                            .text(scope.series.uom);
+
+                        // draw the y grid lines
+                        graph.append('svg:g')
+                            .attr('class', 'grid')
+                            .call(make_y_axis().tickSize(-width(), 0, 0).tickFormat(''));
 
                         // draw right axis as border
                         graph.append('svg:g')
@@ -257,6 +269,17 @@ angular.module('n52.core.mobile')
                                 .orient('right')
                                 .tickSize(0)
                                 .tickFormat(''));
+                    };
+
+                    var drawLineChart = () => {
+                        if (!scope.values || scope.values.length == 0) {
+                            return;
+                        }
+
+                        graph.selectAll('*').remove();
+
+                        drawYAxis();
+                        drawXAxis();
 
                         if (scope.options.drawLine) {
                             drawValueLine(scope.values);
