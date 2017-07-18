@@ -1,6 +1,7 @@
 export * from './module.js';
 export * from './services/alert.js';
 export * from './services/color.js';
+export * from './services/constants.js';
 export * from './services/favorite.js';
 export * from './services/permalink.js';
 export * from './services/settings.js';

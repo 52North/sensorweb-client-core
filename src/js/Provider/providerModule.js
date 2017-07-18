@@ -1,6 +1,6 @@
 angular.module('n52.core.provider', [])
-    .service('providerService', ['$rootScope', 'statusService', '$q', 'seriesApiInterface', 'settingsService',
-        function($rootScope, statusService, $q, seriesApiInterface, settingsService) {
+    .service('providerService', ['$rootScope', 'statusService', '$q', 'seriesApiInterface', 'settingsService', 'constants',
+        function($rootScope, statusService, $q, seriesApiInterface, settingsService, constants) {
 
             var addProviderToUserList = function(provider, providerList) {
                 initStatusProviderList();
@@ -142,7 +142,7 @@ angular.module('n52.core.provider', [])
                 temp.forEach(url => {
                     seriesApiInterface.getServices(url, null, {
                         platformTypes: platformType,
-                        valueTypes: 'quantity'
+                        valueTypes: constants.valueType.quantity
                     }).then(providers => {
                         if (providers && providers instanceof Array) {
                             providers.forEach(provider => {
