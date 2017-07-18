@@ -197,8 +197,8 @@ angular.module('n52.core.base')
         angular.merge(settings, config);
         return settings;
     }])
-    .service('serviceFinder', ['settingsService', '$injector',
-        function(settingsService, $injector) {
+    .service('serviceFinder', ['settingsService', '$injector', 'constants',
+        function(settingsService, $injector, constants) {
 
             this.getDatasetPresenter = function(valueType, platformType, providerUrl) {
                 var datasetPresenterConfig = settingsService.datasetPresenter;
@@ -220,7 +220,7 @@ angular.module('n52.core.base')
                 }
                 switch (valueType) {
                     case 'measurement':
-                    case 'quantity': // new valueType for measurements
+                    case constants.valueType.quantity: // new valueType for measurements
                         return $injector.get('measurementPresentDataset');
                     default:
                         console.error('Doesn\'t find a service for the valueType \'' + valueType + '\' with platformType \'' + platformType + '\'. Please check the settings of the client.');
@@ -244,7 +244,7 @@ angular.module('n52.core.base')
                     }
                 }
                 switch (platformType) {
-                    case 'stationary_insitu':
+                    case constants.platformType.stationaryInsitu:
                         return $injector.get('modalStationaryInsituOpenSrvc');
                     default:
                         console.warn('Doesn\'t find a service for the platformType \'' + platformType + '\'. Please check the settings of the client.');

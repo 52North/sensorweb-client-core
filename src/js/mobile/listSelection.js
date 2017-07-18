@@ -76,8 +76,8 @@ angular.module('n52.core.mobile')
             };
         }
     ])
-    .controller('ListSelectionMobileCtrl', ['$scope', 'seriesApiInterface', 'combinedSrvc',
-        function($scope, seriesApiInterface, combinedSrvc) {
+    .controller('ListSelectionMobileCtrl', ['$scope', 'seriesApiInterface', 'combinedSrvc', 'constants',
+        function($scope, seriesApiInterface, combinedSrvc, constants) {
             var url = $scope.provider.url;
             angular.forEach($scope.parameters, function(param, openedIdx) {
                 $scope.$watch('parameters[' + openedIdx + '].isOpen', function(newVal) {
@@ -99,7 +99,8 @@ angular.module('n52.core.mobile')
 
             $scope.createParams = function() {
                 var params = {
-                    platformTypes: 'mobile'
+                    platformTypes: constants.platformType.mobileInsitu,
+                    valueTypes: constants.valueType.quantity
                 };
                 angular.forEach($scope.parameters, function(parameter) {
                     if (parameter.selectedId) {
