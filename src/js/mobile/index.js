@@ -7,4 +7,3 @@ export * from './components/map-path-toggler';
 export * from './components/mobile-permalink';
 export * from './components/mobile-reload';
 export * from './components/mobile-axis-toggler';
-export * from './listSelection';
