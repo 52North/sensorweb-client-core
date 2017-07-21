@@ -49,21 +49,23 @@ angular.module('n52.core.series')
                     return match;
                 };
 
-                this.$onInit = () => {
-                    if (this.selectorId && swcListSelectorSrvc[this.selectorId] && isEqual(this.providerList, swcListSelectorSrvc.providerList)) {
-                        this.parameters = swcListSelectorSrvc[this.selectorId];
-                    } else {
-                        if (this.selectorId) {
-                            swcListSelectorSrvc[this.selectorId] = this.parameters;
-                        }
-                        // create filterlist for first parameter entry
-                        this.parameters[0].filterList = this.providerList;
-                        swcListSelectorSrvc.providerList = this.providerList;
-                        // open first tab
-                        this.parameters[0].isOpen = true;
-                        // disable parameterList
-                        for (var i = 1; i < this.parameters.length; i++) {
-                            this.parameters[i].isDisabled = true;
+                this.$onChanges = (changes) => {
+                    if (changes.providerList) {
+                        if (this.selectorId && swcListSelectorSrvc[this.selectorId] && isEqual(this.providerList, swcListSelectorSrvc.providerList)) {
+                            this.parameters = swcListSelectorSrvc[this.selectorId];
+                        } else {
+                            if (this.selectorId) {
+                                swcListSelectorSrvc[this.selectorId] = this.parameters;
+                            }
+                            // create filterlist for first parameter entry
+                            this.parameters[0].filterList = this.providerList;
+                            swcListSelectorSrvc.providerList = this.providerList;
+                            // open first tab
+                            this.parameters[0].isOpen = true;
+                            // disable parameterList
+                            for (var i = 1; i < this.parameters.length; i++) {
+                                this.parameters[i].isDisabled = true;
+                            }
                         }
                     }
                 };
