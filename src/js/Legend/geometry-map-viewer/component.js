@@ -4,7 +4,9 @@ angular.module('n52.core.legend')
     .component('swcGeometryMapViewer', {
         bindings: {
             mapId: '@',
-            geometry: '<'
+            highlight: '<',
+            geometry: '<',
+            maxMapZoom: '<'
         },
         templateUrl: 'n52.core.legend.geometry-map-viewer',
         controller: [
@@ -16,14 +18,19 @@ angular.module('n52.core.legend')
                     opacity: 0.65
                 };
 
-                this.markers = {};
-                var layer;
+                var highlightStyle = {
+                    color: 'blue',
+                    weight: 10,
+                    opacity: 1
+                };
+
+                var highlightGeoJson, map;
 
                 this.$onInit = () => {
 
                     setTimeout(() => {
-                        var map = L.map(this.mapId, {
-                            maxZoom: 10
+                        map = L.map(this.mapId, {
+                            maxZoom: this.maxMapZoom || 10
                         });
 
                         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -31,7 +38,7 @@ angular.module('n52.core.legend')
                         }).addTo(map);
 
                         var geojson = L.geoJson(this.geometry, {
-                            pointToLayer: function(feature, latlng) {
+                            pointToLayer: (feature, latlng) => {
                                 return L.circleMarker(latlng, defaultStyle);
                             }
                         });
@@ -42,6 +49,21 @@ angular.module('n52.core.legend')
                         map.invalidateSize();
 
                     }, 100);
+                };
+
+                this.$onChanges = (changes) => {
+                    if (changes.highlight.currentValue) {
+                        if (highlightGeoJson) {
+                            map.removeLayer(highlightGeoJson);
+                        }
+                        highlightGeoJson = L.geoJson(this.highlight, {
+                            pointToLayer: (feature, latlng) => {
+                                return L.circleMarker(latlng, highlightStyle);
+                            }
+                        });
+                        highlightGeoJson.setStyle(highlightGeoJson);
+                        highlightGeoJson.addTo(map);
+                    }
                 };
             }
         ]
