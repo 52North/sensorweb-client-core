@@ -22,37 +22,42 @@ angular.module('n52.core.diagram')
                 var axesList = {};
                 var requests = [];
                 angular.forEach(timeseriesService.getAllTimeseries(), (elem) => {
-                    var request;
+                    var requestUom, requestLabel, requestBundle = [];
                     if (elem.uom) {
-                        request = labelMapperSrvc.getMappedLabel(elem.uom);
-                    } else {
-                        request = labelMapperSrvc.getMappedLabel(elem.parameters.phenomenon.label);
+                        requestUom = labelMapperSrvc.getMappedLabel(elem.uom);
+                        requestBundle.push(requestUom);
+                        requests.push(requestUom);
                     }
-                    request.then((uom) => {
+                    // } else {
+                    requestLabel = labelMapperSrvc.getMappedLabel(elem.parameters.phenomenon.label);
+                    requestBundle.push(requestLabel);
+                    requests.push(requestLabel);
+                    // }
+                    $q.all(requestBundle).then((result) => {
                         if (elem.styles.groupedAxis === undefined || elem.styles.groupedAxis) {
-                            if (!axesList.hasOwnProperty(uom)) {
-                                axesList[uom] = {
+                            var label = result.length === 2 ? result[1] + ' [' + result[0] + ']' : result[0];
+                            if (!axesList.hasOwnProperty(label)) {
+                                axesList[label] = {
                                     id: ++Object.keys(axesList).length,
-                                    uom: uom,
+                                    uom: label,
                                     tsColors: [elem.styles.color],
                                     zeroScaled: elem.styles.zeroScaled
                                 };
-                                elem.styles.yaxis = axesList[uom].id;
+                                elem.styles.yaxis = axesList[label].id;
                             } else {
-                                axesList[uom].tsColors.push(elem.styles.color);
-                                elem.styles.yaxis = axesList[uom].id;
+                                axesList[label].tsColors.push(elem.styles.color);
+                                elem.styles.yaxis = axesList[label].id;
                             }
                         } else {
                             axesList[elem.internalId] = {
                                 id: ++Object.keys(axesList).length,
-                                uom: uom,
+                                uom: label,
                                 tsColors: [elem.styles.color],
                                 zeroScaled: elem.styles.zeroScaled
                             };
                             elem.styles.yaxis = axesList[elem.internalId].id;
                         }
                     });
-                    requests.push(request);
                 });
                 $q.all(requests).then(() => {
                     var axes = [];
@@ -148,7 +153,7 @@ angular.module('n52.core.diagram')
                 this.options.xaxis.max = timeService.time.end.toDate().getTime();
             };
 
-            this.timeseriesDataChanged = (timeseries)  => {
+            this.timeseriesDataChanged = (timeseries) => {
                 createYAxis();
                 flotDataHelperServ.updateAllTimeseriesToDataSet(this.dataset, renderOptions, timeseries);
             };
