@@ -35,7 +35,12 @@ angular.module('n52.core.diagram')
                     // }
                     $q.all(requestBundle).then((result) => {
                         if (elem.styles.groupedAxis === undefined || elem.styles.groupedAxis) {
-                            var label = result.length === 2 ? result[1] + ' [' + result[0] + ']' : result[0];
+                            var label;
+                            if (result.length === 2 && !result[1].startsWith('http')) {
+                                label = result[1] + ' [' + result[0] + ']';
+                            } else {
+                                label = '[' + result[0] + ']';
+                            }
                             if (!axesList.hasOwnProperty(label)) {
                                 axesList[label] = {
                                     id: ++Object.keys(axesList).length,
