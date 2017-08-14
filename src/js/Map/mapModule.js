@@ -139,6 +139,8 @@ angular.module('n52.core.map', [])
                             if (!geom) {
                               console.error(elem.id + ' has no geometry');
                             } else if (!isNaN(geom[0]) || !isNaN(geom[1])) {
+                                // hack to show marker group over date line as one group
+                                if (settingsService.datelineMarkerGrouping && geom[0] < 0) geom[0] = geom[0] + 360;
                                 if (geom[0] > bounds.rightmost) {
                                     bounds.rightmost = geom[0];
                                 }
