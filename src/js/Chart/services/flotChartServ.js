@@ -28,11 +28,11 @@ angular.module('n52.core.diagram')
                         requestBundle.push(requestUom);
                         requests.push(requestUom);
                     }
-                    // } else {
-                    requestLabel = labelMapperSrvc.getMappedLabel(elem.parameters.phenomenon.label);
-                    requestBundle.push(requestLabel);
-                    requests.push(requestLabel);
-                    // }
+                    if (elem.parameters && elem.parameters.phenomenon) {
+                        requestLabel = labelMapperSrvc.getMappedLabel(elem.parameters.phenomenon.label);
+                        requestBundle.push(requestLabel);
+                        requests.push(requestLabel);
+                    }
                     $q.all(requestBundle).then((result) => {
                         if (elem.styles.groupedAxis === undefined || elem.styles.groupedAxis) {
                             var label;
