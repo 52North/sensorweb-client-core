@@ -47,22 +47,23 @@ angular.module('n52.core.map')
             this.showPlatform = function(mapService, dataset) {
                 var service = $injector.get(mapService);
                 var map = service.map;
-                if (dataset && dataset.seriesParameters.platform) {
-                    seriesApiInterface.getPlatforms(dataset.seriesParameters.platform.id, dataset.apiUrl)
-                        .then((platform) => {
-                            var selectedPlatform = {
-                                lat: platform.geometry.coordinates[1],
-                                lng: platform.geometry.coordinates[0],
-                                focus: true,
-                                clickable: false,
-                                icon: settingsService.stationIconOptions,
-                                message: '<swc-locate-station timeseriesid="' + dataset.internalId + '"></swc-locate-station>'
-                            };
-                            setSelection(map, selectedPlatform);
-                            centerMap(map, platform.geometry.coordinates);
-                            createCloseEvents(map);
-                        });
-                }
+                var platformId;
+                if (dataset && dataset.seriesParameters) platformId = dataset.seriesParameters.platform.id;
+                if (dataset && dataset.datasetParameters) platformId = dataset.datasetParameters.platform.id;
+                seriesApiInterface.getPlatforms(platformId, dataset.apiUrl)
+                    .then((platform) => {
+                        var selectedPlatform = {
+                            lat: platform.geometry.coordinates[1],
+                            lng: platform.geometry.coordinates[0],
+                            focus: true,
+                            clickable: false,
+                            icon: settingsService.stationIconOptions,
+                            message: '<swc-locate-station timeseriesid="' + dataset.internalId + '"></swc-locate-station>'
+                        };
+                        setSelection(map, selectedPlatform);
+                        centerMap(map, platform.geometry.coordinates);
+                        createCloseEvents(map);
+                    });
             };
         }
     ])

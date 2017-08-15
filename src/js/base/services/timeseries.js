@@ -108,6 +108,8 @@ angular.module('n52.core.base')
                 return ts.parameters.phenomenon.label;
               if (ts.seriesParameters && ts.seriesParameters.phenomenon && ts.seriesParameters.phenomenon.label)
                 return ts.seriesParameters.phenomenon.label;
+              if (ts.datasetParameters && ts.datasetParameters.phenomenon && ts.datasetParameters.phenomenon.label)
+                return ts.datasetParameters.phenomenon.label;
             };
 
             this.getFeatureLabel = function(ts) {
@@ -115,6 +117,8 @@ angular.module('n52.core.base')
                   return ts.parameters.feature.label;
                 if (ts.seriesParameters && ts.seriesParameters.feature && ts.seriesParameters.feature.label)
                   return ts.seriesParameters.feature.label;
+                if (ts.datasetParameters && ts.datasetParameters.feature && ts.datasetParameters.feature.label)
+                  return ts.datasetParameters.feature.label;
             };
         }
     ]);

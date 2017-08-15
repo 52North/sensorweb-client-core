@@ -18,7 +18,7 @@
                 ts.properties = {
                     id: ts.id
                 };
-                ts.parameters = ts.seriesParameters;
+                ts.parameters = ts.seriesParameters || ts.datasetParameters;
             }
 
             this.getPlatforms = function(id, apiUrl, params) {
