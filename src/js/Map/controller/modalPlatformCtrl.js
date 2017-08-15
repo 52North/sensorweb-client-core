@@ -39,9 +39,15 @@ angular.module('n52.core.map')
 
             $scope.presentSelection = function() {
                 angular.forEach($scope.platform.datasets, function(dataset) {
-                    if (dataset.selected && (!selection.phenomenonId || dataset.seriesParameters.phenomenon.id === selection.phenomenonId)) {
+                    var phenomenonId;
+                    if (dataset.seriesParameters) phenomenonId = dataset.seriesParameters.phenomnen.id;
+                    if (dataset.datasetParameters) phenomenonId = dataset.datasetParameters.phenomnen.id;
+                    if (dataset.selected && (!selection.phenomenonId || phenomenonId === selection.phenomenonId)) {
+                        var platformType;
+                        if (dataset.seriesParameters) platformType = dataset.seriesParameters.platform.platformType;
+                        if (dataset.datasetParameters) platformType = dataset.datasetParameters.platform.platformType;
                         serviceFinder
-                            .getDatasetPresenter(dataset.datasetType || dataset.valueType, dataset.seriesParameters.platform.platformType, selection.url)
+                            .getDatasetPresenter(dataset.datasetType || dataset.valueType, platformType, selection.url)
                             .presentDataset(dataset, selection.url);
                     }
                 });
