@@ -13,7 +13,10 @@ angular.module('n52.core.listSelection')
                     // TODO iterate over results
                     if (dataset[0].datasetType || dataset[0].valueType) {
                         seriesApiInterface.getDatasets(dataset[0].id, url).then(result => {
-                            serviceFinder.getDatasetPresenter(result.datasetType || result.valueType, result.seriesParameters.platform.platformType, url).presentDataset(result, url);
+                            var platformType;
+                            if (result.seriesParameters) platformType = result.seriesParameters.platform.platformType;
+                            if (result.datasetParameters) platformType = result.datasetParameters.platform.platformType;
+                            serviceFinder.getDatasetPresenter(result.datasetType || result.valueType, platformType, url).presentDataset(result, url);
                         });
                     } else {
                         timeseriesService.addTimeseries(dataset[0]);
