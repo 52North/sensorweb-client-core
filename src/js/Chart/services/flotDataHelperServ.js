@@ -65,6 +65,9 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
                 color: ts.styles.color,
                 data: data.values,
                 selected: selected,
+                points: {
+                    fillColor: ts.styles.color
+                },
                 lines: {
                     lineWidth: lineWidth
                 },

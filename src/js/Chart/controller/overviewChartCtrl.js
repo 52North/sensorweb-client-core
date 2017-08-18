@@ -26,8 +26,12 @@ angular.module('n52.core.overviewDiagram', [])
                         downsample: {
                             threshold: 0
                         },
-                        lines: {
+                        points: {
                             show: true,
+                            radius: 1
+                        },
+                        lines: {
+                            show: false,
                             fill: false
                         },
                         shadowSize: 1

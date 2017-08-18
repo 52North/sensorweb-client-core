@@ -93,8 +93,13 @@ angular.module('n52.core.diagram')
                     downsample: {
                         threshold: 0
                     },
-                    lines: {
+                    points: {
                         show: true,
+                        fill: true,
+                        radius: 2
+                    },
+                    lines: {
+                        show: false,
                         fill: false
                     },
                     //            points : {
