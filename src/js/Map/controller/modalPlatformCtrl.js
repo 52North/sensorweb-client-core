@@ -41,11 +41,11 @@ angular.module('n52.core.map')
                 angular.forEach($scope.platform.datasets, function(dataset) {
                     var phenomenonId;
                     if (dataset.seriesParameters) phenomenonId = dataset.seriesParameters.phenomenon.id;
-                    if (dataset.datasetParameters) phenomenonId = dataset.datasetParameters.phenomenon.id;
+                    if (dataset.parameters) phenomenonId = dataset.parameters.phenomenon.id;
                     if (dataset.selected && (!selection.phenomenonId || phenomenonId === selection.phenomenonId)) {
                         var platformType;
                         if (dataset.seriesParameters) platformType = dataset.seriesParameters.platform.platformType;
-                        if (dataset.datasetParameters) platformType = dataset.datasetParameters.platform.platformType;
+                        if (dataset.parameters) platformType = dataset.parameters.platform.platformType;
                         serviceFinder
                             .getDatasetPresenter(dataset.datasetType || dataset.valueType, platformType, selection.url)
                             .presentDataset(dataset, selection.url);
