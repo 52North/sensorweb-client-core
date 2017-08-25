@@ -49,7 +49,7 @@ angular.module('n52.core.map')
                 var map = service.map;
                 var platformId;
                 if (dataset && dataset.seriesParameters) platformId = dataset.seriesParameters.platform.id;
-                if (dataset && dataset.datasetParameters) platformId = dataset.datasetParameters.platform.id;
+                if (dataset && dataset.parameters) platformId = dataset.parameters.platform.id;
                 seriesApiInterface.getPlatforms(platformId, dataset.apiUrl)
                     .then((platform) => {
                         var selectedPlatform = {
