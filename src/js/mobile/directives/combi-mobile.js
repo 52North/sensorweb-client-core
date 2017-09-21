@@ -20,6 +20,7 @@ angular.module('n52.core.mobile')
                         $scope.providerUrl = combinedSrvc.providerUrl;
                         $scope.selectedSection = combinedSrvc.selectedSection;
                         $scope.options = combinedSrvc.options;
+                        $scope.additionalDatasets = combinedSrvc.additionalDatasets;
                         $scope.paths = {};
 
                         $scope.$watchCollection('coordinates', function(coordinates) {
@@ -56,6 +57,13 @@ angular.module('n52.core.mobile')
                                 combinedSrvc.showHighlightedItem(path.leafletEvent.latlng);
                             }
                         });
+
+                        $scope.onSelectedPhenomenaChanged = function(phenomenaList) {
+                            if (phenomenaList && phenomenaList.length !== 0) {
+                                $scope.phenomenaList = phenomenaList.filter(entry => entry.selected).map(entry => entry.id);
+                                combinedSrvc.setPhenomenaSelection($scope.phenomenaList);
+                            }
+                        };
 
                         var centerMap = function() {
                             if ($scope.geometry && $scope.geometry.data.coordinates.length > 0) {
