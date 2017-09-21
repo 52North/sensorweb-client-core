@@ -17,6 +17,7 @@ angular.module('n52.core.mobile')
             this.additionalDatasets = [];
 
             this.loadSeries = function(id, url) {
+                this.additionalDatasets = [];
                 return $q((resolve, reject) => {
                     this.series.providerUrl = url;
                     statusService.status.mobile = {
