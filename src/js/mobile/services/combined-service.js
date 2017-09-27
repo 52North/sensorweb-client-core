@@ -1,6 +1,6 @@
 angular.module('n52.core.mobile')
-    .service('combinedSrvc', ['seriesApiInterface', 'statusService', '$location', '$q', 'colorService',
-        function(seriesApiInterface, statusService, $location, $q, colorService) {
+    .service('combinedSrvc', ['seriesApiInterface', 'statusService', '$location', '$q',
+        function(seriesApiInterface, statusService, $location, $q) {
             this.options = {
                 axisType: 'distance'
             };
@@ -132,26 +132,16 @@ angular.module('n52.core.mobile')
                 this.additionalDatasets.length = 0;
                 var datasetPromises = [];
                 phenomenaList.forEach(phenomenon => {
-                    if (phenomenon !== this.series.seriesParameters.phenomenon.id) {
+                    if (phenomenon.id !== this.series.seriesParameters.phenomenon.id) {
                         datasetPromises.push(seriesApiInterface.getDatasets(null, this.series.providerUrl, {
                             features: this.series.seriesParameters.feature.id,
-                            phenomena: phenomenon,
+                            phenomena: phenomenon.id,
                             expanded: true
                         }));
                     }
                 });
 
                 $q.all(datasetPromises).then((result) => {
-                    // for (var i = 0; i < result.length; i++) {
-                    //     if (result[i].length === 1) {
-                    //         var entry = result[i][0];
-                    //         var timespan = {
-                    //             start: entry.firstValue.timestamp,
-                    //             end: entry.lastValue.timestamp
-                    //         };
-                    //         getData(entry, timespan, this);
-                    //     }
-                    // }
                     var i = 0;
                     var intervalId = setInterval(() => {
                         if(result.length > i && result[i].length === 1) {
@@ -160,7 +150,7 @@ angular.module('n52.core.mobile')
                                 start: entry.firstValue.timestamp,
                                 end: entry.lastValue.timestamp
                             };
-                            getData(entry, timespan, this);
+                            getData(entry, timespan, this, phenomenaList);
                         } else {
                             clearInterval(intervalId);
                         }
@@ -169,14 +159,15 @@ angular.module('n52.core.mobile')
                 });
             };
 
-            function getData(dataset, timespan, that) {
+            function getData(dataset, timespan, that, phenomenaList) {
                 seriesApiInterface.getDatasetData(dataset.id, that.series.providerUrl, timespan, {
                     expanded: true
                 }).then((data) => {
+                    var color = phenomenaList.find(e => e.id === dataset.seriesParameters.phenomenon.id).color;
                     that.additionalDatasets.push({
                         id: dataset.id,
                         uom: dataset.uom,
-                        color: colorService.getColor(dataset.id)
+                        color: color
                     });
                     that.data.values.forEach((entry, idx) => {
                         entry[dataset.id] = data[dataset.id].values[idx].value;

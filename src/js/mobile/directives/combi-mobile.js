@@ -60,7 +60,7 @@ angular.module('n52.core.mobile')
 
                         $scope.onSelectedPhenomenaChanged = function(phenomenaList) {
                             if (phenomenaList && phenomenaList.length !== 0) {
-                                $scope.phenomenaList = phenomenaList.filter(entry => entry.selected).map(entry => entry.id);
+                                $scope.phenomenaList = phenomenaList.filter(entry => entry.selected).map(entry => entry);
                                 combinedSrvc.setPhenomenaSelection($scope.phenomenaList);
                             }
                         };
