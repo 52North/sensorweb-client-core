@@ -14,8 +14,10 @@ angular.module('n52.core.mobile')
                 values: []
             };
             this.series = {};
+            this.additionalDatasets = [];
 
             this.loadSeries = function(id, url) {
+                this.additionalDatasets = [];
                 return $q((resolve, reject) => {
                     this.series.providerUrl = url;
                     statusService.status.mobile = {
@@ -122,6 +124,57 @@ angular.module('n52.core.mobile')
                 this.selectedSection.offset = 0;
                 this.selectedSection.values = [];
             };
+
+            this.setPhenomenaSelection = function(phenomenaList) {
+                if (phenomenaList.length == 0) {
+                    this.options.dataChanges = !this.options.dataChanges;
+                }
+                this.additionalDatasets.length = 0;
+                var datasetPromises = [];
+                phenomenaList.forEach(phenomenon => {
+                    if (phenomenon.id !== this.series.seriesParameters.phenomenon.id) {
+                        datasetPromises.push(seriesApiInterface.getDatasets(null, this.series.providerUrl, {
+                            features: this.series.seriesParameters.feature.id,
+                            phenomena: phenomenon.id,
+                            expanded: true
+                        }));
+                    }
+                });
+
+                $q.all(datasetPromises).then((result) => {
+                    var i = 0;
+                    var intervalId = setInterval(() => {
+                        if(result.length > i && result[i].length === 1) {
+                            var entry = result[i][0];
+                            var timespan = {
+                                start: entry.firstValue.timestamp,
+                                end: entry.lastValue.timestamp
+                            };
+                            getData(entry, timespan, this, phenomenaList);
+                        } else {
+                            clearInterval(intervalId);
+                        }
+                        i++;
+                    }, 100);
+                });
+            };
+
+            function getData(dataset, timespan, that, phenomenaList) {
+                seriesApiInterface.getDatasetData(dataset.id, that.series.providerUrl, timespan, {
+                    expanded: true
+                }).then((data) => {
+                    var color = phenomenaList.find(e => e.id === dataset.seriesParameters.phenomenon.id).color;
+                    that.additionalDatasets.push({
+                        id: dataset.id,
+                        uom: dataset.uom,
+                        color: color
+                    });
+                    that.data.values.forEach((entry, idx) => {
+                        entry[dataset.id] = data[dataset.id].values[idx].value;
+                    });
+                    that.options.dataChanges = !that.options.dataChanges;
+                });
+            }
 
             var parameters = $location.search();
             if (parameters.datasetId && parameters.providerUrl) {

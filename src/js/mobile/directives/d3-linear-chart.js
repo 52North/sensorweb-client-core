@@ -8,6 +8,7 @@ angular.module('n52.core.mobile')
                     scope.series = combinedSrvc.series;
                     scope.options = combinedSrvc.options;
                     scope.selection = combinedSrvc.selectedSection;
+                    scope.additionalDatasets = combinedSrvc.additionalDatasets;
                     scope.values;
                     scope.showSelection = false;
 
@@ -19,8 +20,8 @@ angular.module('n52.core.mobile')
                     };
                     var background,
                         pathClass = 'path',
-                        xScale, yScale,
-                        focusG, highlightFocus, focuslabelValue, focuslabelTime, focuslabelY,
+                        xScale,
+                        focusG, highlightFocus, focuslabelValue, focuslabelTime, focuslabelY, yScaleBase, focuslabelValueRect,
                         dragging, dragStart, dragCurrent, dragRect, dragRectG;
 
                     var maxLabelwidth = 0;
@@ -49,7 +50,6 @@ angular.module('n52.core.mobile')
                         return xDiagCoord;
                     };
 
-                    var calcYValue = (d) => yScale(d.value);
 
                     var getXDomain = (values) => {
                         switch (scope.options.axisType) {
@@ -62,45 +62,30 @@ angular.module('n52.core.mobile')
                         }
                     };
 
-                    var lineFun = d3.svg.line()
-                        .x(calcXValue)
-                        .y(calcYValue)
-                        .interpolate('linear');
-
-                    var area = d3.svg.area()
-                        .x(calcXValue)
-                        .y0(height())
-                        .y1(calcYValue)
-                        .interpolate('linear');
-
-                    var drawValueLine = (values) => {
+                    var drawValueLine = (values, yScale, options) => {
                         // draw the value line
                         graph.append('svg:path')
                             .attr({
-                                d: lineFun(values),
-                                'stroke': 'blue',
+                                d: d3.svg.line()
+                                    .x(calcXValue)
+                                    .y((d) => yScale(d[options.id]))
+                                    .interpolate('linear')(values),
+                                'stroke': options.color,
                                 'stroke-width': 1,
                                 'fill': 'none',
                                 'class': pathClass
                             });
-                        // draw filled area
-                        graph.append('svg:path')
-                            .datum(values)
-                            .attr({
-                                d: area,
-                                'class': 'graphArea'
-                            });
                     };
 
-                    var drawDots = (values) => {
+                    var drawDots = (values, yScale, options) => {
                         // draw dots
                         graph.selectAll('dot')
                             .data(values)
                             .enter().append('circle')
-                            .attr('stroke', 'blue')
+                            .attr('stroke', options.color)
                             .attr('r', 1.5)
                             .attr('cx', calcXValue)
-                            .attr('cy', calcYValue);
+                            .attr('cy', (d) => yScale(d[options.id]));
                     };
 
                     var redrawChart = (data) => {
@@ -135,6 +120,8 @@ angular.module('n52.core.mobile')
                         }
                     });
 
+                    scope.$watch('options.dataChanges', () => redrawChart());
+
                     angular.element($window).bind('resize', () => drawLineChart());
 
                     var getXValue = (data) => {
@@ -155,7 +142,7 @@ angular.module('n52.core.mobile')
                             .ticks(10);
                     };
 
-                    var make_y_axis = () => {
+                    var make_y_axis = (yScale) => {
                         return d3.svg.axis()
                             .scale(yScale)
                             .orient('left')
@@ -173,10 +160,10 @@ angular.module('n52.core.mobile')
                         }
                     };
 
-                    var drawXAxis = () => {
+                    var drawXAxis = (buffer) => {
                         xScale = d3.scale.linear()
                             .domain(getXDomain(scope.values))
-                            .range([0, width()]);
+                            .range([buffer, width()]);
 
                         var xAxisGen = d3.svg.axis()
                             .scale(xScale)
@@ -210,17 +197,17 @@ angular.module('n52.core.mobile')
                                 .tickFormat(''));
 
                         graph.append('text') // text label for the x axis
-                            .attr('x', width() / 2)
+                            .attr('x', (width() + buffer) / 2)
                             .attr('y', height() + margin.bottom - 5)
                             .style('text-anchor', 'middle')
                             .text(getXAxisLabel());
 
                     };
 
-                    var drawYAxis = () => {
-                        var range = d3.extent(scope.values, (d) => d.value);
+                    var drawYAxis = (options) => {
+                        var range = d3.extent(scope.values, (d) => d[options.id]);
                         var rangeOffset = (range[1] - range[0]) * 0.10;
-                        yScale = d3.scale.linear()
+                        var yScale = d3.scale.linear()
                             .domain([range[0] - rangeOffset, range[1] + rangeOffset])
                             .range([height(), 0]);
 
@@ -230,9 +217,14 @@ angular.module('n52.core.mobile')
                             .ticks(5);
 
                         // draw y axis
-                        graph.append('svg:g')
+                        var axis = graph.append('svg:g')
                             .attr('class', 'y axis')
                             .call(yAxisGen);
+                        var axisWidth = axis.node().getBBox().width + 2;
+                        var buffer = options.offset + (axisWidth < 30 ? 30 : axisWidth);
+                        if (!options.first) {
+                            axis.attr('transform', 'translate(' + buffer + ', 0)');
+                        }
 
                         // calculate
                         var labels = d3.select('.y.axis').selectAll('text');
@@ -247,28 +239,35 @@ angular.module('n52.core.mobile')
                         }
 
                         // draw y axis label
+                        var textOffset = !options.first ? buffer : options.offset;
                         graph.append('text')
                             .attr('transform', 'rotate(-90)')
-                            .attr('y', 0 - margin.left - maxLabelwidth)
-                            .attr('x', 0 - (height() / 2))
+                            .attr('y', 0 - margin.left - maxLabelwidth + textOffset + 5)
+                            .attr('x', 0 - height() - 20)
                             .attr('dy', '1em')
                             .style('text-anchor', 'middle')
-                            .text(scope.series.uom);
+                            .style('fill', options.color)
+                            .text(options.uom);
 
                         // draw the y grid lines
-                        graph.append('svg:g')
-                            .attr('class', 'grid')
-                            .call(make_y_axis().tickSize(-width(), 0, 0).tickFormat(''));
+                        if (scope.additionalDatasets.length == 0) {
+                            graph.append('svg:g')
+                                .attr('class', 'grid')
+                                .call(make_y_axis(yScale).tickSize(-width(), 0, 0).tickFormat(''));
+                        }
 
-                        // draw right axis as border
-                        graph.append('svg:g')
-                            .attr('class', 'y axis')
-                            .attr('transform', 'translate(' + width() + ', 0)')
-                            .call(d3.svg.axis()
-                                .scale(yScale)
-                                .orient('right')
-                                .tickSize(0)
-                                .tickFormat(''));
+                        return {
+                            buffer: buffer,
+                            yScale: yScale
+                        };
+                    };
+
+                    var drawGraph = (yScale, options) => {
+                        if (scope.options.drawLine) {
+                            drawValueLine(scope.values, yScale, options);
+                        } else {
+                            drawDots(scope.values, yScale, options);
+                        }
                     };
 
                     var drawLineChart = () => {
@@ -278,23 +277,61 @@ angular.module('n52.core.mobile')
 
                         graph.selectAll('*').remove();
 
-                        drawYAxis();
-                        drawXAxis();
+                        this.bufferSum = 0;
+                        var options = {
+                            uom: scope.series.uom,
+                            id: 'value',
+                            color: 'blue',
+                            first: true,
+                            offset: 0
+                        };
+                        var axisResult = drawYAxis(options);
+                        yScaleBase = axisResult.yScale;
 
-                        if (scope.options.drawLine) {
-                            drawValueLine(scope.values);
-                        } else {
-                            drawDots(scope.values);
+                        // draw right axis as border
+                        graph.append('svg:g')
+                            .attr('class', 'y axis')
+                            .attr('transform', 'translate(' + width() + ', 0)')
+                            .call(d3.svg.axis()
+                                .scale(yScaleBase)
+                                .orient('right')
+                                .tickSize(0)
+                                .tickFormat(''));
+
+                        if (scope.additionalDatasets.length > 0) {
+                            scope.additionalDatasets.forEach((entry) => {
+                                var additionalOptions = {
+                                    uom: entry.uom,
+                                    id: entry.id,
+                                    color: entry.color,
+                                    offset: this.bufferSum
+                                };
+                                var additionalAxisResult = drawYAxis(additionalOptions);
+                                this.bufferSum = additionalAxisResult.buffer;
+                                entry.yScale = additionalAxisResult.yScale;
+                            });
                         }
+
+                        drawXAxis(this.bufferSum);
+
+                        drawGraph(yScaleBase, options);
+
+                        scope.additionalDatasets.forEach((entry) => {
+                            drawGraph(entry.yScale, {
+                                color: entry.color,
+                                id: entry.id
+                            });
+                        });
 
                         background = graph.append('svg:rect')
                             .attr({
-                                'width': width(),
+                                'width': width() - this.bufferSum,
                                 'height': height(),
                                 'fill': 'none',
                                 'stroke': 'none',
                                 'pointer-events': 'all'
                             })
+                            .attr('transform', 'translate(' + this.bufferSum + ',0)')
                             .on('mousemove.focus', mousemoveHandler)
                             .on('mouseout.focus', mouseoutHandler)
                             .on('mousedown.drag', dragStartHandler)
@@ -307,10 +344,29 @@ angular.module('n52.core.mobile')
                             .attr('x2', '0')
                             .attr('y2', '0')
                             .attr('x1', '0')
-                            .attr('y1', '0');
+                            .attr('y1', '0')
+                            .style('stroke', 'black')
+                            .style('stroke-width', '1px');
+                        focuslabelValueRect = focusG.append('svg:rect')
+                            .style('fill', 'white')
+                            .style('stroke', 'none');
                         focuslabelValue = focusG.append('svg:text')
+                            .attr('class', 'mouse-focus-label-x')
                             .style('pointer-events', 'none')
-                            .attr('class', 'mouse-focus-label-x');
+                            .style('fill', 'blue')
+                            .style('font-weight', 'lighter');
+
+                        scope.additionalDatasets.forEach((entry) => {
+                            entry.focuslabelValueRect = focusG.append('svg:rect')
+                                .style('fill', 'white')
+                                .style('stroke', 'none');
+                            entry.focuslabelValue = focusG.append('svg:text')
+                                .attr('class', 'mouse-focus-label-x')
+                                .style('pointer-events', 'none')
+                                .style('fill', entry.color)
+                                .style('font-weight', 'lighter');
+                        });
+
                         focuslabelTime = focusG.append('svg:text')
                             .style('pointer-events', 'none')
                             .attr('class', 'mouse-focus-label-x');
@@ -324,7 +380,7 @@ angular.module('n52.core.mobile')
                             return;
                         }
                         var coords = d3.mouse(background.node());
-                        combinedSrvc.highlightByIdx(getItemForX(coords[0], scope.values) + getSelectionOffset());
+                        combinedSrvc.highlightByIdx(getItemForX(coords[0] + this.bufferSum, scope.values) + getSelectionOffset());
                         scope.$apply();
                     };
 
@@ -358,8 +414,8 @@ angular.module('n52.core.mobile')
                             resetDrag();
                         } else {
                             var offset = getSelectionOffset(),
-                                start = getItemForX(dragStart[0], scope.values) + offset,
-                                end = getItemForX(dragCurrent[0], scope.values) + offset;
+                                start = getItemForX(dragStart[0] + this.bufferSum, scope.values) + offset,
+                                end = getItemForX(dragCurrent[0] + this.bufferSum, scope.values) + offset;
                             combinedSrvc.setSelection(start, end);
                             dragStart = null;
                             dragging = false;
@@ -384,12 +440,12 @@ angular.module('n52.core.mobile')
                             dragRect = dragRectG.append('rect')
                                 .attr('width', x2 - x1)
                                 .attr('height', height())
-                                .attr('x', x1)
+                                .attr('x', x1 + this.bufferSum)
                                 .attr('class', 'mouse-drag')
                                 .style('pointer-events', 'none');
                         } else {
                             dragRect.attr('width', x2 - x1)
-                                .attr('x', x1);
+                                .attr('x', x1 + this.bufferSum);
                         }
                     };
 
@@ -401,19 +457,20 @@ angular.module('n52.core.mobile')
                         }
                     };
 
+                    var bisectDate = d3.bisector(function(d) {
+                        switch (scope.options.axisType) {
+                            case 'distance':
+                                return d.dist;
+                            case 'time':
+                                return d.timestamp;
+                            case 'ticks':
+                                return d.tick;
+                        }
+                    }).left;
+
                     var getItemForX = (x, data) => {
                         var index = xScale.invert(x),
                             i;
-                        var bisectDate = d3.bisector(function(d) {
-                            switch (scope.options.axisType) {
-                                case 'distance':
-                                    return d.dist;
-                                case 'time':
-                                    return d.timestamp;
-                                case 'ticks':
-                                    return d.tick;
-                            }
-                        }).left;
                         i = bisectDate(data, index);
 
                         var d0, d1;
@@ -450,29 +507,74 @@ angular.module('n52.core.mobile')
                             .attr('y2', height())
                             .classed('hidden', false);
 
-                        var alt = item.value,
-                            numY = alt;
+                        var onLeftSide = false;
+                        if (background.node().getBBox().width / 2 > item.xDiagCoord) onLeftSide = true;
 
+                        showLabeValues(item, onLeftSide);
+                        showTimeIndicatorLabel(item, onLeftSide);
+                        showBottomIndicatorLabel(item, onLeftSide);
+                    };
+
+                    var showLabeValues = (item, onLeftSide) => {
                         focuslabelValue
-                            .attr('x', item.xDiagCoord + 2)
-                            .attr('y', 13)
-                            .text(numY + scope.series.uom);
+                            .text(item.value + scope.series.uom);
+                        var x = onLeftSide ? item.xDiagCoord + 2 : item.xDiagCoord - getDimensions(focuslabelValue.node()).w;
+                        focuslabelValue
+                            .attr('x', x)
+                            .attr('y', yScaleBase(item.value) + getDimensions(focuslabelValue.node()).h - 3);
+                        focuslabelValueRect
+                            .attr('x', x)
+                            .attr('y', yScaleBase(item.value))
+                            .attr('width', getDimensions(focuslabelValue.node()).w)
+                            .attr('height', getDimensions(focuslabelValue.node()).h);
+
+                        scope.additionalDatasets.forEach((entry) => {
+                            entry.focuslabelValue.text(item[entry.id] + (entry.uom ? entry.uom : ''));
+                            var entryX = onLeftSide ? item.xDiagCoord + 2 : item.xDiagCoord - getDimensions(entry.focuslabelValue.node()).w;
+                            entry.focuslabelValue
+                                .attr('x', entryX)
+                                .attr('y', entry.yScale(item[entry.id]) + getDimensions(entry.focuslabelValue.node()).h - 3);
+                            entry.focuslabelValueRect
+                                .attr('x', entryX)
+                                .attr('y', entry.yScale(item[entry.id]))
+                                .attr('width', getDimensions(entry.focuslabelValue.node()).w)
+                                .attr('height', getDimensions(entry.focuslabelValue.node()).h);
+                        });
+                    };
+
+                    var showTimeIndicatorLabel = (item, onLeftSide) => {
+                        focuslabelTime.text(moment(item.timestamp).format('DD.MM.YY HH:mm'));
                         focuslabelTime
-                            .attr('x', item.xDiagCoord - 95)
-                            .attr('y', 13)
-                            .text(moment(item.timestamp).format('DD.MM.YY HH:mm'));
+                            .attr('x', onLeftSide ? item.xDiagCoord + 2 : item.xDiagCoord - getDimensions(focuslabelTime.node()).w)
+                            .attr('y', 13);
+                    };
+
+                    var showBottomIndicatorLabel = (item, onLeftSide) => {
                         if (scope.options.axisType === 'distance') {
-                            focuslabelY
-                                .attr('y', height() - 5)
-                                .attr('x', item.xDiagCoord + 2)
-                                .text(item.dist + ' km');
+                            focuslabelY.text(item.dist + ' km');
                         }
                         if (scope.options.axisType === 'ticks') {
-                            focuslabelY
-                                .attr('y', height() - 5)
-                                .attr('x', item.xDiagCoord + 2)
-                                .text('Measurement: ' + item.tick);
+                            focuslabelY.text('Measurement: ' + item.tick);
                         }
+                        focuslabelY
+                            .attr('y', height() - 5)
+                            .attr('x', onLeftSide ? item.xDiagCoord + 2 : item.xDiagCoord - getDimensions(focuslabelY.node()).w);
+                    };
+
+                    var getDimensions = (el) => {
+                        var w = 0,
+                            h = 0;
+                        if (el) {
+                            var dimensions = el.getBBox();
+                            w = dimensions.width;
+                            h = dimensions.height;
+                        } else {
+                            console.log("error: getDimensions() " + el + " not found.");
+                        }
+                        return {
+                            w: w,
+                            h: h
+                        };
                     };
                 }
             };
