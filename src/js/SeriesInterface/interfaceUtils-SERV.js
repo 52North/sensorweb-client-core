@@ -22,6 +22,9 @@
                     } else {
                         angular.extend(params, settingsService.additionalParameters);
                     }
+                    if (!params.platformTypes) {
+                        params.platformTypes = 'all';
+                    }
                     var cache = true;
                     if (typeof(params.cache) === "boolean") {
                         cache = params.cache;
