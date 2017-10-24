@@ -71,6 +71,10 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
                 bars: {
                     lineWidth: lineWidth
                 },
+                points: {
+                    radius: lineWidth * 2,
+                    fillColor: ts.styles.color
+                },
                 yaxis: ts.styles.yaxis
             };
             // bar chart
