@@ -2,12 +2,12 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
     'timeseriesService',
     'settingsService',
     'barChartHelperService',
-    function(timeseriesService, settingsService, barChartHelperService) {
+    function (timeseriesService, settingsService, barChartHelperService) {
         function updateAllTimeseriesToDataSet(dataset, renderOptions, timeseriesList) {
             if (angular.isUndefined(timeseriesList))
                 timeseriesList = timeseriesService.getAllTimeseries();
             dataset.length = 0;
-            angular.forEach(timeseriesList, function(ts) {
+            angular.forEach(timeseriesList, function (ts) {
                 updateTimeseriesInDataSet(dataset, renderOptions, ts.internalId, timeseriesService.getData(ts.internalId));
             });
         }
@@ -29,7 +29,7 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
                     }
                     // add possible ref values
                     if (renderOptions.showRefValues) {
-                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function(refValue) {
+                        angular.forEach(timeseriesService.getTimeseries(id).referenceValues, function (refValue) {
                             if (refValue.visible) {
                                 var data = timeseriesService.getData(id);
                                 if (data && data.referenceValues) {
