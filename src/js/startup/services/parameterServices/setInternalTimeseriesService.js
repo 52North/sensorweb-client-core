@@ -6,7 +6,7 @@ angular.module('n52.core.startup')
                 if (timeseries) {
                     var timeseriesObject = {};
                     angular.forEach(timeseries.split(","), function(internalID) {
-                        if (internalID.startsWith('http')) {
+                        if (internalID.indexOf('http') === 0) {
                             $http.get(internalID)
                                 .then((result) => {
                                     var ts = result.data;

@@ -36,7 +36,7 @@ angular.module('n52.core.diagram')
                     $q.all(requestBundle).then((result) => {
                         if (elem.styles.groupedAxis === undefined || elem.styles.groupedAxis) {
                             var label;
-                            if (result.length === 2 && !result[1].startsWith('http')) {
+                            if (result.length === 2 && !result[1].indexOf('http')) {
                                 label = result[1] + ' [' + result[0] + ']';
                             } else {
                                 label = '[' + result[0] + ']';
