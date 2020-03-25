@@ -33,11 +33,63 @@ angular.module('n52.core.interface')
                             }
                             return $q((resolve) => {
                                 $q.all(promises).then((results) => {
-                                    var data = results[0];
-                                    for (var i = 1; i < results.length; i++) {
-                                        data[id].values = data[id].values.concat(results[i][id].values);
+                                    const mergedResult = results.reduce((previous, current) => {
+                                        const next = {};
+                                        next[id] = {
+                                            referenceValues: {},
+                                            values: []
+                                        };
+
+                                        if (previous[id].values && current[id].values) {
+                                            next[id].values = previous[id].values.concat(current[id].values);
+                                        }
+
+                                        if (previous[id].valueBeforeTimespan) {
+                                            next[id].valueBeforeTimespan = previous[id].valueBeforeTimespan;
+                                        }
+
+                                        if (current[id].valueAfterTimespan) {
+                                            next[id].valueAfterTimespan = current[id].valueAfterTimespan;
+                                        }
+
+                                        for (let key in previous[id].referenceValues) {
+                                            if (previous[id].referenceValues.hasOwnProperty(key) && current[id].referenceValues.hasOwnProperty(key)) {
+                                                const refVal = previous[id].referenceValues[key];
+                                                if (refVal instanceof Array) {
+                                                    next[id].referenceValues[key] = refVal.concat(current[id].referenceValues[key]);
+                                                } else {
+                                                    const currRefValData = (current[id].referenceValues[key]) ;
+                                                    const prevRefValData = (refVal);
+                                                    const nextRefValData = {
+                                                        referenceValues: {},
+                                                        values: []
+                                                    };
+                                                    if (prevRefValData.values && currRefValData.values) {
+                                                        nextRefValData.values = prevRefValData.values.concat(currRefValData.values);
+                                                    }
+                                                    if (prevRefValData.valueBeforeTimespan) {
+                                                        nextRefValData.valueBeforeTimespan = prevRefValData.valueBeforeTimespan;
+                                                    }
+                                                    if (currRefValData.valueAfterTimespan) {
+                                                        nextRefValData.valueAfterTimespan = currRefValData.valueAfterTimespan;
+                                                    }
+                                                    next[id].referenceValues[key] = nextRefValData;
+                                                }
+                                            }
+                                        }
+                                        return next;
+                                    });
+                                    if (mergedResult[id].values && mergedResult[id].values.length > 0) {
+                                        // cut first
+                                        const fromIdx = mergedResult[id].values.findIndex(el => el[0] >= timespan.start);
+                                        mergedResult[id].values = mergedResult[id].values.slice(fromIdx);
+                                        // cut last
+                                        const toIdx = mergedResult[id].values.findIndex(el => el[0] >= timespan.end);
+                                        if (toIdx >= 0) {
+                                            mergedResult[id].values = mergedResult[id].values.slice(0, toIdx + 1);
+                                        }
                                     }
-                                    resolve(data);
+                                    resolve(mergedResult);
                                 });
                             });
                         } else {
