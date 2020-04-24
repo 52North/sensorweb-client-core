@@ -40,7 +40,7 @@ angular.module('n52.core.diagram').factory('flotDataHelperServ', [
                                         type: 'refVal',
                                         lines: {
                                             lineWidth: settingsService.commonLineWidth,
-                                            steps: true
+                                            steps: false
                                         }
                                     });
                                 }
