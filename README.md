@@ -1,3 +1,9 @@
+# ARCHIVED
+
+This project is no longer maintained and will not receive any further updates. If you plan to continue using it, please be aware that future security issues will not be addressed.
+
+# SensorWebClient Core
+
 ## Content
 This is a newer version of the client described [here](http://blog.52north.org/2015/04/13/52north-javascript-sos-client-1-0-official-release/). We decided to use AngularJS for the client to support a more modular and the better customizable way to develop a sensor web client.
 
